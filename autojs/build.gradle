@@ -37,6 +37,7 @@ repositories {
         dirs 'libs'
     }
     google()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -74,4 +75,3 @@ dependencies {
     api project(path: ':common')
     api project(path: ':automator')
 }
-

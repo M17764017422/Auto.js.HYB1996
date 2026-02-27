@@ -120,14 +120,13 @@ android {
 
 }
 
-
-
-
 repositories {
     flatDir {
         dirs 'libs'
     }
     google()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
@@ -195,7 +194,7 @@ dependencies {
     //joda time
     implementation 'joda-time:joda-time:2.9.9'
     // Tasker Plugin
-    implementation 'com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.3'
+    implementation 'com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.1'
     // Flurry
     implementation 'com.flurry.android:analytics:7.0.0@aar'
     // Bugly
