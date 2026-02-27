@@ -29,7 +29,6 @@ jobs:
           platforms;android-28
           build-tools;28.0.3
           platform-tools
-        ndk: 21.4.7075529  # 如果需要NDK
 
     - name: Gradle cache
       uses: actions/cache@v4
