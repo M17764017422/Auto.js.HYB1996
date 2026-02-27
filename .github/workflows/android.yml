@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
     - uses: actions/checkout@v4
@@ -24,10 +25,33 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        packages: 'platform-tools, platforms;android-28, build-tools;28.0.3'
+        packages: |
+          platforms;android-28
+          build-tools;28.0.3
+          platform-tools
+        ndk: 21.4.7075529  # 如果需要NDK
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Gradle cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Run diagnostics
+      run: |
+        echo "JAVA_HOME: $JAVA_HOME"
+        echo "ANDROID_HOME: $ANDROID_HOME"
+        echo "PATH: $PATH"
+        ls -la $ANDROID_HOME || echo "ANDROID_HOME not set properly"
+        ls -la $ANDROID_HOME/build-tools/ || echo "Build tools not found"
+        ls -la $ANDROID_HOME/platforms/ || echo "Platforms not found"
 
     - name: Build with Gradle
       run: ./gradlew assembleRelease --no-daemon --info
