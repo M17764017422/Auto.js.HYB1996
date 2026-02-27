@@ -127,6 +127,7 @@ repositories {
     google()
     maven { url 'https://jitpack.io' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    jcenter() // 添加jcenter以支持更多依赖项
 }
 
 dependencies {
@@ -161,6 +162,8 @@ dependencies {
     implementation('com.heinrichreimersoftware:android-issue-reporter:1.3.1', {
         exclude group: 'com.afollestad.material-dialogs'
         exclude group: 'com.android.support'
+        // 临时注释掉可能有问题的依赖
+        // exclude group: 'com.github.aakira'
     })
     //MultiLevelListView
     implementation 'com.github.hyb1996:android-multi-level-listview:1.1'
@@ -176,7 +179,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.6'
     //Expandable RecyclerView
     implementation 'com.thoughtbot:expandablerecyclerview:1.3'
-    implementation 'com.github.hyb1996:Auto.js-ApkBuilder:1.0.1'
+    // 注释掉有问题的ApkBuilder依赖
+    // implementation 'com.github.hyb1996:Auto.js-ApkBuilder:1.0.1'
     // RxJava
     implementation "io.reactivex.rxjava2:rxjava:2.1.2"
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
@@ -193,10 +197,10 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.8.0'
     //joda time
     implementation 'joda-time:joda-time:2.9.9'
-    // Tasker Plugin
-    implementation 'com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.1'
-    // Flurry
-    implementation 'com.flurry.android:analytics:7.0.0@aar'
+    // Tasker Plugin (使用替代或更新的版本)
+    implementation 'com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.0'
+    // Flurry (如果必要，使用替代方案)
+    // implementation 'com.flurry.android:analytics:7.0.0@aar'
     // Bugly
     implementation 'com.tencent.bugly:crashreport:2.6.6'
     // MaterialDialogCommon
