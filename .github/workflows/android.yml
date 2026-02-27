@@ -14,21 +14,31 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: set up JDK 8
+    - name: Set up JDK 8
       uses: actions/setup-java@v4
       with:
         java-version: '8'
         distribution: 'temurin'
         cache: gradle
 
-    # 设置Android SDK
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        packages: tools platform-tools platforms;android-28 build-tools;28.0.3
+        # 根据构建指南要求
+        packages: |
+          build-tools;28.0.3
+          platform-tools
+          platforms;android-28
         cache: true
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
     - name: Build with Gradle
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease --no-daemon
+      env:
+        # 降低内存使用以适应GitHub Actions环境
+        ORG_GRADLE_PROJECT_org.gradle.jvmargs: -Xmx2g -Dfile.encoding=UTF-8
+        # 设置AndroidX
+        ORG_GRADLE_PROJECT_android.useAndroidX: true
+        ORG_GRADLE_PROJECT_android.enableJetifier: true
