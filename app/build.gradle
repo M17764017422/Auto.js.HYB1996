@@ -39,11 +39,22 @@ android {
                 keyAlias keystoreProperties['MYAPP_RELEASE_KEY_ALIAS']
                 keyPassword keystoreProperties['MYAPP_RELEASE_KEY_PASSWORD']
             } else {
-                // 如果local.properties中没有配置，则从环境变量或GitHub Secrets获取
-                storeFile file(System.getenv('SIGNING_STORE_FILE') ?: 'signing/test-key.keystore')
-                storePassword System.getenv('SIGNING_STORE_PASSWORD') ?: System.getenv('GITHUB_ACTIONS') ? 'android' : ''
-                keyAlias System.getenv('SIGNING_KEY_ALIAS') ?: System.getenv('GITHUB_ACTIONS') ? 'test_key_alias' : ''
-                keyPassword System.getenv('SIGNING_KEY_PASSWORD') ?: System.getenv('GITHUB_ACTIONS') ? 'android' : ''
+                // 如果local.properties中没有配置，则从环境变量获取，否则使用默认配置（仅在CI中）
+                def storeFileEnv = System.getenv('SIGNING_STORE_FILE')
+                def storePasswordEnv = System.getenv('SIGNING_STORE_PASSWORD')
+                def keyAliasEnv = System.getenv('SIGNING_KEY_ALIAS')
+                def keyPasswordEnv = System.getenv('SIGNING_KEY_PASSWORD')
+                
+                if (storeFileEnv && storePasswordEnv && keyAliasEnv && keyPasswordEnv) {
+                    storeFile file(storeFileEnv)
+                    storePassword storePasswordEnv
+                    keyAlias keyAliasEnv
+                    keyPassword keyPasswordEnv
+                } else {
+                    // 在CI环境中没有找到签名配置时，使用debug key或跳过签名
+                    // 这将允许构建生成未签名的APK以供测试
+                    storeFile file('signing/test-key.keystore') // 如果不存在，Gradle会跳过签名
+                }
             }
         }
     }
