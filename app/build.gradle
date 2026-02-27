@@ -25,6 +25,29 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
+    signingConfigs {
+        release {
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('local.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            }
+
+            if (keystoreProperties['MYAPP_RELEASE_STORE_FILE']) {
+                storeFile file(keystoreProperties['MYAPP_RELEASE_STORE_FILE'])
+                storePassword keystoreProperties['MYAPP_RELEASE_STORE_PASSWORD']
+                keyAlias keystoreProperties['MYAPP_RELEASE_KEY_ALIAS']
+                keyPassword keystoreProperties['MYAPP_RELEASE_KEY_PASSWORD']
+            } else {
+                // 如果local.properties中没有配置，则从环境变量或GitHub Secrets获取
+                storeFile file(System.getenv('SIGNING_STORE_FILE') ?: 'signing/test-key.keystore')
+                storePassword System.getenv('SIGNING_STORE_PASSWORD') ?: System.getenv('GITHUB_ACTIONS') ? 'android' : ''
+                keyAlias System.getenv('SIGNING_KEY_ALIAS') ?: System.getenv('GITHUB_ACTIONS') ? 'test_key_alias' : ''
+                keyPassword System.getenv('SIGNING_KEY_PASSWORD') ?: System.getenv('GITHUB_ACTIONS') ? 'android' : ''
+            }
+        }
+    }
+
     buildTypes {
         debug {
             shrinkResources false
@@ -32,6 +55,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
+            signingConfig signingConfigs.release
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
