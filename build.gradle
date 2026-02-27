@@ -19,6 +19,10 @@ buildscript {
     }
 }
 
+ext {
+    versions = new JsonSlurper().parse(file('./project-versions.json'))
+}
+
 allprojects {
     repositories {
         google()
@@ -33,8 +37,4 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-
-ext {
-    versions = new JsonSlurper().parse(file('./project-versions.json'))
 }
