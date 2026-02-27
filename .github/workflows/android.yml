@@ -7,10 +7,12 @@ on:
     branches:
       - main
       - master
+      - temp-test-branch
   pull_request:
     branches:
       - main
       - master
+      - temp-test-branch
 
 jobs:
   build:
