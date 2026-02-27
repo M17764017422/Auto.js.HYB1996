@@ -10,7 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
 
     steps:
     - uses: actions/checkout@v4
@@ -22,10 +21,19 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        packages: platforms;android-28,build-tools;28.0.3,platform-tools
+    # 手动安装Android SDK
+    - name: Install Android SDK
+      run: |
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip -O commandlinetools.zip
+        unzip -q commandlinetools.zip -d $HOME
+        mkdir -p $ANDROID_HOME
+        mv $HOME/cmdline-tools $ANDROID_HOME/
+        # Create a newer cmdline-tools version to make it work properly
+        mkdir -p $ANDROID_HOME/cmdline-tools/latest
+        mv $ANDROID_HOME/cmdline-tools/bin $ANDROID_HOME/cmdline-tools/latest/
+        mv $ANDROID_HOME/cmdline-tools/lib $ANDROID_HOME/cmdline-tools/latest/
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-28" "build-tools;28.0.3" "platform-tools"
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
