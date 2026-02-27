@@ -25,10 +25,15 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        packages: |
-          platforms;android-28
-          build-tools;28.0.3
-          platform-tools
+        packages: platforms;android-28,build-tools;28.0.3,platform-tools
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew assembleRelease --no-daemon --info
+      env:
+        GRADLE_OPTS: -Xmx2g -Dfile.encoding=UTF-8
 
     - name: Gradle cache
       uses: actions/cache@v4
