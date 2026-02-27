@@ -13,3 +13,6 @@
 *.apk
 *.exe
 .idea/caches/build_file_checksums.ser
+extracted_logs/
+gradle-*.zip
+logs_*.zip

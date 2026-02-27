@@ -37,6 +37,10 @@ repositories {
         dirs 'libs'
     }
     google()
+    mavenCentral()
+    maven { url "https://maven.aliyun.com/repository/central" }
+    maven { url "https://maven.aliyun.com/repository/google" }
+    maven { url "https://maven.aliyun.com/repository/public" }
 }
 
 dependencies {
@@ -59,8 +63,8 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:3.10.0'
     // JDeferred
     api 'org.jdeferred:jdeferred-android-aar:1.2.6'
-    //RootShell
-    api 'com.github.Stericson:RootShell:1.6'
+    //RootShell - replaced with an alternative that's available in mavenCentral
+    implementation 'com.github.stericson:RootTools:4.2'
     // Gson
     api 'com.google.code.gson:gson:2.8.2'
     // log4j
