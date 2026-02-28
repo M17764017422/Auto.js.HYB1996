@@ -14,7 +14,7 @@ configurations.all {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
     buildToolsVersion versions.buildTool
     defaultConfig {
         applicationId "org.autojs.autojs"
