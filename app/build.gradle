@@ -151,8 +151,7 @@ dependencies {
     //Commons-lang
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     //Commons-io
-    implementation 'commons-io:commons-io:2.15.1'
-    //Expandable RecyclerView
+    implementation 'commons-io:commons-io:2.11.0'    //Expandable RecyclerView
     implementation 'com.thoughtbot:expandablerecyclerview:1.3'
     // ApkBuilder - use local module
     implementation project(':apkbuilder')

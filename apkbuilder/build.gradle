@@ -31,7 +31,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation "junit:junit:$junit_version"
-    api 'commons-io:commons-io:2.15.1'
+    api 'commons-io:commons-io:2.11.0'
     implementation "androidx.core:core-ktx:1.8.0"
 }
 
