@@ -6,8 +6,8 @@
 
 ## 当前状态
 
-**最新构建状态**: 修复进行中 (已解决 AAR 元数据、AndroidManifest exported 问题)  
-**最后提交**: `fix: 为带有 intent-filter 的组件添加 android:exported 属性`  
+**最新构建状态**: 修复进行中 (已解决多个编译和依赖问题)  
+**最后提交**: `fix: remove @BindView annotation from ViewHolder in NodeInfoView`  
 **分支**: `temp-test-branch`  
 **远程仓库**: https://github.com/M17764017422/Auto.js.HYB1996  
 **最后更新**: 2026-02-28
@@ -25,6 +25,7 @@
   - 添加阿里云镜像加速
   - 升级 Android Gradle Plugin 从 3.2.1 到 4.2.2
   - 升级 Kotlin 版本从 1.3.10 到 1.7.10
+  - 升级 ButterKnife Gradle 插件从 9.0.0-rc2 到 10.2.3
   - 调整 ext 块位置以确保版本变量正确初始化
 
 ```gradle
@@ -41,7 +42,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.jakewharton:butterknife-gradle-plugin:9.0.0-rc2'
+        classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.3'
     }
 }
 
@@ -166,10 +167,104 @@ logs_*.zip
 | DfsFilterTest 编译错误 | recycle() 方法无法解析 | 注释测试代码 | ✅ 已解决 |
 | AAR 元数据不匹配 | AppCompat 1.4.1 要求 minCompileSdk 31 | 升级 compileSdk 到 31 | ✅ 已解决 |
 | AndroidManifest exported | Android 12 要求显式声明 | 添加 android:exported 属性 | ✅ 已解决 |
+| CrashReport 无法解析 | Bugly 2.6.6 库引用问题 | 升级 Bugly 到 4.0.4 | ✅ 已解决 |
+| Jetifier 处理 butterknife-compiler 失败 | 9.0.0-rc2 包含 android.support 引用 | 升级 ButterKnife 到 10.2.3 | ✅ 已解决 |
+| Glide SimpleTarget 废弃 | Glide 4.12.0 移除 SimpleTarget | 替换为 CustomTarget | ✅ 已解决 |
+| @BindView 字段不能为 private | Kotlin val 属性默认为 private | 删除多余 @BindView 注解 | ✅ 已解决 |
 
 ### 当前问题
 
 **等待最新构建验证**
+
+---
+
+## 本次会话新增修复 (2026-02-28)
+
+### 1. Bugly 升级 (2.6.6 → 4.0.4)
+
+**问题**: `Unresolved reference: CrashReport`
+
+**原因**: Bugly 2.6.6 版本的类引用路径有问题
+
+**修复**:
+- 更新 `app/build.gradle` 依赖: `implementation 'com.tencent.bugly:crashreport:4.0.4'`
+- 在 `App.kt` 添加导入: `import com.tencent.bugly.Bugly`
+
+### 2. ButterKnife 升级 (9.0.0-rc2 → 10.2.3)
+
+**问题**: `AmbiguousStringJetifierException` - Jetifier 无法处理 butterknife-compiler-9.0.0-rc2.jar
+
+**原因**: 该版本包含 `android.support.v4.content` 引用，与 AndroidX 冲突
+
+**修复**:
+- 更新根目录 `build.gradle`: `classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.3'`
+- 更新 `app/build.gradle`: `implementation 'com.jakewharton:butterknife:10.2.3'`
+- 将 `annotationProcessor` 改为 `kapt`: `kapt 'com.jakewharton:butterknife-compiler:10.2.3'`
+
+### 3. 多个依赖版本更新
+
+参考 TonyJiangWJ 版本，更新以下依赖：
+
+| 依赖 | 原版本 | 新版本 |
+|------|--------|--------|
+| Android Annotations | 4.5.2 | 4.8.0 |
+| Kotlin Coroutines | 1.0.1 | 1.6.1 |
+| RxJava | 2.1.2 | 2.2.21 |
+| RxAndroid | 2.0.1 | 2.1.1 |
+| Retrofit | 2.3.0 | 2.9.0 |
+| Glide | 4.8.0 | 4.12.0 |
+| Joda-Time | 2.9.9 | 2.12.5 |
+| Commons-Lang3 | 3.6 | 3.12.0 |
+| Android-Job | 1.2.6 | 1.4.2 |
+| Multidex | 2.0.0 | 2.0.1 |
+| Material-Dialogs-Commons | 0.9.2.3 | 0.9.6.0 |
+
+### 4. Glide SimpleTarget → CustomTarget
+
+**问题**: Glide 4.12.0 中 `SimpleTarget` 已被废弃
+
+**修复**: 在以下文件中将 `SimpleTarget<Drawable>` 替换为 `CustomTarget<Drawable>`:
+- `app/src/main/java/org/autojs/autojs/App.kt`
+- `inrt/src/main/java/com/stardust/auojs/inrt/App.kt`
+
+```kotlin
+// 旧代码
+.into(object : SimpleTarget<Drawable>() {
+    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+        view.background = resource
+    }
+})
+
+// 新代码
+.into(object : CustomTarget<Drawable>() {
+    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+        view.background = resource
+    }
+    override fun onLoadCleared(placeholder: Drawable?) {}
+})
+```
+
+### 5. NodeInfoView @BindView 注解问题
+
+**问题**: `error: @BindView fields must not be private or static`
+
+**原因**: Kotlin `val` 属性默认生成 `private final` 字段，与 ButterKnife 10.x 要求冲突
+
+**修复**: 删除 `NodeInfoView.kt` 中 `ViewHolder` 类里多余的 `@BindView` 注解
+
+```kotlin
+// 修复前
+internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    @BindView(R.id.name) lateinit var attrName: TextView
+    @BindView(R.id.value) lateinit var attrValue: TextView
+}
+
+// 修复后
+internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val attrName: TextView = itemView.findViewById(R.id.name)
+    val attrValue: TextView = itemView.findViewById(R.id.value)
+}
+```
 
 ---
 
@@ -287,6 +382,19 @@ dependencies {
 | AppCompat | 1.0.2 | 1.4.1 |
 | Material | 1.1.0-alpha01 | 1.4.0 |
 | JUnit | 4.12 | 4.13.2 |
+| Bugly | 2.6.6 | 4.0.4 |
+| ButterKnife | 9.0.0-rc2 | 10.2.3 |
+| Android Annotations | 4.5.2 | 4.8.0 |
+| Kotlin Coroutines | 1.0.1 | 1.6.1 |
+| RxJava | 2.1.2 | 2.2.21 |
+| RxAndroid | 2.0.1 | 2.1.1 |
+| Retrofit | 2.3.0 | 2.9.0 |
+| Glide | 4.8.0 | 4.12.0 |
+| Joda-Time | 2.9.9 | 2.12.5 |
+| Commons-Lang3 | 3.6 | 3.12.0 |
+| Android-Job | 1.2.6 | 1.4.2 |
+| Multidex | 2.0.0 | 2.0.1 |
+| Material-Dialogs-Commons | 0.9.2.3 | 0.9.6.0 |
 
 ---
 
@@ -353,11 +461,11 @@ git push origin temp-test-branch
 
 ### 已修改的文件
 
-1. `build.gradle` - 根目录构建配置
+1. `build.gradle` - 根目录构建配置 (ButterKnife 插件升级到 10.2.3)
 2. `gradle.properties` - Gradle 属性配置
 3. `gradle/wrapper/gradle-wrapper.properties` - Gradle Wrapper 配置
 4. `project-versions.json` - 版本配置文件 (compile/target 改为 31)
-5. `app/build.gradle` - App 模块构建配置
+5. `app/build.gradle` - App 模块构建配置 (多项依赖升级)
 6. `autojs/build.gradle` - AutoJS 模块构建配置
 7. `common/build.gradle` - Common 模块构建配置
 8. `automator/build.gradle` - Automator 模块构建配置 (SDK 31 + 依赖升级)
@@ -367,6 +475,10 @@ git push origin temp-test-branch
 12. `autojs/src/test/java/com/stardust/autojs/core/accessibility/DfsFilterTest.kt` - 注释测试代码
 13. `.gitignore` - Git 忽略配置
 14. `local.properties` - 本地 SDK 配置
+15. `app/src/main/java/org/autojs/autojs/App.kt` - Bugly 导入 + Glide CustomTarget
+16. `inrt/src/main/java/com/stardust/auojs/inrt/App.kt` - Glide CustomTarget
+17. `app/src/main/java/org/autojs/autojs/ui/main/drawer/DrawerFragment.java` - 删除未使用导入
+18. `app/src/main/java/org/autojs/autojs/ui/floating/layoutinspector/NodeInfoView.kt` - 删除 @BindView 注解
 
 ### 新建的文件
 
@@ -378,4 +490,4 @@ git push origin temp-test-branch
 ---
 
 *文档创建时间: 2026-02-27*  
-*最后更新: 2026-02-28 - 添加三个解决方案分析*
+*最后更新: 2026-02-28 - 记录 Bugly/ButterKnife/Glide 等依赖升级修复*
