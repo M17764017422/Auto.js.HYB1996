@@ -103,7 +103,7 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.1-alpha01', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testImplementation 'junit:junit:4.12'
+    testImplementation "junit:junit:$junit_version"
     // Kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
     // Android Annotations
@@ -115,9 +115,9 @@ dependencies {
     })
     annotationProcessor 'com.jakewharton:butterknife-compiler:9.0.0-rc2'
     // Android supports
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0-alpha01'
+    implementation "com.google.android.material:material:$material_version"
     implementation 'androidx.multidex:multidex:2.0.0'
     // Personal libraries
     implementation 'com.github.hyb1996:MutableTheme:1.0.0'
