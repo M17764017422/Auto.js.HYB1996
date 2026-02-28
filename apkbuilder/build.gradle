@@ -31,8 +31,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation "junit:junit:$junit_version"
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api files('libs/commons-io-2.5.jar')
+    api 'commons-io:commons-io:2.15.1'
     implementation "androidx.core:core-ktx:1.8.0"
 }
 
