@@ -16,3 +16,8 @@
 extracted_logs/
 gradle-*.zip
 logs_*.zip
+
+# Release keystore - never commit release keystores
+app/release-keystore.jks
+*.jks
+!app/debug/*.jks

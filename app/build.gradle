@@ -6,6 +6,12 @@ apply plugin: 'com.jakewharton.butterknife'
 def AAVersion = '4.8.0'
 def SupportLibVersion = '28.0.0'
 
+// Signing configuration from environment or GitHub secrets
+def keystorePassword = System.getenv('KEYSTORE_PASSWORD') ?: ''
+def keyAlias = System.getenv('KEY_ALIAS') ?: 'autojs'
+def keyPassword = System.getenv('KEY_PASSWORD') ?: keystorePassword
+def keystoreFile = System.getenv('KEYSTORE_FILE') ?: ''
+
 configurations.all {
     resolutionStrategy {
         force "com.android.support:appcompat-v7:${SupportLibVersion}"
@@ -16,6 +22,32 @@ configurations.all {
 android {
     compileSdkVersion 31
     buildToolsVersion versions.buildTool
+    
+    // Signing configurations
+    signingConfigs {
+        debug {
+            storeFile file('debug/autojs-debug.jks')
+            storePassword 'autojs123'
+            keyPassword 'autojs123'
+            keyAlias 'autojs-debug'
+        }
+        release {
+            // Use keystore from base64 encoded content or file path
+            if (keystoreFile && file(keystoreFile).exists()) {
+                storeFile file(keystoreFile)
+            } else if (System.getenv('KEYSTORE_BASE64')) {
+                // Decode base64 keystore at build time
+                def keystoreBase64 = System.getenv('KEYSTORE_BASE64')
+                def keystorePath = "${buildDir}/decoded-keystore.jks"
+                file(keystorePath).bytes = keystoreBase64.decodeBase64()
+                storeFile file(keystorePath)
+            }
+            storePassword keystorePassword
+            keyPassword keyPassword
+            keyAlias keyAlias
+        }
+    }
+    
     defaultConfig {
         applicationId "org.autojs.autojs"
         minSdkVersion versions.mini
@@ -30,11 +62,16 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
         release {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Use release signing if keystore is configured
+            if (keystorePassword) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {

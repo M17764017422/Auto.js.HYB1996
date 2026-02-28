@@ -6,8 +6,8 @@
 
 ## 当前状态
 
-**最新构建状态**: 修复进行中 (已解决多个编译和依赖问题)  
-**最后提交**: `fix: remove @BindView annotation from ViewHolder in NodeInfoView`  
+**最新构建状态**: ✅ 构建成功！  
+**最后提交**: `fix: downgrade commons-io to 2.11.0 for D8 compiler compatibility`  
 **分支**: `temp-test-branch`  
 **远程仓库**: https://github.com/M17764017422/Auto.js.HYB1996  
 **最后更新**: 2026-02-28
@@ -171,10 +171,14 @@ logs_*.zip
 | Jetifier 处理 butterknife-compiler 失败 | 9.0.0-rc2 包含 android.support 引用 | 升级 ButterKnife 到 10.2.3 | ✅ 已解决 |
 | Glide SimpleTarget 废弃 | Glide 4.12.0 移除 SimpleTarget | 替换为 CustomTarget | ✅ 已解决 |
 | @BindView 字段不能为 private | Kotlin val 属性默认为 private | 删除多余 @BindView 注解 | ✅ 已解决 |
+| BFS.kt 类型不匹配 | queue.add() 需要 UiObject，但 child() 返回 UiObject? | 使用 ?.let 语法处理可空类型 | ✅ 已解决 |
+| DFS.kt 类型不匹配 | stack.pop() 可能返回 null | 添加空检查 ?: continue | ✅ 已解决 |
+| RootTool.java 类型错误 | .result 是 String 类型，不能与 int 比较 | 改用 .code 字段 | ✅ 已解决 |
+| D8 编译器 NullPointerException | commons-io 2.15.1 与 D8 不兼容 | 降级到 2.11.0 | ✅ 已解决 |
 
 ### 当前问题
 
-**等待最新构建验证**
+**无 - 构建已成功！** 🎉
 
 ---
 
@@ -265,6 +269,86 @@ internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
     val attrValue: TextView = itemView.findViewById(R.id.value)
 }
 ```
+
+---
+
+## 本次会话新增修复 (2026-02-28 续)
+
+### 6. BFS.kt 类型不匹配修复
+
+**问题**: `Type mismatch: inferred type is UiObject? but UiObject was expected`
+
+**原因**: `top.child(i)` 返回 `UiObject?`，但 `queue.add()` 需要 `UiObject` 类型
+
+**修复**: 
+- 添加 `top` 的空检查: `val top = queue.poll() ?: continue`
+- 使用 `?.let` 语法处理可空类型: `top.child(i)?.let { queue.add(it) }`
+- 修复 `result.size > limit` 为 `>=` (与参考项目一致)
+
+```kotlin
+// 修复后
+while (!queue.isEmpty()) {
+    val top = queue.poll() ?: continue
+    val isTarget = filter.filter(top)
+    if (isTarget) {
+        result.add(top)
+        if (result.size >= limit) {
+            return result
+        }
+    }
+    for (i in 0 until top.childCount) {
+        top.child(i)?.let { queue.add(it) }
+    }
+    // ...
+}
+```
+
+### 7. DFS.kt 类型不匹配修复
+
+**问题**: `stack.pop()` 可能返回 null
+
+**修复**: 添加空检查 `val parent = stack.pop() ?: continue`
+
+### 8. RootTool.java 类型错误修复
+
+**问题**: `bad operand types for binary operator '=='` - 比较 String 与 int
+
+**原因**: `ProcessShell.execCommand().result` 返回 `String` 类型（命令输出），而 `code` 返回 `int` 类型（退出码）
+
+**修复**:
+```java
+// 修复前
+return ProcessShell.execCommand("echo test", true).result == 0;
+
+// 修复后
+return ProcessShell.execCommand("echo test", true).code == 0;
+```
+
+### 9. commons-io D8 编译器兼容性修复
+
+**问题**: `D8: java.lang.NullPointerException: Cannot invoke "String.length()" because "<parameter1>" is null`
+
+**原因**: commons-io 2.15.1 与 Android D8 编译器不兼容
+
+**修复**: 降级 commons-io 版本
+- `app/build.gradle`: `commons-io:commons-io:2.15.1` → `2.11.0`
+- `apkbuilder/build.gradle`: `commons-io:commons-io:2.15.1` → `2.11.0`
+
+---
+
+## 构建成功总结
+
+经过多轮修复，项目现已构建成功！所有关键问题已解决：
+
+| 阶段 | 状态 |
+|------|------|
+| Gradle 配置升级 | ✅ |
+| 依赖仓库迁移 | ✅ |
+| Kotlin 插件更新 | ✅ |
+| AndroidX 迁移 | ✅ |
+| 编译错误修复 | ✅ |
+| D8 兼容性问题 | ✅ |
+| **最终构建** | ✅ 成功 |
 
 ---
 
@@ -364,7 +448,7 @@ dependencies {
 | 初始 | 0 | ❌ 立即失败 |
 | JDK 兼容性修复后 | 5 | ❌ 配置阶段失败 |
 | Gradle 版本升级后 | 23 | ❌ 任务执行失败 |
-| 当前 | 23+ | 🔄 进行中 |
+| 所有修复完成后 | 23+ | ✅ 构建成功 |
 
 ---
 
@@ -384,6 +468,7 @@ dependencies {
 | JUnit | 4.12 | 4.13.2 |
 | Bugly | 2.6.6 | 4.0.4 |
 | ButterKnife | 9.0.0-rc2 | 10.2.3 |
+| Commons-IO | 2.15.1 | 2.11.0 |
 | Android Annotations | 4.5.2 | 4.8.0 |
 | Kotlin Coroutines | 1.0.1 | 1.6.1 |
 | RxJava | 2.1.2 | 2.2.21 |
@@ -426,17 +511,19 @@ dependencies {
 
 ## 下一步工作
 
-1. **验证最新构建**
-   - 检查 GitHub Actions 构建状态
-   - 如有新错误，继续修复
+1. ~~**验证最新构建**~~ ✅ 已完成 - 构建成功！
+   - ✅ GitHub Actions 构建通过
+   - ✅ Android CI build 成功 (7m58s)
+   - ✅ Android CI Test 成功 (9m15s)
 
-2. **如果方案 B 失败**
-   - 分析新错误
-   - 考虑执行方案 C (完整升级)
-
-3. **功能恢复** (可选，构建成功后)
+2. **功能恢复** (可选)
    - 寻找 RootTools 的替代方案
    - 寻找 Auto.js-ApkBuilder 的替代方案
+   - 注：apkbuilder 模块已从 TonyJiangWJ 版本复制，但可能需要进一步调整
+
+3. **后续优化** (可选)
+   - 考虑执行方案 C (完整升级到 AGP 7.2.2 + Kotlin 1.9.0)
+   - 升级 compileSdk 到 33+
 
 ---
 
@@ -465,7 +552,7 @@ git push origin temp-test-branch
 2. `gradle.properties` - Gradle 属性配置
 3. `gradle/wrapper/gradle-wrapper.properties` - Gradle Wrapper 配置
 4. `project-versions.json` - 版本配置文件 (compile/target 改为 31)
-5. `app/build.gradle` - App 模块构建配置 (多项依赖升级)
+5. `app/build.gradle` - App 模块构建配置 (多项依赖升级 + commons-io 降级)
 6. `autojs/build.gradle` - AutoJS 模块构建配置
 7. `common/build.gradle` - Common 模块构建配置
 8. `automator/build.gradle` - Automator 模块构建配置 (SDK 31 + 依赖升级)
@@ -479,6 +566,10 @@ git push origin temp-test-branch
 16. `inrt/src/main/java/com/stardust/auojs/inrt/App.kt` - Glide CustomTarget
 17. `app/src/main/java/org/autojs/autojs/ui/main/drawer/DrawerFragment.java` - 删除未使用导入
 18. `app/src/main/java/org/autojs/autojs/ui/floating/layoutinspector/NodeInfoView.kt` - 删除 @BindView 注解
+19. `automator/src/main/java/com/stardust/automator/search/BFS.kt` - 类型安全修复
+20. `automator/src/main/java/com/stardust/automator/search/DFS.kt` - 类型安全修复
+21. `app/src/main/java/org/autojs/autojs/tool/RootTool.java` - 类型错误修复
+22. `apkbuilder/build.gradle` - commons-io 降级
 
 ### 新建的文件
 
@@ -490,4 +581,4 @@ git push origin temp-test-branch
 ---
 
 *文档创建时间: 2026-02-27*  
-*最后更新: 2026-02-28 - 记录 Bugly/ButterKnife/Glide 等依赖升级修复*
+*最后更新: 2026-02-28 - 构建成功！记录 BFS/DFS/RootTool/commons-io 等修复*
