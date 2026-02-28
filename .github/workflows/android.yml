@@ -41,7 +41,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --info
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
