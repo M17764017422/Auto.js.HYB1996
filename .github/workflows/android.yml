@@ -49,6 +49,7 @@ jobs:
             echo $SIGNING_KEYSTORE_BASE64 | base64 -d > app/release-keystore.jks
             echo "KEYSTORE_FILE=app/release-keystore.jks" >> $GITHUB_ENV
           fi
+          exit 0
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --info
