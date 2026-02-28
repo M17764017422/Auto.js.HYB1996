@@ -17,7 +17,7 @@ object DFS : SearchAlgorithm {
         val stack = LinkedList<UiObject>()
         stack.push(root)
         while (stack.isNotEmpty()) {
-            val parent = stack.pop()
+            val parent = stack.pop() ?: continue
             for (i in parent.childCount - 1 downTo 0) {
                 val child = parent.child(i) ?: continue
                 stack.push(child)

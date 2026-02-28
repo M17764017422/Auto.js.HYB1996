@@ -12,16 +12,16 @@ object BFS : SearchAlgorithm {
         val queue = ArrayDeque<UiObject>()
         queue.add(root)
         while (!queue.isEmpty()) {
-            val top = queue.poll()
+            val top = queue.poll() ?: continue
             val isTarget = filter.filter(top)
             if (isTarget) {
                 result.add(top)
-                if (result.size > limit) {
+                if (result.size >= limit) {
                     return result
                 }
             }
             for (i in 0 until top.childCount) {
-                queue.add(top.child(i) ?: continue)
+                top.child(i)?.let { queue.add(it) }
             }
             if (!isTarget && top !== root) {
                 top.recycle()
