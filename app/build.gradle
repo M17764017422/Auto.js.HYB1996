@@ -7,10 +7,10 @@ def AAVersion = '4.8.0'
 def SupportLibVersion = '28.0.0'
 
 // Signing configuration from environment or GitHub secrets
-def keystorePassword = System.getenv('KEYSTORE_PASSWORD') ?: ''
-def keyAlias = System.getenv('KEY_ALIAS') ?: 'autojs'
-def keyPassword = System.getenv('KEY_PASSWORD') ?: keystorePassword
-def keystoreFile = System.getenv('KEYSTORE_FILE') ?: ''
+def signingKeystorePassword = System.getenv('KEYSTORE_PASSWORD') ?: ''
+def signingKeyAlias = System.getenv('KEY_ALIAS') ?: 'autojs'
+def signingKeyPassword = System.getenv('KEY_PASSWORD') ?: signingKeystorePassword
+def signingKeystoreFile = System.getenv('KEYSTORE_FILE') ?: ''
 
 configurations.all {
     resolutionStrategy {
@@ -33,8 +33,8 @@ android {
         }
         release {
             // Use keystore from base64 encoded content or file path
-            if (keystoreFile && file(keystoreFile).exists()) {
-                storeFile file(keystoreFile)
+            if (signingKeystoreFile && file(signingKeystoreFile).exists()) {
+                storeFile file(signingKeystoreFile)
             } else if (System.getenv('KEYSTORE_BASE64')) {
                 // Decode base64 keystore at build time
                 def keystoreBase64 = System.getenv('KEYSTORE_BASE64')
@@ -42,9 +42,9 @@ android {
                 file(keystorePath).bytes = keystoreBase64.decodeBase64()
                 storeFile file(keystorePath)
             }
-            storePassword keystorePassword
-            keyPassword keyPassword
-            keyAlias keyAlias
+            storePassword signingKeystorePassword
+            keyPassword signingKeyPassword
+            keyAlias signingKeyAlias
         }
     }
     
@@ -69,7 +69,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             // Use release signing if keystore is configured
-            if (keystorePassword) {
+            if (signingKeystorePassword) {
                 signingConfig signingConfigs.release
             }
         }
