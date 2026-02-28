@@ -60,7 +60,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          KEYSTORE_FILE: ${{ env.KEYSTORE_FILE }}
+          KEYSTORE_FILE: app/release-keystore.jks
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
@@ -68,7 +68,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          KEYSTORE_FILE: ${{ env.KEYSTORE_FILE }}
+          KEYSTORE_FILE: app/release-keystore.jks
 
       - name: List APK files
         run: find . -name "*.apk" -type f
