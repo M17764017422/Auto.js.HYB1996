@@ -32,19 +32,14 @@ android {
             keyAlias 'autojs-debug'
         }
         release {
-            // Use keystore from base64 encoded content or file path
-            if (signingKeystoreFile && file(signingKeystoreFile).exists()) {
-                storeFile file(signingKeystoreFile)
-            } else if (System.getenv('KEYSTORE_BASE64')) {
-                // Decode base64 keystore at build time
-                def keystoreBase64 = System.getenv('KEYSTORE_BASE64')
-                def keystorePath = "${buildDir}/decoded-keystore.jks"
-                file(keystorePath).bytes = keystoreBase64.decodeBase64()
-                storeFile file(keystorePath)
-            }
-            storePassword signingKeystorePassword
-            keyPassword signingKeyPassword
-            keyAlias signingKeyAlias
+            // Use keystore from file path (set by CI) or fallback to debug keystore
+            def keystoreFile = signingKeystoreFile && new File(signingKeystoreFile).exists() 
+                ? file(signingKeystoreFile) 
+                : file('debug/autojs-debug.jks')
+            storeFile keystoreFile
+            storePassword signingKeystorePassword ?: 'autojs123'
+            keyPassword signingKeyPassword ?: 'autojs123'
+            keyAlias signingKeyAlias ?: 'autojs-debug'
         }
     }
     
