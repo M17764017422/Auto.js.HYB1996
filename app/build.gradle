@@ -68,9 +68,12 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            // Use release signing if keystore is configured
-            if (signingKeystorePassword) {
+            // Use release signing if keystore is configured, otherwise use debug signing
+            if (signingKeystorePassword && signingKeystoreFile && file(signingKeystoreFile).exists()) {
                 signingConfig signingConfigs.release
+            } else {
+                // Fallback to debug signing for CI builds without release keystore
+                signingConfig signingConfigs.debug
             }
         }
     }
