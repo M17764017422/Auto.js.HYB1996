@@ -1,0 +1,89 @@
+﻿2026-02-28T06:08:24.0207339Z ##[group]Run actions/checkout@v4
+2026-02-28T06:08:24.0208332Z with:
+2026-02-28T06:08:24.0208804Z   submodules: recursive
+2026-02-28T06:08:24.0209400Z   repository: M17764017422/Auto.js.HYB1996
+2026-02-28T06:08:24.0210337Z   token: ***
+2026-02-28T06:08:24.0210796Z   ssh-strict: true
+2026-02-28T06:08:24.0211176Z   ssh-user: git
+2026-02-28T06:08:24.0211734Z   persist-credentials: true
+2026-02-28T06:08:24.0212280Z   clean: true
+2026-02-28T06:08:24.0212676Z   sparse-checkout-cone-mode: true
+2026-02-28T06:08:24.0213318Z   fetch-depth: 1
+2026-02-28T06:08:24.0213635Z   fetch-tags: false
+2026-02-28T06:08:24.0214089Z   show-progress: true
+2026-02-28T06:08:24.0214588Z   lfs: false
+2026-02-28T06:08:24.0214921Z   set-safe-directory: true
+2026-02-28T06:08:24.0215551Z ##[endgroup]
+2026-02-28T06:08:24.1442542Z Syncing repository: M17764017422/Auto.js.HYB1996
+2026-02-28T06:08:24.1443940Z ##[group]Getting Git version info
+2026-02-28T06:08:24.1444376Z Working directory is '/home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996'
+2026-02-28T06:08:24.1444992Z [command]/usr/bin/git version
+2026-02-28T06:08:24.2711481Z git version 2.53.0
+2026-02-28T06:08:24.2741316Z ##[endgroup]
+2026-02-28T06:08:24.2761753Z Temporarily overriding HOME='/home/runner/work/_temp/aba49bab-b133-4ebf-9731-e91e84179b57' before making global git config changes
+2026-02-28T06:08:24.2763193Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-28T06:08:24.2775651Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996
+2026-02-28T06:08:24.5688963Z Deleting the contents of '/home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996'
+2026-02-28T06:08:24.5693356Z ##[group]Initializing the repository
+2026-02-28T06:08:24.5700160Z [command]/usr/bin/git init /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996
+2026-02-28T06:08:24.6765479Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-02-28T06:08:24.6766828Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-02-28T06:08:24.6767969Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-02-28T06:08:24.6768700Z hint: call:
+2026-02-28T06:08:24.6769056Z hint:
+2026-02-28T06:08:24.6775730Z hint: 	git config --global init.defaultBranch <name>
+2026-02-28T06:08:24.6776553Z hint:
+2026-02-28T06:08:24.6777189Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-02-28T06:08:24.6778254Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-02-28T06:08:24.6778822Z hint:
+2026-02-28T06:08:24.6779084Z hint: 	git branch -m <name>
+2026-02-28T06:08:24.6779384Z hint:
+2026-02-28T06:08:24.6779820Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-02-28T06:08:24.6781224Z Initialized empty Git repository in /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/.git/
+2026-02-28T06:08:24.6795165Z [command]/usr/bin/git remote add origin https://github.com/M17764017422/Auto.js.HYB1996
+2026-02-28T06:08:24.6851234Z ##[endgroup]
+2026-02-28T06:08:24.6851871Z ##[group]Disabling automatic garbage collection
+2026-02-28T06:08:24.6857874Z [command]/usr/bin/git config --local gc.auto 0
+2026-02-28T06:08:24.7227995Z ##[endgroup]
+2026-02-28T06:08:24.7228678Z ##[group]Setting up auth
+2026-02-28T06:08:24.7236298Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-02-28T06:08:24.7279375Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-02-28T06:08:24.7634680Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-28T06:08:24.7667436Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-02-28T06:08:24.7925726Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-28T06:08:24.7965038Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-02-28T06:08:24.8239902Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-02-28T06:08:24.8279922Z ##[endgroup]
+2026-02-28T06:08:24.8282427Z ##[group]Fetching the repository
+2026-02-28T06:08:24.8289057Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ccbb504740a0068c1e91570ed969dcb246df787b:refs/remotes/origin/temp-test-branch
+2026-02-28T06:08:25.7875062Z From https://github.com/M17764017422/Auto.js.HYB1996
+2026-02-28T06:08:25.7875679Z  * [new ref]         ccbb504740a0068c1e91570ed969dcb246df787b -> origin/temp-test-branch
+2026-02-28T06:08:25.7908160Z ##[endgroup]
+2026-02-28T06:08:25.7908802Z ##[group]Determining the checkout info
+2026-02-28T06:08:25.7910480Z ##[endgroup]
+2026-02-28T06:08:25.7915960Z [command]/usr/bin/git sparse-checkout disable
+2026-02-28T06:08:25.7959590Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-02-28T06:08:25.7987295Z ##[group]Checking out the ref
+2026-02-28T06:08:25.7992781Z [command]/usr/bin/git checkout --progress --force -B temp-test-branch refs/remotes/origin/temp-test-branch
+2026-02-28T06:08:26.0886279Z Switched to a new branch 'temp-test-branch'
+2026-02-28T06:08:26.0887629Z branch 'temp-test-branch' set up to track 'origin/temp-test-branch'.
+2026-02-28T06:08:26.0911089Z ##[endgroup]
+2026-02-28T06:08:26.0911745Z ##[group]Setting up auth for fetching submodules
+2026-02-28T06:08:26.0914071Z [command]/usr/bin/git config --global http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-02-28T06:08:26.0953598Z [command]/usr/bin/git config --global --unset-all url.https://github.com/.insteadOf
+2026-02-28T06:08:26.0984917Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf git@github.com:
+2026-02-28T06:08:26.1016953Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf org-31874069@github.com:
+2026-02-28T06:08:26.1045766Z ##[endgroup]
+2026-02-28T06:08:26.1047676Z ##[group]Fetching submodules
+2026-02-28T06:08:26.1050173Z [command]/usr/bin/git submodule sync --recursive
+2026-02-28T06:08:26.1310703Z [command]/usr/bin/git -c protocol.version=2 submodule update --init --force --depth=1 --recursive
+2026-02-28T06:08:26.1547823Z [command]/usr/bin/git submodule foreach --recursive git config --local gc.auto 0
+2026-02-28T06:08:26.1796578Z ##[endgroup]
+2026-02-28T06:08:26.1797396Z ##[group]Persisting credentials for submodules
+2026-02-28T06:08:26.1805022Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'url\.https\:\/\/github\.com\/\.insteadOf' && git config --local --unset-all 'url.https://github.com/.insteadOf' || :"
+2026-02-28T06:08:26.2041471Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local 'http.https://github.com/.extraheader' 'AUTHORIZATION: basic ***' && git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-02-28T06:08:26.2278253Z [command]/usr/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'git@github.com:'
+2026-02-28T06:08:26.2512989Z [command]/usr/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'org-31874069@github.com:'
+2026-02-28T06:08:26.2743749Z ##[endgroup]
+2026-02-28T06:08:26.2781514Z [command]/usr/bin/git log -1 --format=%H
+2026-02-28T06:08:26.2804715Z ccbb504740a0068c1e91570ed969dcb246df787b

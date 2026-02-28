@@ -1,7 +1,6 @@
 package org.autojs.autojs.tool;
 
 import com.stardust.autojs.core.util.ProcessShell;
-import com.stericson.RootShell.RootShell;
 
 /**
  * Created by Stardust on 2018/1/26.
@@ -10,8 +9,9 @@ import com.stericson.RootShell.RootShell;
 public class RootTool {
 
     public static boolean isRootAvailable() {
+        // RootShell library not available - using alternative method
         try {
-            return RootShell.isRootAvailable();
+            return ProcessShell.execCommand("echo test", true).result == 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
