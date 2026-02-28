@@ -68,18 +68,39 @@ jobs:
       - name: List APK files
         run: find . -name "*.apk" -type f
 
-      - name: Upload Debug APK
+      - name: Upload Debug APK (common)
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: debug-apk-common
+          path: app/build/outputs/apk/common/debug/*.apk
         continue-on-error: true
 
-      - name: Upload Release APK
+      - name: Upload Debug APK (coolapk)
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: app/build/outputs/apk/release/*.apk
+          name: debug-apk-coolapk
+          path: app/build/outputs/apk/coolapk/debug/*.apk
+        continue-on-error: true
+
+      - name: Upload Release APK (common)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk-common
+          path: app/build/outputs/apk/common/release/*.apk
+        continue-on-error: true
+
+      - name: Upload Release APK (coolapk)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk-coolapk
+          path: app/build/outputs/apk/coolapk/release/*.apk
+        continue-on-error: true
+
+      - name: Upload INRT APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: inrt-apk
+          path: inrt/build/outputs/apk/**/*.apk
         continue-on-error: true
 
       - name: Build with all variants
@@ -96,26 +117,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Debug APK
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: debug-apk
-          path: debug-apk
+          path: artifacts
         continue-on-error: true
 
-      - name: Download Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: release-apk
-          path: release-apk
-        continue-on-error: true
+      - name: List downloaded files
+        run: find artifacts -name "*.apk" -type f
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            debug-apk/*.apk
-            release-apk/*.apk
+            artifacts/**/*.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
