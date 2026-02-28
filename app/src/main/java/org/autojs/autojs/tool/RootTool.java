@@ -11,7 +11,7 @@ public class RootTool {
     public static boolean isRootAvailable() {
         // RootShell library not available - using alternative method
         try {
-            return ProcessShell.execCommand("echo test", true).result == 0;
+            return ProcessShell.execCommand("echo test", true).code == 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
