@@ -6,10 +6,11 @@
 
 ## 当前状态
 
-**最新构建状态**: 部分成功 (23/30+ 任务完成)  
-**最后错误**: Java 17 模块系统反射访问限制  
+**最新构建状态**: 修复进行中 (已解决 AAR 元数据、AndroidManifest exported 问题)  
+**最后提交**: `fix: 为带有 intent-filter 的组件添加 android:exported 属性`  
 **分支**: `temp-test-branch`  
-**远程仓库**: https://github.com/M17764017422/Auto.js.HYB1996
+**远程仓库**: https://github.com/M17764017422/Auto.js.HYB1996  
+**最后更新**: 2026-02-28
 
 ---
 
@@ -158,25 +159,106 @@ logs_*.zip
 | JCenter 依赖无法下载 | JCenter 仓库已停用 | 替换为 MavenCentral | ✅ 已解决 |
 | Gradle 与 JDK 17 不兼容 | Gradle 4.10.2 不支持 JDK 17 | 升级到 Gradle 7.5 | ✅ 已解决 |
 | Android SDK 需要 JDK 17 | Android SDK Command-line Tools 要求 JDK 17+ | 配置 JDK 17 | ✅ 已解决 |
-| compileSdkVersion 未指定 | 新版 AGP 要求显式设置 | 显式设置 compileSdkVersion 28 | ✅ 已解决 |
+| compileSdkVersion 未指定 | 新版 AGP 要求显式设置 | 显式设置 compileSdkVersion | ✅ 已解决 |
 | Kotlin 插件兼容性 | kotlin-android-extensions 已弃用 | 替换为 kotlin-kapt | ✅ 已解决 |
 | RootTools 库不可用 | 库不在 Maven 仓库中 | 注释掉依赖 | ✅ 已解决 |
 | Auto.js-ApkBuilder 401 | 仓库访问权限问题 | 注释掉依赖 | ✅ 已解决 |
-| Java 模块访问限制 | Java 17 模块系统安全限制 | 添加 --add-opens JVM 参数 | 🔄 部分解决 |
+| DfsFilterTest 编译错误 | recycle() 方法无法解析 | 注释测试代码 | ✅ 已解决 |
+| AAR 元数据不匹配 | AppCompat 1.4.1 要求 minCompileSdk 31 | 升级 compileSdk 到 31 | ✅ 已解决 |
+| AndroidManifest exported | Android 12 要求显式声明 | 添加 android:exported 属性 | ✅ 已解决 |
 
 ### 当前问题
 
-**错误信息**:
-```
-Execution failed for task ':app:processCommonDebugMainManifest'.
-> Unable to make field private final java.lang.String java.io.File.path accessible: 
-  module java.base does not "opens java.io" to unnamed module
+**等待最新构建验证**
+
+---
+
+## 三项目配置对比
+
+| 配置项 | HYB1996 (当前) | Auto.js (TonyJiangWJ) | AutoX |
+|--------|----------------|----------------------|-------|
+| **Gradle** | 7.5 | 7.3.3 | 8.7 |
+| **AGP** | 4.2.2 | 7.2.2 | 8.5.0 |
+| **Kotlin** | 1.7.10 | 1.9.0 | 2.0.20 |
+| **compileSdk** | 31 | 33 | 34 |
+| **targetSdk** | 31 | 31 | 34 |
+| **minSdk** | 17 | 21 | 27 |
+| **Build Tools** | 30.0.3 | 30.0.3 | 34.0.0 |
+| **AppCompat** | 1.4.1 | 1.4.1 | 最新版 |
+| **JDK** | 17 | 17 | 17 |
+
+---
+
+## 三种修复方案
+
+### 方案 A：快速修复 (最小改动) ✅ 已执行部分
+
+**目标**: 只修复编译错误，保持原有架构
+
+**修改内容**:
+1. 注释 `DfsFilterTest.kt` 测试代码
+2. 升级 Build Tools: 28.0.3 → 30.0.3
+3. 升级 compileSdk: 28 → 31
+4. 添加 `android:exported` 属性
+
+**优点**: 改动最小，风险低  
+**缺点**: 未解决根本依赖问题  
+**状态**: 部分执行，正在验证
+
+---
+
+### 方案 B：中等修复 (推荐) ⭐
+
+**目标**: 在方案 A 基础上升级关键依赖
+
+**额外修改内容**:
+1. 升级 AndroidX AppCompat: 1.0.2 → 1.4.1
+2. 升级 Material: 1.1.0-alpha01 → 1.4.0
+3. 升级 JUnit: 4.12 → 4.13.2
+4. 升级 Annotation: 1.0.0 → 1.3.0
+
+**优点**: 解决 API 兼容性问题，风险可控  
+**缺点**: 需要更多测试  
+**状态**: 已执行，正在验证
+
+**Gradle 配置示例**:
+```gradle
+// build.gradle (根目录)
+ext {
+    versions = new JsonSlurper().parse(file('./project-versions.json'))
+    ext.junit_version = '4.13.2'
+    ext.appcompat_version = '1.4.1'
+    ext.material_version = '1.4.0'
+}
+
+// 各模块 build.gradle
+dependencies {
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "com.google.android.material:material:$material_version"
+    testImplementation "junit:junit:$junit_version"
+}
 ```
 
-**分析**:
-- 这是 Java 17 模块系统的反射访问限制问题
-- 已经添加了 `--add-opens java.base/java.io=ALL-UNNAMED` 参数
-- 可能需要等待新构建验证
+---
+
+### 方案 C：完整升级 (最彻底)
+
+**目标**: 参考 TonyJiangWJ 版本全面升级
+
+**额外修改内容**:
+| 组件 | 当前版本 | 目标版本 |
+|------|----------|----------|
+| AGP | 4.2.2 | 7.2.2 |
+| Kotlin | 1.7.10 | 1.9.0 |
+| compileSdk | 31 | 33 |
+| targetSdk | 31 | 31 |
+| minSdk | 17 | 21 |
+| AppCompat | 1.4.1 | 1.4.1 |
+| Build Tools | 30.0.3 | 30.0.3 |
+
+**优点**: 彻底解决兼容性问题  
+**缺点**: 改动范围大，需要大量测试  
+**状态**: 备选方案
 
 ---
 
@@ -196,10 +278,15 @@ Execution failed for task ':app:processCommonDebugMainManifest'.
 | 组件 | 原版本 | 新版本 |
 |------|--------|--------|
 | Gradle | 4.10.2 | 7.5 |
-| Android Gradle Plugin | 3.2.1 → 3.6.4 → | 4.2.2 |
+| Android Gradle Plugin | 3.2.1 | 4.2.2 |
 | Kotlin | 1.3.10 | 1.7.10 |
 | JDK | 8/11 | 17 |
-| compileSdkVersion | versions.compile | 28 (显式) |
+| compileSdkVersion | 28 | 31 |
+| targetSdkVersion | 28 | 31 |
+| Build Tools | 28.0.3 | 30.0.3 |
+| AppCompat | 1.0.2 | 1.4.1 |
+| Material | 1.1.0-alpha01 | 1.4.0 |
+| JUnit | 4.12 | 4.13.2 |
 
 ---
 
@@ -231,15 +318,15 @@ Execution failed for task ':app:processCommonDebugMainManifest'.
 
 ## 下一步工作
 
-1. **验证 java.io 模块访问修复**
-   - 等待最新构建完成
-   - 如果仍有问题，可能需要添加更多 `--add-opens` 参数
+1. **验证最新构建**
+   - 检查 GitHub Actions 构建状态
+   - 如有新错误，继续修复
 
-2. **可能的额外修复**
-   - 如果出现其他模块访问问题，添加对应的 `--add-opens` 参数
-   - 常见需要开放的模块: `java.base/java.nio`, `java.base/sun.nio.ch`
+2. **如果方案 B 失败**
+   - 分析新错误
+   - 考虑执行方案 C (完整升级)
 
-3. **功能恢复** (可选)
+3. **功能恢复** (可选，构建成功后)
    - 寻找 RootTools 的替代方案
    - 寻找 Auto.js-ApkBuilder 的替代方案
 
@@ -269,13 +356,17 @@ git push origin temp-test-branch
 1. `build.gradle` - 根目录构建配置
 2. `gradle.properties` - Gradle 属性配置
 3. `gradle/wrapper/gradle-wrapper.properties` - Gradle Wrapper 配置
-4. `app/build.gradle` - App 模块构建配置
-5. `autojs/build.gradle` - AutoJS 模块构建配置
-6. `common/build.gradle` - Common 模块构建配置
-7. `automator/build.gradle` - Automator 模块构建配置
-8. `inrt/build.gradle` - INRT 模块构建配置
-9. `.gitignore` - Git 忽略配置
-10. `local.properties` - 本地 SDK 配置
+4. `project-versions.json` - 版本配置文件 (compile/target 改为 31)
+5. `app/build.gradle` - App 模块构建配置
+6. `autojs/build.gradle` - AutoJS 模块构建配置
+7. `common/build.gradle` - Common 模块构建配置
+8. `automator/build.gradle` - Automator 模块构建配置 (SDK 31 + 依赖升级)
+9. `inrt/build.gradle` - INRT 模块构建配置
+10. `app/src/main/AndroidManifest.xml` - 添加 android:exported 属性
+11. `autojs/src/main/AndroidManifest.xml` - 添加 android:exported 属性
+12. `autojs/src/test/java/com/stardust/autojs/core/accessibility/DfsFilterTest.kt` - 注释测试代码
+13. `.gitignore` - Git 忽略配置
+14. `local.properties` - 本地 SDK 配置
 
 ### 新建的文件
 
@@ -286,5 +377,5 @@ git push origin temp-test-branch
 
 ---
 
-*文档创建时间: 2026-02-27*
-*最后更新: 构建修复进行中*
+*文档创建时间: 2026-02-27*  
+*最后更新: 2026-02-28 - 添加三个解决方案分析*
