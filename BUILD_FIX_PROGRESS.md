@@ -681,3 +681,174 @@ api 'org.mozilla:rhino:1.7.14'
   release-keystore-base64.txt
   ```
 - 远程仓库当前分支已更新，敏感文件不在工作目录中
+
+---
+
+## 第九阶段: Android 11+ 存储权限支持 ✅
+
+### 问题背景
+Android 11 (API 30) 引入分区存储 (Scoped Storage)，应用无法直接访问外部存储。
+- 原项目缺少 `MANAGE_EXTERNAL_STORAGE` 权限声明
+- 应用启动后只能看到目录，无法看到文件
+
+### 解决方案
+
+#### 方案对比
+
+| 方案 | 权限类型 | 兼容性 | 安全性 |
+|------|----------|--------|--------|
+| 完全访问 | MANAGE_EXTERNAL_STORAGE | ✅ 100% | 中等 |
+| SAF 目录授权 | Storage Access Framework | ⚠️ 有限 | 高 |
+
+#### 实现内容
+
+**新增文件 (6个)**:
+
+| 文件 | 模块 | 说明 |
+|------|------|------|
+| `IFileProvider.java` | common | 统一文件访问接口 |
+| `TraditionalFileProvider.java` | common | 传统 File API 实现 |
+| `StoragePermissionHelper.java` | app | 权限管理帮助类 |
+| `SafFileProvider.java` | app | SAF 文件操作封装 |
+| `SafFileProviderImpl.java` | app | SAF IFileProvider 实现 |
+| `FileProviderFactory.java` | app | 文件提供者工厂 |
+
+**修改文件 (5个)**:
+
+| 文件 | 修改内容 |
+|------|----------|
+| `AndroidManifest.xml` | 添加 `MANAGE_EXTERNAL_STORAGE` 权限 |
+| `MainActivity.java` | 新权限检查逻辑，支持两种授权方式 |
+| `Pref.java` | 添加 SAF URI 存储方法 |
+| `values/strings.xml` | 权限对话框文字 |
+| `values-zh/strings.xml` | 中文权限对话框文字 |
+
+### 权限策略
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Android 11+ 权限选择                   │
+├─────────────────────────────────────────────────────────┤
+│  [完全访问] ← 推荐                                        │
+│     └─ MANAGE_EXTERNAL_STORAGE                          │
+│     └─ JS 脚本 files.* API 完全兼容                      │
+│                                                         │
+│  [选择目录] ← 实验功能                                    │
+│     └─ SAF 目录授权                                      │
+│     └─ UI 可浏览文件                                     │
+│     └─ JS 脚本文件操作受限                                │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 架构设计
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    文件访问架构                              │
+├─────────────────────────────────────────────────────────────┤
+│                     IFileProvider (接口)                     │
+│                           │                                 │
+│            ┌──────────────┴──────────────┐                  │
+│            ▼                              ▼                  │
+│  TraditionalFileProvider         SafFileProviderImpl        │
+│    (传统 File API)                 (SAF 实现)               │
+│            ▲                              ▲                  │
+│            │                              │                  │
+│            └──────────────┬──────────────┘                  │
+│                           ▼                                 │
+│                  FileProviderFactory                        │
+│                    (自动选择)                                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `6a6bec3d` | feat: add Android 11+ storage permission support with SAF option |
+
+### 已知限制
+
+#### SAF 模式下 JS API 兼容性
+
+| API | 传统模式 | SAF 模式 |
+|-----|----------|----------|
+| `files.read()` | ✅ | ⚠️ 需重构 |
+| `files.write()` | ✅ | ⚠️ 需重构 |
+| `files.listDir()` | ✅ | ⚠️ 需重构 |
+| `files.exists()` | ✅ | ⚠️ 需重构 |
+| 所有 PFiles 方法 | ✅ | ❌ 需重构 |
+
+**原因**: 项目中有 154 处使用传统 File API，需要统一改为使用 IFileProvider 接口。
+
+---
+
+## 后续工作规划
+
+### 高优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| 重构 PFiles.java | 待开始 | 154 处文件操作需改用 IFileProvider |
+| JS files API 适配 | 待开始 | 依赖 PFiles 重构 |
+| Git 历史清理 | 待处理 | 删除敏感文件历史记录 |
+
+### 中优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| WorkManager 迁移 | 待处理 | 替代废弃的 android-job |
+| ApkBuilderPlugin 构建 | 待处理 | 恢复打包功能 |
+| 签名验证优化 | 待处理 | 考虑移除或改进 |
+
+### 低优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| Rhino 1.8.1 升级评估 | 待评估 | 需要 JDK 11+ |
+| 代码规范化 | 待处理 | 统一代码风格 |
+
+---
+
+## PFiles.java 重构计划
+
+### 重构范围
+
+涉及 154 处传统 File API 调用，分布如下：
+
+| 模块 | 文件数 | 说明 |
+|------|--------|------|
+| common | 4 | PFiles.java, PFile.java, PReadableTextFile.java, PWritableTextFile.java |
+| autojs | 10 | ScriptRuntime.java, Files.java, Images.java 等 |
+| app | 15+ | ScriptOperations.java, EditorView.java 等 |
+
+### 重构策略
+
+**方案 A: 渐进式重构 (推荐)**
+1. 在 PFiles 中添加静态 IFileProvider 字段
+2. 逐步修改方法使用 IFileProvider
+3. 保持原有方法签名兼容
+4. 完成后移除传统 File API 代码
+
+**方案 B: 包装层**
+1. 保持 PFiles 原有实现
+2. 新增 PFilesEx 使用 IFileProvider
+3. Files.java 根据权限模式选择实现
+
+### 预计工作量
+
+| 阶段 | 工作内容 | 预计改动 |
+|------|----------|----------|
+| 1 | PFiles 核心方法 | ~30 处 |
+| 2 | PReadableTextFile/PWritableTextFile | ~15 处 |
+| 3 | autojs 模块适配 | ~40 处 |
+| 4 | app 模块适配 | ~70 处 |
+
+### 风险评估
+
+- **兼容性风险**: 中 - 需确保 JS 脚本行为一致
+- **回归风险**: 高 - 需充分测试所有文件操作
+- **性能风险**: 低 - SAF 模式下略有性能损失
+
+---
+更新时间: 2026-03-02 03:30
