@@ -178,10 +178,12 @@ jobs:
           if [ -n "$WEBDAV_URL" ] && [ -n "$WEBDAV_USER" ] && [ -n "$WEBDAV_PASSWORD" ]; then
             echo "Uploading APKs to WebDAV..."
             TAG_NAME=${GITHUB_REF#refs/tags/}
-            WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
-            # Create directory
-            curl -X MKCOL -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "$WEBDAV_PATH" || true
+            # Create directories step by step
+            curl -X MKCOL -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_URL}/Auto.js.HYB1996" 2>/dev/null || true
+            curl -X MKCOL -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}" 2>/dev/null || true
+            
+            WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
             # Upload only coolapk release APK
             APK_FILE="artifacts/release-apk-coolapk/app-coolapk-armeabi-v7a-release.apk"
