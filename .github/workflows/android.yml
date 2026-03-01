@@ -170,3 +170,28 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to WebDAV (坚果云)
+        env:
+          WEBDAV_URL: ${{ secrets.WEBDAV_URL }}
+          WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
+          WEBDAV_PASSWORD: ${{ secrets.WEBDAV_PASSWORD }}
+        run: |
+          if [ -n "$WEBDAV_URL" ] && [ -n "$WEBDAV_USER" ] && [ -n "$WEBDAV_PASSWORD" ]; then
+            echo "Uploading APKs to WebDAV..."
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
+            
+            # Create directory
+            curl -X MKCOL -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "$WEBDAV_PATH" || true
+            
+            # Upload all APK files
+            find artifacts -name "*.apk" -type f | while read apk; do
+              filename=$(basename "$apk")
+              echo "Uploading $filename..."
+              curl -T "$apk" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${filename}"
+            done
+            echo "WebDAV upload completed!"
+          else
+            echo "WebDAV credentials not configured, skipping upload"
+          fi
