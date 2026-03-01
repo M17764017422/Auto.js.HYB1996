@@ -1,4 +1,0 @@
-﻿2026-03-01T10:27:09.9103401Z Post job cleanup.
-2026-03-01T10:27:10.1034463Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996 --files-from manifest.txt --use-compress-program zstdmt
-2026-03-01T10:27:13.8620278Z Failed to save: Unable to reserve cache with key setup-java-Linux-x64-gradle-f936a21bcf9b2bf3850f7c4a8c235a4ada6ef00647a6745ea50348114f7666f9, another job may be creating this cache.
-2026-03-01T10:27:14.0048598Z Cache saved with the key: setup-java-Linux-x64-gradle-f936a21bcf9b2bf3850f7c4a8c235a4ada6ef00647a6745ea50348114f7666f9

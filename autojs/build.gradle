@@ -74,7 +74,9 @@ dependencies {
     api(name: 'libtermexec-release', ext: 'aar')
     api(name: 'emulatorview-release', ext: 'aar')
     api(name: 'term-debug', ext: 'aar')
-    api files('libs/rhino-1.7.7.2.jar')
+    // Rhino JavaScript Engine - upgraded from 1.7.7.2 to 1.7.14
+    // https://mvnrepository.com/artifact/org.mozilla/rhino
+    api 'org.mozilla:rhino:1.7.14'
     api project(path: ':common')
     api project(path: ':automator')
 }

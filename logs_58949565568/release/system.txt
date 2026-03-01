@@ -1,4 +1,0 @@
-2026-03-01T10:27:15.9190000Z Evaluating release.if
-2026-03-01T10:27:15.9190000Z Evaluating: (success() && (startsWith(github.ref, 'refs/tags/')))
-2026-03-01T10:27:15.9190000Z Expanded: (true && startsWith('refs/heads/temp-test-branch', 'refs/tags/'))
-2026-03-01T10:27:15.9190000Z Result: false

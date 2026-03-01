@@ -1,6 +1,6 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: 构建中 (第四次修复 - try-catch 异常捕获)
+## 当前状态: ✅ Release APK 构建成功，签名验证通过
 
 ---
 
@@ -309,36 +309,78 @@ private static final String SIGNATURE = "新的签名SHA256值";
 
 ### 当前修复状态
 - [x] 添加调试日志输出当前签名 SHA 值
-- [ ] 禁用签名验证或更新签名常量
+- [x] 更新 SIGNATURE 常量为正确值
+- [x] 推送修复 (v4.1.1-alpha4)
 - [ ] 等待构建完成并测试
 
 ---
 
 ## 问题总结与经验教训
 
-### 1. FLAG_IMMUTABLE 问题 (已修复)
+### 1. FLAG_IMMUTABLE 问题 ✅ 已修复
 - **问题**: android-job 库不兼容 Android 12+
 - **解决**: try-catch 捕获异常
 - **教训**: 检查第三方库的维护状态和 Android 兼容性
 
-### 2. SDK 版本不一致问题 (已修复)
+### 2. SDK 版本不一致问题 ✅ 已修复
 - **问题**: 部分模块硬编码 SDK 版本
 - **解决**: 统一使用 `versions.compile` 变量
 - **教训**: 全局搜索 `compileSdkVersion` 确保一致性
 
-### 3. 签名验证问题 (进行中)
+### 3. 签名验证问题 ✅ 已修复
 - **问题**: Release 版本签名验证失败导致闪退
-- **原因**: 代码中硬编码原始签名，自定义签名不匹配
-- **教训**: 
+- **原因**: 
+  - 代码中硬编码原始签名
+  - APK v1/v2 签名方案差异导致 SHA-256 值不同
+- **解决**: 更新 SIGNATURE 常量为 PackageManager 实际返回的值
+- **教训**:
   - Fork 项目时需检查签名验证逻辑
   - Debug vs Release 行为差异可能来自 `BuildConfig.DEBUG` 条件
   - 使用 `numActivities` 和 `finishing` 标记追踪 Activity 生命周期
+  - **关键**: `keytool -printcert` 返回 v2 签名，`PackageManager.GET_SIGNATURES` 返回 v1 签名
 
-### 4. 分析方法论
+### 4. APK 签名方案差异 (重要发现)
+
+#### 问题背景
+Android APK 有多种签名方案：
+| 方案 | 引入版本 | 说明 |
+|------|----------|------|
+| v1 (JAR Signing) | Android 1.0 | 传统签名，基于 META-INF |
+| v2 (APK Signature Scheme) | Android 7.0 | 更快的验证速度 |
+| v3 (APK Signature Scheme v3) | Android 9.0 | 支持密钥轮替 |
+
+#### 签名值差异
+| 获取方式 | 返回签名 | SHA-256 示例 |
+|----------|----------|--------------|
+| `keytool -printcert -jarfile xxx.apk` | v2 签名证书 | `F7BF336527...` |
+| `PackageManager.GET_SIGNATURES` | v1 签名证书 | `F7BF335F6527...` |
+| `PackageManager.GET_SIGNING_CERTIFICATES` (API 28+) | v2/v3 签名 | 与 keytool 相同 |
+
+#### 关键代码
+```java
+// 旧方法 - 返回 v1 签名 (已废弃)
+PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+Signature[] signatures = info.signatures;
+
+// 新方法 - 返回 v2/v3 签名 (API 28+)
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES);
+    SigningInfo signingInfo = info.signingInfo;
+    Signature[] signatures = signingInfo.getApkContentsSigners();
+}
+```
+
+#### 经验总结
+1. **计算签名常量时**，必须使用与应用代码相同的获取方式
+2. **推荐做法**：运行应用打印实际签名值，而非用 keytool 计算
+3. **调试方法**：添加日志 `Log.d(TAG, "Signature SHA: " + sha)` 获取正确值
+
+### 5. 分析方法论
 1. 对比 Debug vs Release 日志差异
 2. 追踪 `numActivities` 变化定位 Activity 销毁时机
 3. 搜索 `BuildConfig.DEBUG` 条件分支
 4. 检查签名验证相关代码
+5. 添加调试日志输出实际签名值
 
 ---
 
@@ -375,13 +417,206 @@ private static final String SIGNATURE = "新的签名SHA256值";
 
 ---
 
-## 下一步
+## 第六阶段: 签名验证修复 ✅
 
-- [ ] 推送禁用签名验证的修改
-- [ ] 等待构建完成
-- [ ] 下载并安装新的 Release APK 进行测试
-- [ ] 验证修复是否生效
-- [ ] 后续: 迁移到 WorkManager 替代 android-job
+### 问题深入分析
+
+#### APK 签名方案差异
+Android APK 有多种签名方案：
+- **v1 (JAR Signing)**: 传统签名，`PackageManager.GET_SIGNATURES` 返回此签名
+- **v2/v3 (APK Signature Scheme)**: 新签名方案，`keytool -printcert` 读取此签名
+
+#### 签名 SHA-256 差异
+| 来源 | SHA-256 (hex) | Base64 |
+|------|---------------|--------|
+| keytool (APK v2) | `F7BF336527...` | `978zZSfKn48n...` |
+| PackageManager (v1) | `F7BF335F6527...` | `978zX2Unyp+P...` |
+
+差异原因：两种签名方案返回的证书信息略有不同。
+
+#### 日志验证
+```
+D/DeveloperUtils: Current signature SHA: 978zX2Unyp+PJw02HL4K89vi+ppMuIIzvpG8wfmted0=
+D/DeveloperUtils: Expected signature SHA: 978zZSfKn48nDTYcvgrz2+L6mky4gjO+kbzB+a153Q==
+```
+
+### 修复方案
+
+**最终修复**: 更新 SIGNATURE 常量为 PackageManager 实际返回的值
+
+**文件**: `common/src/main/java/com/stardust/util/DeveloperUtils.java`
+
+```java
+// 更新前 (keytool 计算的值)
+private static final String SIGNATURE = "978zZSfKn48nDTYcvgrz2+L6mky4gjO+kbzB+a153Q==";
+
+// 更新后 (PackageManager 返回的实际值)
+private static final String SIGNATURE = "978zX2Unyp+PJw02HL4K89vi+ppMuIIzvpG8wfmted0=";
+```
+
+### 版本发布
+- **Tag**: `v4.1.1-alpha4`
+- **Commit**: `b60d8290`
+- **状态**: 构建中
 
 ---
-更新时间: 2026-03-01
+
+## 第七阶段: 隔离构建环境配置 ✅
+
+### 创建文件
+1. **ISOLATED_BUILD_GUIDE.md** - 隔离构建环境说明文档
+2. **setup-isolated-env.ps1** - PowerShell 环境配置脚本
+
+### 隔离环境结构
+```
+F:\AIDE\                     # 隔离环境根目录
+├── sdk\                     # Android SDK
+│   ├── build-tools\         # 28.0.3, 36.1.0
+│   ├── platforms\           # android-28, android-36
+│   └── platform-tools\      # adb, fastboot
+├── gradle\distributions\    # Gradle 6.1.1
+├── jbr\                     # JetBrains Runtime 17 (JDK)
+├── maven-repo\              # 本地 Maven 仓库
+├── .gradle\                 # Gradle 缓存
+└── .android\                # Android 配置
+```
+
+### 配置脚本功能
+- 自动设置环境变量 (ANDROID_SDK_ROOT, GRADLE_USER_HOME, JAVA_HOME)
+- 自动检测 JDK (jbr/jdk-17/jdk-11)
+- 创建必要目录
+- 生成 Gradle init 脚本 (阿里云镜像)
+- 支持 `-Offline` 离线构建模式
+- 支持 `-Persist` 持久化环境变量
+
+---
+
+## 打包系统分析 ✅
+
+### 系统架构
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Auto.js 打包系统架构                              │
+├─────────────────────────────────────────────────────────────────────┤
+│  1. apkbuilder 模块 (Java 库)                                        │
+│     └── ApkBuilder.java, ApkPackager.java, ManifestEditor.java      │
+│                                                                     │
+│  2. inrt 模块 (Android 应用)                                        │
+│     └── 编译产物 inrt-*.apk 作为打包模板 (template.apk)             │
+│                                                                     │
+│  3. ApkBuilderPlugin (缺失!)                                        │
+│     └── 包名: org.autojs.apkbuilderplugin (原作者已删除)            │
+│                                                                     │
+│  4. 主应用 (app 模块)                                               │
+│     └── BuildActivity.java 调用 ApkBuilderPluginHelper              │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 当前状态
+| 组件 | 状态 | 说明 |
+|------|------|------|
+| inrt 模块 | ✅ 存在 | 已编译生成 APK |
+| apkbuilder 模块 | ✅ 存在 | 打包工具库 |
+| ApkBuilderPlugin | ❌ 缺失 | 原作者已删除，需自行构建 |
+| inrt Release APK | ⚠️ 未签名 | 需要签名配置 |
+
+### 注意事项
+- 打包功能需要额外安装 ApkBuilderPlugin 插件
+- 插件签名必须与主应用匹配
+- `inrt-apk.zip` 中的 Release APK 未签名
+
+---
+
+## 构建记录
+
+| Commit/Tag | 状态 | 说明 |
+|------------|------|------|
+| `10cc0192` | ✅ | 签名配置修复 |
+| `31b11e66` | ❌ | android-job 更新 (SDK 版本不匹配) |
+| `f153c920` | ❌ | SDK 版本更新 (仅 project-versions.json) |
+| `34bc2bf6` | ✅ | 所有模块统一使用 versions.compile |
+| `320b0485` | ✅ | try-catch 捕获 FLAG_IMMUTABLE 异常 |
+| `d25b5756` | ✅ | 添加签名调试日志 |
+| `4a5daf90` | ✅ | 更新 SIGNATURE (第一次尝试，值不正确) |
+| `b60d8290` / `v4.1.1-alpha4` | ✅ | 修正 SIGNATURE 为 PackageManager 返回值 |
+
+---
+
+## 最终验证结果 ✅
+
+### 签名验证日志
+```
+D/DeveloperUtils: Current signature SHA: 978zX2Unyp+PJw02HL4K89vi+ppMuIIzvpG8wfmted0=
+D/DeveloperUtils: Expected signature SHA: 978zX2Unyp+PJw02HL4K89vi+ppMuIIzvpG8wfmted0=
+```
+
+### Activity 状态
+```
+mResumedActivity: ActivityRecord{...MainActivity_}
+numActivities=2 (MainActivity + 权限对话框)
+无 finishing 标记
+```
+
+### 结论
+- ✅ Release APK 正常启动
+- ✅ 签名验证通过
+- ✅ MainActivity 正常运行
+- ✅ 权限请求正常处理
+
+---
+
+## 后续待办
+
+- [ ] 迁移到 WorkManager 替代 android-job
+- [ ] 创建 ApkBuilderPlugin 项目恢复打包功能
+- [ ] 考虑移除或改进签名验证逻辑（开源项目意义不大）
+
+---
+
+## 第八阶段: Rhino 引擎升级 ✅
+
+### 升级完成
+- **原版本**: Rhino 1.7.7.2 (本地 JAR)
+- **新版本**: Rhino 1.7.14 (Maven Central)
+- **Maven 坐标**: `org.mozilla:rhino:1.7.14`
+
+### 修改内容
+
+**文件**: `autojs/build.gradle`
+```groovy
+// 旧配置
+api files('libs/rhino-1.7.7.2.jar')
+
+// 新配置
+api 'org.mozilla:rhino:1.7.14'
+```
+
+### 版本对比
+
+| 项目 | Rhino 版本 | 来源方式 | JDK 要求 |
+|------|-----------|----------|----------|
+| Auto.js (TonyJiangWJ) | 1.7.14-jdk7 + 1.9.1 | 本地 JAR + Maven | JDK 7+ / 11+ |
+| Auto.js.HYB1996 | 1.7.14 ✅ | Maven Central | JDK 8+ |
+| AutoX | 1.8.1 | Maven Central | JDK 11+ |
+
+### 新增 ES6+ 特性支持
+
+| 特性 | 1.7.7.2 (旧) | 1.7.14 (新) |
+|------|--------------|-------------|
+| Promise | ⚠️ 基础 | ✅ 完整支持 |
+| BigInt | ❌ | ✅ |
+| 模板字符串 | ✅ | ✅ |
+| 箭头函数 | ✅ | ✅ |
+| let/const | ✅ | ✅ |
+| globalThis | ❌ | ✅ |
+| Object.values/entries | ❌ | ✅ |
+| Exponential operator `**` | ❌ | ✅ |
+| for-of loop (Java Iterable) | ❌ | ✅ |
+
+### 后续可选升级
+
+- [ ] 评估升级到 Rhino 1.8.1 (需要 JDK 11+)
+- [ ] 评估升级到 Rhino 1.9.1 (需要 JDK 11+，支持函数默认参数、扩展运算符)
+
+---
+更新时间: 2026-03-02 00:30

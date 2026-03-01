@@ -16,8 +16,15 @@
 extracted_logs/
 gradle-*.zip
 logs_*.zip
+logs_*/
+
+# Temporary files
+*.crdownload
+setup-isolated-env.ps1
+ISOLATED_BUILD_GUIDE.md
 
 # Release keystore - never commit release keystores
 app/release-keystore.jks
 *.jks
 !app/debug/*.jks
+release-keystore-base64.txt
