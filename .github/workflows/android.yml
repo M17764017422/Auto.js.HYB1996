@@ -185,13 +185,16 @@ jobs:
             # Create directory
             curl -X MKCOL -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "$WEBDAV_PATH" || true
             
-            # Upload all APK files
-            find artifacts -name "*.apk" -type f | while read apk; do
-              filename=$(basename "$apk")
-              echo "Uploading $filename..."
-              curl -T "$apk" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${filename}"
-            done
-            echo "WebDAV upload completed!"
+            # Upload only coolapk release APK
+            APK_FILE="artifacts/release-apk-coolapk/app-coolapk-armeabi-v7a-release.apk"
+            if [ -f "$APK_FILE" ]; then
+              echo "Uploading app-coolapk-armeabi-v7a-release.apk..."
+              curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/app-coolapk-armeabi-v7a-release.apk"
+              echo "WebDAV upload completed!"
+            else
+              echo "APK file not found: $APK_FILE"
+              find artifacts -name "*.apk" -type f
+            fi
           else
             echo "WebDAV credentials not configured, skipping upload"
           fi
