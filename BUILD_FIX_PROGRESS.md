@@ -1036,4 +1036,76 @@ on:
 | ApkBuilderPlugin | 待处理 | 恢复打包功能 |
 
 ---
-更新时间: 2026-03-02 04:15
+
+## 第十三阶段: EditorView SAF 模式修复 🔄
+
+### 问题发现
+在 SAF 模式下测试发现，EditorView 使用 `PFiles.read()` 直接读取文件，不支持 SAF 授权目录。
+
+### 问题分析
+```
+java.io.FileNotFoundException: /storage/emulated/0/脚本/Auto.js/test.js: 
+open failed: EACCES (Permission denied)
+```
+
+SAF 模式下文件访问必须通过 `ContentResolver` + `DocumentFile`，不能直接用 File API。
+
+### 解决方案
+修改 EditorView 使用 `FileProviderFactory.getProvider()` 进行文件读写。
+
+**修改文件**: `EditorView.java`
+
+**修复代码**:
+```java
+// loadUri() 方法
+if ("file".equals(uri.getScheme())) {
+    return FileProviderFactory.getProvider().read(uri.getPath());
+}
+
+// save() 方法
+if ("file".equals(mUri.getScheme())) {
+    FileProviderFactory.getProvider().write(path, s);
+}
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `ed944d08` | fix: use FileProviderFactory in EditorView for SAF mode support |
+
+### 测试状态
+
+| 模式 | 文件浏览 | 文件编辑 | 文件保存 |
+|------|----------|----------|----------|
+| 完全访问 | ✅ | ✅ | ✅ |
+| SAF 目录 | ✅ | 🔄 构建中 | 🔄 构建中 |
+
+---
+
+## 当前待办事项
+
+### 高优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| SAF 模式测试 | 🔄 进行中 | 等待构建完成后安装测试 |
+| PFiles.java 重构 | 待开始 | 154 处需改用 IFileProvider |
+| JS files API 适配 | 待开始 | 依赖 PFiles 重构 |
+
+### 中优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| Git 历史清理 | 待处理 | 删除敏感文件历史 |
+| WorkManager 迁移 | 待处理 | 替代 android-job |
+| ApkBuilderPlugin | 待处理 | 恢复打包功能 |
+
+### 明日计划
+
+1. 安装 v4.1.1-alpha5 新构建测试 SAF 模式
+2. 验证文件编辑和保存功能
+3. 继续推进 PFiles.java 重构
+
+---
+更新时间: 2026-03-02 06:15
