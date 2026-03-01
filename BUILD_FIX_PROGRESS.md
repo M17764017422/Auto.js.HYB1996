@@ -213,11 +213,174 @@ grep -r "compileSdkVersion" --include="*.gradle"
 
 ---
 
+## 第五阶段: Debug vs Release 差异分析 ✅
+
+### 问题现象
+- **Debug APK**: 正常启动运行
+- **Release APK**: 启动后立即闪退
+
+### 分析过程
+
+#### 1. 对比 Activity 数量变化
+| 版本 | 时间点 | numActivities | 说明 |
+|------|--------|---------------|------|
+| Debug | 权限对话框出现 | 2 | MainActivity + GrantPermissionsActivity |
+| Release | 权限对话框出现 | 1 | 只有 GrantPermissionsActivity |
+
+#### 2. 关键日志发现
+Release 版本:
+```
+20:00:07.827 - numActivities=2 (MainActivity 启动)
+20:00:07.969 - MainActivity_ t5438 f}} (finishing 标记!)
+20:00:08.123 - numActivities=1 (MainActivity 已销毁)
+```
+
+Debug 版本:
+```
+20:13:59.466 - numActivities=2 (MainActivity 启动)
+20:13:59.995 - numActivities=2 (权限对话框出现，MainActivity 仍在)
+```
+
+#### 3. 根本原因定位
+**文件**: `app/src/main/java/org/autojs/autojs/ui/main/MainActivity.java:260-263`
+
+```java
+@Override
+protected void onStart() {
+    super.onStart();
+    if (!BuildConfig.DEBUG) {
+        DeveloperUtils.verifyApk(this, R.string.dex_crcs);
+    }
+}
+```
+
+**文件**: `common/src/main/java/com/stardust/util/DeveloperUtils.java`
+
+```java
+public static void verifyApk(Activity activity, final int crcRes) {
+    sExecutor.execute(new Runnable() {
+        @Override
+        public void run() {
+            if (!checkSignature(a)) {
+                a.finish();  // 签名验证失败 → 关闭 Activity
+                return;
+            }
+        }
+    });
+}
+
+public static boolean checkSignature(Context context, String packageName) {
+    String sha = getSignatureSHA(context, packageName);
+    return SIGNATURE.equals(sha);  // 比对硬编码的签名
+}
+
+private static final String SIGNATURE = "nPNPcy4Lk/eP6fLvZitP0VPbHdFCbKua77m59vis5fA=";
+```
+
+### 问题根源
+1. Release 版本调用 `DeveloperUtils.verifyApk()` 进行签名验证
+2. 验证方法比对 APK 签名与硬编码的 `SIGNATURE` 常量
+3. 新构建使用自定义 keystore 签名，与原始签名不匹配
+4. 验证失败 → `activity.finish()` → MainActivity 被销毁 → 应用闪退
+
+### 签名对比
+| 版本 | 签名摘要 | 说明 |
+|------|----------|------|
+| 原始签名 | `nPNPcy4Lk/eP6fLvZitP0VPbHdFCbKua77m59vis5fA=` | 硬编码在代码中 |
+| Debug APK | `5affef64` | debug keystore 签名 |
+| Release APK | `f70f37d` | 自定义 release keystore 签名 |
+
+### 解决方案
+
+**方案 A (推荐)**: 禁用签名验证
+```java
+// DeveloperUtils.java - checkSignature 方法
+public static boolean checkSignature(Context context, String packageName) {
+    // Allow custom signatures for forked builds
+    return true;
+}
+```
+
+**方案 B**: 更新签名常量
+```java
+// 需要计算新签名的 SHA-256 Base64 值
+private static final String SIGNATURE = "新的签名SHA256值";
+```
+
+### 当前修复状态
+- [x] 添加调试日志输出当前签名 SHA 值
+- [ ] 禁用签名验证或更新签名常量
+- [ ] 等待构建完成并测试
+
+---
+
+## 问题总结与经验教训
+
+### 1. FLAG_IMMUTABLE 问题 (已修复)
+- **问题**: android-job 库不兼容 Android 12+
+- **解决**: try-catch 捕获异常
+- **教训**: 检查第三方库的维护状态和 Android 兼容性
+
+### 2. SDK 版本不一致问题 (已修复)
+- **问题**: 部分模块硬编码 SDK 版本
+- **解决**: 统一使用 `versions.compile` 变量
+- **教训**: 全局搜索 `compileSdkVersion` 确保一致性
+
+### 3. 签名验证问题 (进行中)
+- **问题**: Release 版本签名验证失败导致闪退
+- **原因**: 代码中硬编码原始签名，自定义签名不匹配
+- **教训**: 
+  - Fork 项目时需检查签名验证逻辑
+  - Debug vs Release 行为差异可能来自 `BuildConfig.DEBUG` 条件
+  - 使用 `numActivities` 和 `finishing` 标记追踪 Activity 生命周期
+
+### 4. 分析方法论
+1. 对比 Debug vs Release 日志差异
+2. 追踪 `numActivities` 变化定位 Activity 销毁时机
+3. 搜索 `BuildConfig.DEBUG` 条件分支
+4. 检查签名验证相关代码
+
+---
+
+## 文件修改汇总
+
+| 文件 | 修改内容 |
+|------|----------|
+| `gradle.properties` | JVM 内存: 512m/1024m → 1024m/4096m |
+| `app/build.gradle` | 签名路径解析 + android-job 1.4.3 + work-runtime |
+| `app/src/main/AndroidManifest.xml` | 添加 SCHEDULE_EXACT_ALARM 权限 |
+| `project-versions.json` | compile/target: 31 → 33 |
+| `common/build.gradle` | compileSdkVersion → versions.compile |
+| `autojs/build.gradle` | compileSdkVersion → versions.compile |
+| `automator/build.gradle` | compileSdkVersion → versions.compile |
+| `inrt/build.gradle` | compileSdkVersion → versions.compile |
+| `apkbuilder/build.gradle` | compileSdkVersion → versions.compile |
+| `.github/workflows/android.yml` | 签名配置调试步骤 |
+| `TimedTaskScheduler.java` | try-catch 捕获 FLAG_IMMUTABLE 异常 |
+| `DeveloperUtils.java` | 添加签名调试日志 + 禁用签名验证 (待推送) |
+
+---
+
+## 构建记录
+
+| Commit | 状态 | 说明 |
+|--------|------|------|
+| `10cc0192` | ✅ | 签名配置修复 |
+| `31b11e66` | ❌ | android-job 更新 (SDK 版本不匹配) |
+| `f153c920` | ❌ | SDK 版本更新 (仅 project-versions.json) |
+| `34bc2bf6` | ✅ | 所有模块统一使用 versions.compile |
+| `320b0485` | ✅ | try-catch 捕获 FLAG_IMMUTABLE 异常 |
+| `d25b5756` | 🔄 | 添加签名调试日志 |
+| 待推送 | ⏳ | 禁用签名验证 |
+
+---
+
 ## 下一步
 
+- [ ] 推送禁用签名验证的修改
 - [ ] 等待构建完成
-- [ ] 下载并安装新的 APK 进行测试
-- [ ] 验证 Android 12+ 兼容性修复是否生效
+- [ ] 下载并安装新的 Release APK 进行测试
+- [ ] 验证修复是否生效
 - [ ] 后续: 迁移到 WorkManager 替代 android-job
 
 ---
