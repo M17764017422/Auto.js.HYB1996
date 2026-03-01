@@ -75,6 +75,8 @@ public class DeveloperUtils {
 
     public static boolean checkSignature(Context context, String packageName) {
         String sha = getSignatureSHA(context, packageName);
+        android.util.Log.d(LOG_TAG, "Current signature SHA: " + sha);
+        android.util.Log.d(LOG_TAG, "Expected signature SHA: " + SIGNATURE);
         if (sha == null)
             return false;
         if (sha.endsWith("\n")) {

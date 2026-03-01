@@ -1,0 +1,37 @@
+﻿2026-03-01T10:25:48.3494257Z ##[group]Run actions/upload-artifact@v4
+2026-03-01T10:25:48.3494775Z with:
+2026-03-01T10:25:48.3495101Z   name: inrt-apk
+2026-03-01T10:25:48.3495561Z   path: inrt/build/outputs/apk/**/*.apk
+2026-03-01T10:25:48.3496142Z   if-no-files-found: warn
+2026-03-01T10:25:48.3496570Z   compression-level: 6
+2026-03-01T10:25:48.3496955Z   overwrite: false
+2026-03-01T10:25:48.3497337Z   include-hidden-files: false
+2026-03-01T10:25:48.3497763Z env:
+2026-03-01T10:25:48.3498280Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:48.3499179Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:48.3500129Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T10:25:48.3500849Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T10:25:48.3501421Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T10:25:48.3501967Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T10:25:48.3502465Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T10:25:48.3503012Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T10:25:48.3503886Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T10:25:48.3504772Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T10:25:48.3505346Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T10:25:48.3505885Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T10:25:48.3506388Z ##[endgroup]
+2026-03-01T10:25:48.5780999Z With the provided path, there will be 4 files uploaded
+2026-03-01T10:25:48.5781945Z Artifact name is valid!
+2026-03-01T10:25:48.5782413Z Root directory input is valid!
+2026-03-01T10:25:48.6714020Z Beginning upload of artifact content to blob storage
+2026-03-01T10:25:49.1300529Z Uploaded bytes 8388608
+2026-03-01T10:25:49.4289146Z Uploaded bytes 16777216
+2026-03-01T10:25:49.6977407Z Uploaded bytes 25165824
+2026-03-01T10:25:50.0006394Z Uploaded bytes 33554432
+2026-03-01T10:25:50.1370962Z Uploaded bytes 39244317
+2026-03-01T10:25:50.1501807Z Finished uploading artifact content to blob storage!
+2026-03-01T10:25:50.1505181Z SHA256 digest of uploaded artifact zip is 8193ae72db998f2a39c39eecb4e7f0ebacdad02378d3ed585b6c4e782366f2f4
+2026-03-01T10:25:50.1506612Z Finalizing artifact upload
+2026-03-01T10:25:50.2317316Z Artifact inrt-apk.zip successfully finalized. Artifact ID 5709293756
+2026-03-01T10:25:50.2318616Z Artifact inrt-apk has been successfully uploaded! Final size is 39244317 bytes. Artifact ID is 5709293756
+2026-03-01T10:25:50.2325551Z Artifact download URL: https://github.com/M17764017422/Auto.js.HYB1996/actions/runs/22541315028/artifacts/5709293756

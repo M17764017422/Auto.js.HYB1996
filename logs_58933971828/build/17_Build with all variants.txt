@@ -1,0 +1,939 @@
+﻿2026-03-01T04:54:43.9907901Z ##[group]Run ./gradlew build
+2026-03-01T04:54:43.9908321Z [36;1m./gradlew build[0m
+2026-03-01T04:54:43.9957148Z shell: /usr/bin/bash -e {0}
+2026-03-01T04:54:43.9957419Z env:
+2026-03-01T04:54:43.9957738Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:54:43.9958289Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:54:43.9958714Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T04:54:43.9959030Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T04:54:43.9959355Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T04:54:43.9959673Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T04:54:43.9959973Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T04:54:43.9960282Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T04:54:43.9960730Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T04:54:43.9961228Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T04:54:43.9961597Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T04:54:43.9961900Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T04:54:43.9962182Z ##[endgroup]
+2026-03-01T04:54:44.8820094Z 
+2026-03-01T04:54:44.8835682Z > Configure project :app
+2026-03-01T04:54:44.8836384Z === Signing Configuration ===
+2026-03-01T04:54:44.8848485Z KEYSTORE_FILE env: app/release-keystore.jks
+2026-03-01T04:54:44.8857400Z Resolved keystore: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/release-keystore.jks
+2026-03-01T04:54:44.8869080Z KEYSTORE_PASSWORD set: NO
+2026-03-01T04:54:44.8869584Z KEY_ALIAS: autojs
+2026-03-01T04:54:44.8876115Z Use release signing: false
+2026-03-01T04:54:44.8896269Z ==============================
+2026-03-01T04:54:44.8896935Z WARNING: Using debug signing for release build!
+2026-03-01T04:54:44.8897997Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:54:44.9797054Z 
+2026-03-01T04:54:44.9804572Z > Configure project :autojs
+2026-03-01T04:54:44.9814285Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:54:44.9839960Z 
+2026-03-01T04:54:44.9840722Z > Configure project :automator
+2026-03-01T04:54:44.9842316Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:54:45.0798262Z 
+2026-03-01T04:54:45.0803760Z > Configure project :inrt
+2026-03-01T04:54:45.0810731Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:54:47.0799065Z 
+2026-03-01T04:54:47.0800445Z > Task :apkbuilder:preBuild UP-TO-DATE
+2026-03-01T04:54:47.0803163Z > Task :apkbuilder:preDebugBuild UP-TO-DATE
+2026-03-01T04:54:47.0820850Z > Task :apkbuilder:compileDebugAidl NO-SOURCE
+2026-03-01T04:54:47.0823711Z > Task :apkbuilder:mergeDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:47.0825106Z > Task :apkbuilder:mergeDebugNativeLibs NO-SOURCE
+2026-03-01T04:54:47.0825975Z > Task :apkbuilder:stripDebugDebugSymbols NO-SOURCE
+2026-03-01T04:54:47.0827312Z > Task :apkbuilder:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:54:47.0828548Z > Task :apkbuilder:compileDebugRenderscript NO-SOURCE
+2026-03-01T04:54:47.0830012Z > Task :apkbuilder:generateDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:47.0831133Z > Task :apkbuilder:generateDebugResValues UP-TO-DATE
+2026-03-01T04:54:47.0832309Z > Task :apkbuilder:generateDebugResources UP-TO-DATE
+2026-03-01T04:54:47.0833355Z > Task :apkbuilder:packageDebugResources UP-TO-DATE
+2026-03-01T04:54:47.0834851Z > Task :apkbuilder:parseDebugLocalResources UP-TO-DATE
+2026-03-01T04:54:47.0836047Z > Task :apkbuilder:processDebugManifest UP-TO-DATE
+2026-03-01T04:54:47.0837083Z > Task :apkbuilder:generateDebugRFile UP-TO-DATE
+2026-03-01T04:54:47.0838277Z > Task :apkbuilder:kaptGenerateStubsDebugKotlin UP-TO-DATE
+2026-03-01T04:54:47.0839408Z > Task :apkbuilder:kaptDebugKotlin UP-TO-DATE
+2026-03-01T04:54:47.0840480Z > Task :apkbuilder:compileDebugKotlin UP-TO-DATE
+2026-03-01T04:54:47.0841631Z > Task :apkbuilder:compileDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:47.1885767Z > Task :apkbuilder:extractDebugAnnotations UP-TO-DATE
+2026-03-01T04:54:47.1887718Z > Task :apkbuilder:mergeDebugGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:54:47.1889064Z > Task :apkbuilder:mergeDebugConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:54:47.1890402Z > Task :apkbuilder:mergeDebugShaders UP-TO-DATE
+2026-03-01T04:54:47.1891520Z > Task :apkbuilder:compileDebugShaders NO-SOURCE
+2026-03-01T04:54:47.1892714Z > Task :apkbuilder:generateDebugAssets UP-TO-DATE
+2026-03-01T04:54:47.1893829Z > Task :apkbuilder:packageDebugAssets UP-TO-DATE
+2026-03-01T04:54:47.1895346Z > Task :apkbuilder:packageDebugRenderscript NO-SOURCE
+2026-03-01T04:54:47.1896587Z > Task :apkbuilder:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:54:47.1897906Z > Task :apkbuilder:processDebugJavaRes NO-SOURCE
+2026-03-01T04:54:47.1899304Z > Task :apkbuilder:mergeDebugJavaResource UP-TO-DATE
+2026-03-01T04:54:47.1900394Z > Task :apkbuilder:syncDebugLibJars UP-TO-DATE
+2026-03-01T04:54:47.1901987Z > Task :apkbuilder:writeDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:47.1903496Z > Task :apkbuilder:bundleDebugAar UP-TO-DATE
+2026-03-01T04:54:47.1904839Z > Task :apkbuilder:compileDebugSources UP-TO-DATE
+2026-03-01T04:54:47.1905968Z > Task :apkbuilder:assembleDebug UP-TO-DATE
+2026-03-01T04:54:47.1907130Z > Task :apkbuilder:preReleaseBuild UP-TO-DATE
+2026-03-01T04:54:47.1908376Z > Task :apkbuilder:compileReleaseAidl NO-SOURCE
+2026-03-01T04:54:47.1909605Z > Task :apkbuilder:mergeReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:47.1910955Z > Task :apkbuilder:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:54:47.1912193Z > Task :apkbuilder:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:54:47.1913617Z > Task :apkbuilder:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:54:47.1915139Z > Task :apkbuilder:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:47.1916404Z > Task :apkbuilder:generateReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:47.1930184Z > Task :apkbuilder:generateReleaseResValues UP-TO-DATE
+2026-03-01T04:54:47.1931961Z > Task :apkbuilder:generateReleaseResources UP-TO-DATE
+2026-03-01T04:54:47.1934299Z > Task :apkbuilder:packageReleaseResources UP-TO-DATE
+2026-03-01T04:54:47.1935659Z > Task :apkbuilder:parseReleaseLocalResources UP-TO-DATE
+2026-03-01T04:54:47.1936918Z > Task :apkbuilder:processReleaseManifest UP-TO-DATE
+2026-03-01T04:54:47.1937904Z > Task :apkbuilder:generateReleaseRFile UP-TO-DATE
+2026-03-01T04:54:47.1938944Z > Task :apkbuilder:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:47.1939891Z > Task :apkbuilder:kaptReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:47.1940985Z > Task :apkbuilder:compileReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:47.1941962Z > Task :apkbuilder:compileReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:47.1943007Z > Task :apkbuilder:extractReleaseAnnotations UP-TO-DATE
+2026-03-01T04:54:47.1944127Z > Task :apkbuilder:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:54:47.1945501Z > Task :apkbuilder:mergeReleaseConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:54:47.1946568Z > Task :apkbuilder:mergeReleaseShaders UP-TO-DATE
+2026-03-01T04:54:47.1947392Z > Task :apkbuilder:compileReleaseShaders NO-SOURCE
+2026-03-01T04:54:47.1948448Z > Task :apkbuilder:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:54:47.1949314Z > Task :apkbuilder:packageReleaseAssets UP-TO-DATE
+2026-03-01T04:54:47.1950355Z > Task :apkbuilder:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:47.1951248Z > Task :apkbuilder:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:47.1952280Z > Task :apkbuilder:mergeReleaseJavaResource UP-TO-DATE
+2026-03-01T04:54:47.1953165Z > Task :apkbuilder:syncReleaseLibJars UP-TO-DATE
+2026-03-01T04:54:47.1954128Z > Task :apkbuilder:writeReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:47.1955168Z > Task :apkbuilder:bundleReleaseAar UP-TO-DATE
+2026-03-01T04:54:47.1956039Z > Task :apkbuilder:compileReleaseSources UP-TO-DATE
+2026-03-01T04:54:47.1957087Z > Task :apkbuilder:mergeReleaseResources UP-TO-DATE
+2026-03-01T04:54:47.1958265Z > Task :apkbuilder:verifyReleaseResources UP-TO-DATE
+2026-03-01T04:54:47.1959312Z > Task :apkbuilder:assembleRelease UP-TO-DATE
+2026-03-01T04:54:47.1960166Z > Task :apkbuilder:assemble UP-TO-DATE
+2026-03-01T04:54:49.1815508Z 
+2026-03-01T04:54:49.1816345Z > Task :apkbuilder:lint
+2026-03-01T04:54:49.1827932Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:49.1877781Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:49.1882493Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:49.1887578Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:49.1892419Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:49.1896622Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:51.6833808Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:51.6848578Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:51.6854728Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:51.6860261Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:51.6872524Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:51.6878879Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/release/META-INF/apkbuilder_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:53.3806814Z Ran lint on variant debug: 13 issues found
+2026-03-01T04:54:53.3813601Z Ran lint on variant release: 13 issues found
+2026-03-01T04:54:53.4799775Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/reports/lint-results.html
+2026-03-01T04:54:53.4807628Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/reports/lint-results.xml
+2026-03-01T04:54:53.4813484Z 
+2026-03-01T04:54:53.4820395Z > Task :apkbuilder:bundleLibResDebug UP-TO-DATE
+2026-03-01T04:54:53.4827438Z > Task :apkbuilder:bundleLibRuntimeToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.4834868Z > Task :apkbuilder:bundleLibCompileToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.4878189Z > Task :apkbuilder:preDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:54:53.4880017Z > Task :apkbuilder:processDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:54:53.4881287Z > Task :apkbuilder:bundleLibResRelease UP-TO-DATE
+2026-03-01T04:54:53.4882522Z > Task :apkbuilder:bundleLibRuntimeToJarRelease UP-TO-DATE
+2026-03-01T04:54:53.4883881Z > Task :apkbuilder:bundleLibCompileToJarRelease UP-TO-DATE
+2026-03-01T04:54:53.4885570Z > Task :apkbuilder:preReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:54:53.4886769Z > Task :apkbuilder:processReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:54:53.4887681Z > Task :app:preBuild UP-TO-DATE
+2026-03-01T04:54:53.4888492Z > Task :app:preCommonDebugBuild UP-TO-DATE
+2026-03-01T04:54:53.4889727Z > Task :autojs:preBuild UP-TO-DATE
+2026-03-01T04:54:53.4890555Z > Task :autojs:preDebugBuild UP-TO-DATE
+2026-03-01T04:54:53.4891372Z > Task :automator:preBuild UP-TO-DATE
+2026-03-01T04:54:53.4892259Z > Task :automator:preDebugBuild UP-TO-DATE
+2026-03-01T04:54:53.4893230Z > Task :common:preBuild UP-TO-DATE
+2026-03-01T04:54:53.4894095Z > Task :common:preDebugBuild UP-TO-DATE
+2026-03-01T04:54:53.4901726Z > Task :common:compileDebugAidl NO-SOURCE
+2026-03-01T04:54:53.4902884Z > Task :automator:compileDebugAidl NO-SOURCE
+2026-03-01T04:54:53.4903869Z > Task :autojs:compileDebugAidl NO-SOURCE
+2026-03-01T04:54:53.4904957Z > Task :app:compileCommonDebugAidl NO-SOURCE
+2026-03-01T04:54:53.4905870Z > Task :autojs:packageDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.4906664Z > Task :automator:packageDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.4907411Z > Task :common:packageDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.4908175Z > Task :app:compileCommonDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.4909061Z > Task :apkbuilder:generateDebugUnitTestStubRFile
+2026-03-01T04:54:53.4912381Z > Task :apkbuilder:generateReleaseUnitTestStubRFile
+2026-03-01T04:54:53.4915486Z > Task :app:generateCommonDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:53.4921728Z > Task :apkbuilder:kaptGenerateStubsDebugUnitTestKotlin
+2026-03-01T04:54:53.5798606Z > Task :apkbuilder:kaptDebugUnitTestKotlin
+2026-03-01T04:54:53.5807028Z > Task :apkbuilder:compileDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:54:53.5815282Z > Task :apkbuilder:compileDebugUnitTestJavaWithJavac NO-SOURCE
+2026-03-01T04:54:53.5859520Z > Task :apkbuilder:testDebugUnitTest NO-SOURCE
+2026-03-01T04:54:53.5861024Z > Task :apkbuilder:kaptGenerateStubsReleaseUnitTestKotlin
+2026-03-01T04:54:53.5866197Z > Task :apkbuilder:kaptReleaseUnitTestKotlin
+2026-03-01T04:54:53.5867268Z > Task :apkbuilder:compileReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:54:53.5868727Z > Task :apkbuilder:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+2026-03-01T04:54:53.5871467Z > Task :apkbuilder:testReleaseUnitTest NO-SOURCE
+2026-03-01T04:54:53.5878216Z > Task :apkbuilder:test UP-TO-DATE
+2026-03-01T04:54:53.5878883Z > Task :apkbuilder:check
+2026-03-01T04:54:53.5879844Z > Task :apkbuilder:build
+2026-03-01T04:54:53.5887585Z > Task :apkbuilder:compileDebugLibraryResources UP-TO-DATE
+2026-03-01T04:54:53.5888440Z > Task :autojs:writeDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:53.5889239Z > Task :automator:writeDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:53.5890820Z > Task :common:writeDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:53.5891599Z > Task :app:checkCommonDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:53.5892415Z > Task :app:generateCommonDebugResValues UP-TO-DATE
+2026-03-01T04:54:53.5895258Z > Task :app:generateCommonDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5896079Z > Task :autojs:compileDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.5896842Z > Task :autojs:generateDebugResValues UP-TO-DATE
+2026-03-01T04:54:53.5897562Z > Task :autojs:generateDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5898231Z > Task :autojs:packageDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5898934Z > Task :automator:compileDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.5899687Z > Task :automator:generateDebugResValues UP-TO-DATE
+2026-03-01T04:54:53.5900499Z > Task :automator:generateDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5901282Z > Task :automator:packageDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5902015Z > Task :common:compileDebugRenderscript NO-SOURCE
+2026-03-01T04:54:53.5908269Z > Task :common:generateDebugResValues UP-TO-DATE
+2026-03-01T04:54:53.5909130Z > Task :common:generateDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5909870Z > Task :common:packageDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5910609Z > Task :app:mergeCommonDebugResources UP-TO-DATE
+2026-03-01T04:54:53.5911509Z > Task :app:createCommonDebugCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:54:53.5912390Z > Task :apkbuilder:extractDeepLinksDebug UP-TO-DATE
+2026-03-01T04:54:53.5913147Z > Task :app:extractDeepLinksCommonDebug UP-TO-DATE
+2026-03-01T04:54:53.5913876Z > Task :autojs:extractDeepLinksDebug UP-TO-DATE
+2026-03-01T04:54:53.5914797Z > Task :autojs:processDebugManifest UP-TO-DATE
+2026-03-01T04:54:53.5915721Z > Task :automator:extractDeepLinksDebug UP-TO-DATE
+2026-03-01T04:54:53.5916357Z > Task :automator:processDebugManifest UP-TO-DATE
+2026-03-01T04:54:53.5917063Z > Task :common:extractDeepLinksDebug UP-TO-DATE
+2026-03-01T04:54:53.5917759Z > Task :common:processDebugManifest UP-TO-DATE
+2026-03-01T04:54:53.5918732Z > Task :app:processCommonDebugMainManifest UP-TO-DATE
+2026-03-01T04:54:53.5919513Z > Task :app:processCommonDebugManifest UP-TO-DATE
+2026-03-01T04:54:53.6837788Z > Task :app:processCommonDebugManifestForPackage UP-TO-DATE
+2026-03-01T04:54:53.6838720Z > Task :autojs:compileDebugLibraryResources UP-TO-DATE
+2026-03-01T04:54:53.6839559Z > Task :autojs:parseDebugLocalResources UP-TO-DATE
+2026-03-01T04:54:53.6840367Z > Task :automator:parseDebugLocalResources UP-TO-DATE
+2026-03-01T04:54:53.6841177Z > Task :common:parseDebugLocalResources UP-TO-DATE
+2026-03-01T04:54:53.6841837Z > Task :common:generateDebugRFile UP-TO-DATE
+2026-03-01T04:54:53.6842479Z > Task :automator:generateDebugRFile UP-TO-DATE
+2026-03-01T04:54:53.6843151Z > Task :autojs:generateDebugRFile UP-TO-DATE
+2026-03-01T04:54:53.6843857Z > Task :automator:compileDebugLibraryResources UP-TO-DATE
+2026-03-01T04:54:53.6844807Z > Task :common:compileDebugLibraryResources UP-TO-DATE
+2026-03-01T04:54:53.6845597Z > Task :app:processCommonDebugResources UP-TO-DATE
+2026-03-01T04:54:53.6846273Z > Task :app:generateCommonDebugR2 UP-TO-DATE
+2026-03-01T04:54:53.6846992Z > Task :autojs:generateDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:53.6847796Z > Task :automator:generateDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:53.6848594Z > Task :common:generateDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:53.6849320Z > Task :common:kaptGenerateStubsDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.6850001Z > Task :common:kaptDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.6850669Z > Task :common:compileDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.6851417Z > Task :common:compileDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:53.6852213Z > Task :common:bundleLibCompileToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.6853617Z > Task :automator:kaptGenerateStubsDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.7808845Z > Task :automator:kaptDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.7818509Z > Task :automator:compileDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.7821948Z > Task :automator:compileDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:53.7827582Z > Task :automator:bundleLibCompileToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.7832995Z > Task :autojs:kaptGenerateStubsDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.8803983Z > Task :autojs:kaptDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.8805540Z > Task :autojs:compileDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.8811798Z > Task :autojs:compileDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:53.8812899Z > Task :autojs:bundleLibCompileToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.8814000Z > Task :app:kaptGenerateStubsCommonDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.9799068Z > Task :app:kaptCommonDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.9805469Z > Task :app:compileCommonDebugKotlin UP-TO-DATE
+2026-03-01T04:54:53.9818278Z > Task :app:compileCommonDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:53.9821385Z > Task :app:compileCommonDebugSources UP-TO-DATE
+2026-03-01T04:54:53.9823076Z > Task :app:mergeCommonDebugNativeDebugMetadata NO-SOURCE
+2026-03-01T04:54:53.9824305Z > Task :app:mergeCommonDebugShaders UP-TO-DATE
+2026-03-01T04:54:53.9825394Z > Task :app:compileCommonDebugShaders NO-SOURCE
+2026-03-01T04:54:53.9826130Z > Task :app:generateCommonDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9826810Z > Task :autojs:mergeDebugShaders UP-TO-DATE
+2026-03-01T04:54:53.9827462Z > Task :autojs:compileDebugShaders NO-SOURCE
+2026-03-01T04:54:53.9828109Z > Task :autojs:generateDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9828773Z > Task :autojs:packageDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9829447Z > Task :automator:mergeDebugShaders UP-TO-DATE
+2026-03-01T04:54:53.9830139Z > Task :automator:compileDebugShaders NO-SOURCE
+2026-03-01T04:54:53.9830827Z > Task :automator:generateDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9831539Z > Task :automator:packageDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9832199Z > Task :common:mergeDebugShaders UP-TO-DATE
+2026-03-01T04:54:53.9832853Z > Task :common:compileDebugShaders NO-SOURCE
+2026-03-01T04:54:53.9833524Z > Task :common:generateDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9855144Z > Task :common:packageDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9855915Z > Task :app:mergeCommonDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9856673Z > Task :app:compressCommonDebugAssets UP-TO-DATE
+2026-03-01T04:54:53.9857450Z > Task :app:processCommonDebugJavaRes NO-SOURCE
+2026-03-01T04:54:53.9858187Z > Task :autojs:processDebugJavaRes NO-SOURCE
+2026-03-01T04:54:53.9858885Z > Task :autojs:bundleLibResDebug UP-TO-DATE
+2026-03-01T04:54:53.9859614Z > Task :automator:processDebugJavaRes NO-SOURCE
+2026-03-01T04:54:53.9860345Z > Task :automator:bundleLibResDebug UP-TO-DATE
+2026-03-01T04:54:53.9861037Z > Task :common:processDebugJavaRes NO-SOURCE
+2026-03-01T04:54:53.9861825Z > Task :common:bundleLibResDebug UP-TO-DATE
+2026-03-01T04:54:53.9862588Z > Task :app:mergeCommonDebugJavaResource UP-TO-DATE
+2026-03-01T04:54:53.9863443Z > Task :app:checkCommonDebugDuplicateClasses UP-TO-DATE
+2026-03-01T04:54:53.9864322Z > Task :app:desugarCommonDebugFileDependencies UP-TO-DATE
+2026-03-01T04:54:53.9865329Z > Task :autojs:bundleLibRuntimeToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.9866097Z > Task :automator:bundleLibRuntimeToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.9866826Z > Task :common:bundleLibRuntimeToJarDebug UP-TO-DATE
+2026-03-01T04:54:53.9867578Z > Task :app:multiDexListCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0825975Z > Task :app:dexBuilderCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0828841Z > Task :app:mergeDexCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0831691Z > Task :apkbuilder:copyDebugJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.0832571Z > Task :app:mergeCommonDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.0833458Z > Task :autojs:mergeDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.0843431Z > Task :autojs:mergeDebugNativeLibs NO-SOURCE
+2026-03-01T04:54:54.0844641Z > Task :autojs:stripDebugDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.0845460Z > Task :autojs:copyDebugJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.0846276Z > Task :automator:mergeDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.0847061Z > Task :automator:mergeDebugNativeLibs NO-SOURCE
+2026-03-01T04:54:54.0847813Z > Task :automator:stripDebugDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.0848615Z > Task :automator:copyDebugJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.0849453Z > Task :common:mergeDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.0850177Z > Task :common:mergeDebugNativeLibs NO-SOURCE
+2026-03-01T04:54:54.0850904Z > Task :common:stripDebugDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.0851734Z > Task :common:copyDebugJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.0852523Z > Task :app:mergeCommonDebugNativeLibs UP-TO-DATE
+2026-03-01T04:54:54.0853207Z > Task :app:stripCommonDebugDebugSymbols UP-TO-DATE
+2026-03-01T04:54:54.0853933Z > Task :app:validateSigningCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0854920Z > Task :app:writeCommonDebugAppMetadata UP-TO-DATE
+2026-03-01T04:54:54.0855814Z > Task :app:writeCommonDebugSigningConfigVersions UP-TO-DATE
+2026-03-01T04:54:54.0856624Z > Task :app:packageCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0857329Z > Task :app:assembleCommonDebug UP-TO-DATE
+2026-03-01T04:54:54.0858053Z > Task :app:preCommonReleaseBuild UP-TO-DATE
+2026-03-01T04:54:54.0858765Z > Task :autojs:preReleaseBuild UP-TO-DATE
+2026-03-01T04:54:54.0859498Z > Task :automator:preReleaseBuild UP-TO-DATE
+2026-03-01T04:54:54.0860176Z > Task :common:preReleaseBuild UP-TO-DATE
+2026-03-01T04:54:54.0860871Z > Task :common:compileReleaseAidl NO-SOURCE
+2026-03-01T04:54:54.0861591Z > Task :automator:compileReleaseAidl NO-SOURCE
+2026-03-01T04:54:54.0862302Z > Task :autojs:compileReleaseAidl NO-SOURCE
+2026-03-01T04:54:54.0862991Z > Task :app:compileCommonReleaseAidl NO-SOURCE
+2026-03-01T04:54:54.0863773Z > Task :autojs:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0864775Z > Task :automator:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0865496Z > Task :common:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0866253Z > Task :app:compileCommonReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0867368Z > Task :app:generateCommonReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:54.0868334Z > Task :apkbuilder:compileReleaseLibraryResources UP-TO-DATE
+2026-03-01T04:54:54.0869205Z > Task :autojs:writeReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:54.0869994Z > Task :automator:writeReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:54.0870813Z > Task :common:writeReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:54.0871610Z > Task :app:checkCommonReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:54.0872474Z > Task :app:generateCommonReleaseResValues UP-TO-DATE
+2026-03-01T04:54:54.0873311Z > Task :app:generateCommonReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.0874125Z > Task :autojs:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0875170Z > Task :autojs:generateReleaseResValues UP-TO-DATE
+2026-03-01T04:54:54.0875960Z > Task :autojs:generateReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.0876748Z > Task :autojs:packageReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.0877566Z > Task :automator:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0878397Z > Task :automator:generateReleaseResValues UP-TO-DATE
+2026-03-01T04:54:54.0879222Z > Task :automator:generateReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.0880059Z > Task :automator:packageReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.0880852Z > Task :common:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:54.0881559Z > Task :common:generateReleaseResValues UP-TO-DATE
+2026-03-01T04:54:54.0882253Z > Task :common:generateReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.1798469Z > Task :common:packageReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.1802908Z > Task :app:mergeCommonReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.1808239Z > Task :app:createCommonReleaseCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:54:54.1814180Z > Task :apkbuilder:extractDeepLinksRelease UP-TO-DATE
+2026-03-01T04:54:54.1819269Z > Task :app:extractDeepLinksCommonRelease UP-TO-DATE
+2026-03-01T04:54:54.1826856Z > Task :autojs:extractDeepLinksRelease UP-TO-DATE
+2026-03-01T04:54:54.1828002Z > Task :autojs:processReleaseManifest UP-TO-DATE
+2026-03-01T04:54:54.1829134Z > Task :automator:extractDeepLinksRelease UP-TO-DATE
+2026-03-01T04:54:54.1830337Z > Task :automator:processReleaseManifest UP-TO-DATE
+2026-03-01T04:54:54.1831262Z > Task :common:extractDeepLinksRelease UP-TO-DATE
+2026-03-01T04:54:54.1832422Z > Task :common:processReleaseManifest UP-TO-DATE
+2026-03-01T04:54:54.1833361Z > Task :app:processCommonReleaseMainManifest UP-TO-DATE
+2026-03-01T04:54:54.1834572Z > Task :app:processCommonReleaseManifest UP-TO-DATE
+2026-03-01T04:54:54.1835669Z > Task :app:processCommonReleaseManifestForPackage UP-TO-DATE
+2026-03-01T04:54:54.1837548Z > Task :autojs:compileReleaseLibraryResources UP-TO-DATE
+2026-03-01T04:54:54.1838524Z > Task :autojs:parseReleaseLocalResources UP-TO-DATE
+2026-03-01T04:54:54.1854901Z > Task :automator:parseReleaseLocalResources UP-TO-DATE
+2026-03-01T04:54:54.1856305Z > Task :common:parseReleaseLocalResources UP-TO-DATE
+2026-03-01T04:54:54.1858665Z > Task :common:generateReleaseRFile UP-TO-DATE
+2026-03-01T04:54:54.1859418Z > Task :automator:generateReleaseRFile UP-TO-DATE
+2026-03-01T04:54:54.1860138Z > Task :autojs:generateReleaseRFile UP-TO-DATE
+2026-03-01T04:54:54.1860928Z > Task :automator:compileReleaseLibraryResources UP-TO-DATE
+2026-03-01T04:54:54.1861782Z > Task :common:compileReleaseLibraryResources UP-TO-DATE
+2026-03-01T04:54:54.1862580Z > Task :app:processCommonReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.1863309Z > Task :app:generateCommonReleaseR2 UP-TO-DATE
+2026-03-01T04:54:54.1864034Z > Task :autojs:generateReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:54.1864989Z > Task :automator:generateReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:54.1865775Z > Task :common:generateReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:54.1866579Z > Task :common:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1867298Z > Task :common:kaptReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1867971Z > Task :common:compileReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1868905Z > Task :common:compileReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:54.1898301Z > Task :common:bundleLibCompileToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.1899743Z > Task :automator:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1901021Z > Task :automator:kaptReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1902124Z > Task :automator:compileReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.1904594Z > Task :automator:compileReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:54.1907018Z > Task :automator:bundleLibCompileToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.1909364Z > Task :autojs:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.2815321Z > Task :autojs:kaptReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.2818090Z > Task :autojs:compileReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.3807487Z > Task :autojs:compileReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:54.3808435Z > Task :autojs:bundleLibCompileToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.3812521Z > Task :app:kaptGenerateStubsCommonReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.4814201Z > Task :app:kaptCommonReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.4817545Z > Task :app:compileCommonReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:54.4818426Z > Task :app:writeCommonReleaseApplicationId UP-TO-DATE
+2026-03-01T04:54:54.4819210Z > Task :app:analyticsRecordingCommonRelease
+2026-03-01T04:54:54.4820023Z > Task :app:compileCommonReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:54.4820855Z > Task :app:compileCommonReleaseSources UP-TO-DATE
+2026-03-01T04:54:54.4821648Z > Task :app:buildKotlinToolingMetadata UP-TO-DATE
+2026-03-01T04:54:54.4822424Z > Task :autojs:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:54:54.4823233Z > Task :automator:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:54:54.4824878Z > Task :common:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:54:54.4825621Z > Task :app:lintVitalCommonRelease SKIPPED
+2026-03-01T04:54:54.4826437Z > Task :apkbuilder:copyReleaseJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.4827339Z > Task :app:mergeCommonReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.4828114Z > Task :autojs:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:54.4828817Z > Task :autojs:bundleLibResRelease UP-TO-DATE
+2026-03-01T04:54:54.4829566Z > Task :autojs:mergeReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.4830311Z > Task :autojs:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:54:54.4831038Z > Task :autojs:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.4831822Z > Task :autojs:copyReleaseJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.4832626Z > Task :automator:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:54.4833395Z > Task :automator:bundleLibResRelease UP-TO-DATE
+2026-03-01T04:54:54.4834225Z > Task :automator:mergeReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.4835214Z > Task :automator:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:54:54.4836035Z > Task :automator:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.4836933Z > Task :automator:copyReleaseJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.4837756Z > Task :common:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:54.4838441Z > Task :common:bundleLibResRelease UP-TO-DATE
+2026-03-01T04:54:54.4839190Z > Task :common:mergeReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:54.4839963Z > Task :common:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:54:54.4840716Z > Task :common:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:54:54.4841516Z > Task :common:copyReleaseJniLibsProjectOnly UP-TO-DATE
+2026-03-01T04:54:54.4842338Z > Task :app:mergeCommonReleaseNativeLibs UP-TO-DATE
+2026-03-01T04:54:54.4843161Z > Task :app:stripCommonReleaseDebugSymbols UP-TO-DATE
+2026-03-01T04:54:54.4844079Z > Task :app:extractCommonReleaseNativeSymbolTables UP-TO-DATE
+2026-03-01T04:54:54.4878969Z > Task :app:mergeCommonReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:54:54.4879879Z > Task :app:mergeCommonReleaseShaders UP-TO-DATE
+2026-03-01T04:54:54.4880661Z > Task :app:compileCommonReleaseShaders NO-SOURCE
+2026-03-01T04:54:54.4881433Z > Task :app:generateCommonReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4882485Z > Task :autojs:mergeReleaseShaders UP-TO-DATE
+2026-03-01T04:54:54.4883207Z > Task :autojs:compileReleaseShaders NO-SOURCE
+2026-03-01T04:54:54.4883930Z > Task :autojs:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4893829Z > Task :autojs:packageReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4895137Z > Task :automator:mergeReleaseShaders UP-TO-DATE
+2026-03-01T04:54:54.4896033Z > Task :automator:compileReleaseShaders NO-SOURCE
+2026-03-01T04:54:54.4896965Z > Task :automator:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4897878Z > Task :automator:packageReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4898706Z > Task :common:mergeReleaseShaders UP-TO-DATE
+2026-03-01T04:54:54.4899533Z > Task :common:compileReleaseShaders NO-SOURCE
+2026-03-01T04:54:54.4900362Z > Task :common:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4908680Z > Task :common:packageReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4909499Z > Task :app:mergeCommonReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4910275Z > Task :app:compressCommonReleaseAssets UP-TO-DATE
+2026-03-01T04:54:54.4911054Z > Task :app:processCommonReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:54.4911883Z > Task :app:mergeCommonReleaseJavaResource UP-TO-DATE
+2026-03-01T04:54:54.4912746Z > Task :app:checkCommonReleaseDuplicateClasses UP-TO-DATE
+2026-03-01T04:54:54.4918747Z > Task :app:desugarCommonReleaseFileDependencies UP-TO-DATE
+2026-03-01T04:54:54.4919719Z > Task :autojs:bundleLibRuntimeToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.4920593Z > Task :automator:bundleLibRuntimeToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.4921464Z > Task :common:bundleLibRuntimeToJarRelease UP-TO-DATE
+2026-03-01T04:54:54.5839894Z > Task :app:multiDexListCommonRelease UP-TO-DATE
+2026-03-01T04:54:54.5855206Z > Task :app:dexBuilderCommonRelease UP-TO-DATE
+2026-03-01T04:54:54.5855982Z > Task :app:mergeDexCommonRelease UP-TO-DATE
+2026-03-01T04:54:54.5856739Z > Task :app:optimizeCommonReleaseResources UP-TO-DATE
+2026-03-01T04:54:54.5857574Z > Task :app:collectCommonReleaseDependencies UP-TO-DATE
+2026-03-01T04:54:54.5858340Z > Task :app:sdkCommonReleaseDependencyData UP-TO-DATE
+2026-03-01T04:54:54.5859078Z > Task :app:validateSigningCommonRelease UP-TO-DATE
+2026-03-01T04:54:54.5859805Z > Task :app:writeCommonReleaseAppMetadata UP-TO-DATE
+2026-03-01T04:54:54.5860680Z > Task :app:writeCommonReleaseSigningConfigVersions UP-TO-DATE
+2026-03-01T04:54:54.5861452Z > Task :app:preCoolapkDebugBuild UP-TO-DATE
+2026-03-01T04:54:54.5862108Z > Task :app:compileCoolapkDebugAidl NO-SOURCE
+2026-03-01T04:54:54.5862836Z > Task :app:compileCoolapkDebugRenderscript NO-SOURCE
+2026-03-01T04:54:54.5863620Z > Task :app:generateCoolapkDebugBuildConfig UP-TO-DATE
+2026-03-01T04:54:54.5864553Z > Task :app:checkCoolapkDebugAarMetadata UP-TO-DATE
+2026-03-01T04:54:54.5865370Z > Task :app:generateCoolapkDebugResValues UP-TO-DATE
+2026-03-01T04:54:54.5866104Z > Task :app:generateCoolapkDebugResources UP-TO-DATE
+2026-03-01T04:54:54.5866803Z > Task :app:mergeCoolapkDebugResources UP-TO-DATE
+2026-03-01T04:54:54.5867627Z > Task :app:createCoolapkDebugCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:54:54.5868449Z > Task :app:extractDeepLinksCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:54.6814943Z > Task :app:processCoolapkDebugMainManifest UP-TO-DATE
+2026-03-01T04:54:54.6816328Z > Task :app:processCoolapkDebugManifest UP-TO-DATE
+2026-03-01T04:54:54.6817541Z > Task :app:processCoolapkDebugManifestForPackage UP-TO-DATE
+2026-03-01T04:54:54.6818704Z > Task :app:processCoolapkDebugResources UP-TO-DATE
+2026-03-01T04:54:54.6819427Z > Task :app:generateCoolapkDebugR2 UP-TO-DATE
+2026-03-01T04:54:54.7826047Z > Task :app:kaptGenerateStubsCoolapkDebugKotlin UP-TO-DATE
+2026-03-01T04:54:54.9796528Z > Task :app:kaptCoolapkDebugKotlin UP-TO-DATE
+2026-03-01T04:54:54.9798011Z > Task :app:compileCoolapkDebugKotlin UP-TO-DATE
+2026-03-01T04:54:54.9799410Z > Task :app:compileCoolapkDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:54.9800493Z > Task :app:compileCoolapkDebugSources UP-TO-DATE
+2026-03-01T04:54:54.9802094Z > Task :app:mergeCoolapkDebugNativeDebugMetadata NO-SOURCE
+2026-03-01T04:54:55.0796083Z > Task :app:mergeCoolapkDebugShaders UP-TO-DATE
+2026-03-01T04:54:55.0797546Z > Task :app:compileCoolapkDebugShaders NO-SOURCE
+2026-03-01T04:54:55.0798785Z > Task :app:generateCoolapkDebugAssets UP-TO-DATE
+2026-03-01T04:54:55.0800062Z > Task :app:mergeCoolapkDebugAssets UP-TO-DATE
+2026-03-01T04:54:55.0801158Z > Task :app:compressCoolapkDebugAssets UP-TO-DATE
+2026-03-01T04:54:55.0802259Z > Task :app:processCoolapkDebugJavaRes NO-SOURCE
+2026-03-01T04:54:55.0803335Z > Task :app:mergeCoolapkDebugJavaResource UP-TO-DATE
+2026-03-01T04:54:55.0804707Z > Task :app:checkCoolapkDebugDuplicateClasses UP-TO-DATE
+2026-03-01T04:54:55.0835277Z > Task :app:desugarCoolapkDebugFileDependencies UP-TO-DATE
+2026-03-01T04:54:55.0836286Z > Task :app:multiDexListCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.0837229Z > Task :app:dexBuilderCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.1797119Z > Task :app:mergeDexCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.1800816Z > Task :app:mergeCoolapkDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:54:55.1801955Z > Task :app:mergeCoolapkDebugNativeLibs UP-TO-DATE
+2026-03-01T04:54:55.1806189Z > Task :app:stripCoolapkDebugDebugSymbols UP-TO-DATE
+2026-03-01T04:54:55.1807556Z > Task :app:validateSigningCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.1808676Z > Task :app:writeCoolapkDebugAppMetadata UP-TO-DATE
+2026-03-01T04:54:55.1814108Z > Task :app:writeCoolapkDebugSigningConfigVersions UP-TO-DATE
+2026-03-01T04:54:55.1815459Z > Task :app:packageCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.1817346Z > Task :app:assembleCoolapkDebug UP-TO-DATE
+2026-03-01T04:54:55.1818072Z > Task :app:preCoolapkReleaseBuild UP-TO-DATE
+2026-03-01T04:54:55.1819184Z > Task :app:compileCoolapkReleaseAidl NO-SOURCE
+2026-03-01T04:54:55.1820077Z > Task :app:compileCoolapkReleaseRenderscript NO-SOURCE
+2026-03-01T04:54:55.1820868Z > Task :app:generateCoolapkReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:54:55.1821654Z > Task :app:checkCoolapkReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:54:55.1822418Z > Task :app:generateCoolapkReleaseResValues UP-TO-DATE
+2026-03-01T04:54:55.1823171Z > Task :app:generateCoolapkReleaseResources UP-TO-DATE
+2026-03-01T04:54:55.1823897Z > Task :app:mergeCoolapkReleaseResources UP-TO-DATE
+2026-03-01T04:54:55.1824946Z > Task :app:createCoolapkReleaseCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:54:55.1825810Z > Task :app:extractDeepLinksCoolapkRelease UP-TO-DATE
+2026-03-01T04:54:55.1826605Z > Task :app:processCoolapkReleaseMainManifest UP-TO-DATE
+2026-03-01T04:54:55.1827347Z > Task :app:processCoolapkReleaseManifest UP-TO-DATE
+2026-03-01T04:54:55.1828145Z > Task :app:processCoolapkReleaseManifestForPackage UP-TO-DATE
+2026-03-01T04:54:55.1828956Z > Task :app:processCoolapkReleaseResources UP-TO-DATE
+2026-03-01T04:54:55.1829654Z > Task :app:generateCoolapkReleaseR2 UP-TO-DATE
+2026-03-01T04:54:55.2796207Z > Task :app:kaptGenerateStubsCoolapkReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:55.4797627Z > Task :app:kaptCoolapkReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:55.4802906Z > Task :app:compileCoolapkReleaseKotlin UP-TO-DATE
+2026-03-01T04:54:55.4807969Z > Task :app:writeCoolapkReleaseApplicationId UP-TO-DATE
+2026-03-01T04:54:55.4812829Z > Task :app:analyticsRecordingCoolapkRelease
+2026-03-01T04:54:55.4818034Z > Task :app:compileCoolapkReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:54:55.4822779Z > Task :app:compileCoolapkReleaseSources UP-TO-DATE
+2026-03-01T04:54:55.4826914Z > Task :app:lintVitalCoolapkRelease SKIPPED
+2026-03-01T04:54:55.4830404Z > Task :app:mergeCoolapkReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:54:55.4833815Z > Task :app:mergeCoolapkReleaseNativeLibs UP-TO-DATE
+2026-03-01T04:54:55.4837272Z > Task :app:stripCoolapkReleaseDebugSymbols UP-TO-DATE
+2026-03-01T04:54:55.4840053Z > Task :app:extractCoolapkReleaseNativeSymbolTables UP-TO-DATE
+2026-03-01T04:54:55.4841381Z > Task :app:mergeCoolapkReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:54:55.4844120Z > Task :app:mergeCoolapkReleaseShaders UP-TO-DATE
+2026-03-01T04:54:55.4845776Z > Task :app:compileCoolapkReleaseShaders NO-SOURCE
+2026-03-01T04:54:55.4848107Z > Task :app:generateCoolapkReleaseAssets UP-TO-DATE
+2026-03-01T04:54:55.4849151Z > Task :app:mergeCoolapkReleaseAssets UP-TO-DATE
+2026-03-01T04:54:55.5867960Z > Task :app:compressCoolapkReleaseAssets UP-TO-DATE
+2026-03-01T04:54:55.5868915Z > Task :app:processCoolapkReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:55.5869756Z > Task :app:mergeCoolapkReleaseJavaResource UP-TO-DATE
+2026-03-01T04:54:55.5870628Z > Task :app:checkCoolapkReleaseDuplicateClasses UP-TO-DATE
+2026-03-01T04:54:55.5871515Z > Task :app:desugarCoolapkReleaseFileDependencies UP-TO-DATE
+2026-03-01T04:54:55.5872315Z > Task :app:multiDexListCoolapkRelease UP-TO-DATE
+2026-03-01T04:54:55.5873117Z > Task :app:dexBuilderCoolapkRelease UP-TO-DATE
+2026-03-01T04:54:55.5873809Z > Task :app:mergeDexCoolapkRelease UP-TO-DATE
+2026-03-01T04:54:55.5874764Z > Task :app:optimizeCoolapkReleaseResources UP-TO-DATE
+2026-03-01T04:54:55.5875574Z > Task :app:collectCoolapkReleaseDependencies UP-TO-DATE
+2026-03-01T04:54:55.5876375Z > Task :app:sdkCoolapkReleaseDependencyData UP-TO-DATE
+2026-03-01T04:54:55.5877171Z > Task :app:validateSigningCoolapkRelease UP-TO-DATE
+2026-03-01T04:54:55.5877962Z > Task :app:writeCoolapkReleaseAppMetadata UP-TO-DATE
+2026-03-01T04:54:55.5878775Z > Task :app:writeCoolapkReleaseSigningConfigVersions UP-TO-DATE
+2026-03-01T04:54:55.5879481Z > Task :app:assembleDebug UP-TO-DATE
+2026-03-01T04:54:57.5795828Z 
+2026-03-01T04:54:57.5796807Z > Task :app:lint
+2026-03-01T04:54:57.5800291Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5805859Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:57.5810765Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5816352Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:57.5821707Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5826833Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5830977Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5834848Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5838821Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5842704Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:57.5847672Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:07.8803065Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:07.8813179Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8829617Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8839751Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8863433Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8867756Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8872448Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:07.8877571Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8881535Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:07.8886937Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:07.8891527Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6800175Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6817638Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6822858Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6828141Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6832368Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:16.6837399Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6841834Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6846989Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:16.6852632Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:16.6857532Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:16.6861372Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1799890Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1809469Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1836989Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1842354Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1848358Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1852645Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:24.1856860Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1861848Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:24.1866731Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1870765Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:24.1876232Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:55:24.5817801Z 
+2026-03-01T04:55:24.5818742Z > Task :app:packageCommonRelease
+2026-03-01T04:55:25.5795884Z > Task :app:packageCoolapkRelease
+2026-03-01T04:55:31.0816516Z 
+2026-03-01T04:55:31.0818226Z > Task :app:lint
+2026-03-01T04:55:31.0819209Z Ran lint on variant commonRelease: 695 issues found
+2026-03-01T04:55:31.0821503Z Ran lint on variant coolapkDebug: 695 issues found
+2026-03-01T04:55:31.0822331Z Ran lint on variant coolapkRelease: 685 issues found
+2026-03-01T04:55:31.0823144Z Ran lint on variant commonDebug: 685 issues found
+2026-03-01T04:55:31.0824669Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/reports/lint-results.html
+2026-03-01T04:55:31.0826316Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/reports/lint-results.xml
+2026-03-01T04:55:31.0827047Z 
+2026-03-01T04:55:31.0827386Z > Task :app:preCommonDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:31.0828117Z > Task :app:processCommonDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:31.1795990Z > Task :app:bundleCommonDebugClasses
+2026-03-01T04:55:31.1798533Z > Task :app:bundleCommonReleaseClasses
+2026-03-01T04:55:31.1817993Z > Task :app:assembleCommonRelease
+2026-03-01T04:55:31.1818573Z > Task :app:assembleCommon
+2026-03-01T04:55:31.1819107Z > Task :app:assembleCoolapkRelease
+2026-03-01T04:55:31.1819655Z > Task :app:assembleCoolapk
+2026-03-01T04:55:31.1820156Z > Task :app:assembleRelease
+2026-03-01T04:55:31.1821148Z > Task :app:assemble
+2026-03-01T04:55:31.2796300Z > Task :app:kaptGenerateStubsCommonDebugUnitTestKotlin
+2026-03-01T04:55:31.2797379Z > Task :app:kaptGenerateStubsCommonReleaseUnitTestKotlin
+2026-03-01T04:55:31.4803214Z > Task :app:kaptCommonDebugUnitTestKotlin
+2026-03-01T04:55:31.4804914Z > Task :app:compileCommonDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:31.6796323Z > Task :app:compileCommonDebugUnitTestJavaWithJavac
+2026-03-01T04:55:32.2796067Z > Task :app:testCommonDebugUnitTest
+2026-03-01T04:55:32.3796481Z > Task :app:kaptCommonReleaseUnitTestKotlin
+2026-03-01T04:55:32.3801204Z > Task :app:compileCommonReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:32.3804704Z > Task :app:preCommonReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:32.7817402Z > Task :app:compileCommonReleaseUnitTestJavaWithJavac
+2026-03-01T04:55:32.7818812Z > Task :app:processCommonReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:33.3796467Z > Task :app:testCommonReleaseUnitTest
+2026-03-01T04:55:33.3805632Z > Task :app:preCoolapkDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:33.3807410Z > Task :app:processCoolapkDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:33.3809436Z > Task :app:preCoolapkReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:33.3810338Z > Task :app:processCoolapkReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:33.3811284Z > Task :autojs:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:33.3812115Z > Task :autojs:extractDebugAnnotations UP-TO-DATE
+2026-03-01T04:55:33.3812918Z > Task :autojs:mergeDebugGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:33.3813770Z > Task :autojs:mergeDebugConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:33.3814673Z > Task :app:bundleCoolapkDebugClasses
+2026-03-01T04:55:33.3815357Z > Task :autojs:mergeDebugJavaResource UP-TO-DATE
+2026-03-01T04:55:33.4800606Z > Task :app:bundleCoolapkReleaseClasses
+2026-03-01T04:55:33.4810296Z > Task :app:kaptGenerateStubsCoolapkDebugUnitTestKotlin
+2026-03-01T04:55:33.5795942Z > Task :app:kaptGenerateStubsCoolapkReleaseUnitTestKotlin
+2026-03-01T04:55:33.6796439Z > Task :app:kaptCoolapkDebugUnitTestKotlin
+2026-03-01T04:55:33.6801060Z > Task :app:compileCoolapkDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:33.9797636Z > Task :app:compileCoolapkDebugUnitTestJavaWithJavac
+2026-03-01T04:55:34.4796892Z > Task :app:testCoolapkDebugUnitTest
+2026-03-01T04:55:34.5796022Z > Task :app:kaptCoolapkReleaseUnitTestKotlin
+2026-03-01T04:55:34.5796755Z > Task :app:compileCoolapkReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:34.7796002Z > Task :app:compileCoolapkReleaseUnitTestJavaWithJavac
+2026-03-01T04:55:35.1797250Z > Task :app:testCoolapkReleaseUnitTest
+2026-03-01T04:55:35.1799474Z > Task :app:test
+2026-03-01T04:55:35.1799927Z > Task :app:check
+2026-03-01T04:55:35.1800343Z > Task :app:build
+2026-03-01T04:55:35.1800853Z > Task :autojs:syncDebugLibJars UP-TO-DATE
+2026-03-01T04:55:35.1801486Z > Task :autojs:bundleDebugAar UP-TO-DATE
+2026-03-01T04:55:35.1802149Z > Task :autojs:compileDebugSources UP-TO-DATE
+2026-03-01T04:55:35.1802785Z > Task :autojs:assembleDebug UP-TO-DATE
+2026-03-01T04:55:35.1803613Z > Task :autojs:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:35.1804661Z > Task :autojs:extractReleaseAnnotations UP-TO-DATE
+2026-03-01T04:55:35.2795796Z > Task :autojs:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:35.2800002Z > Task :autojs:mergeReleaseConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:35.2801508Z > Task :autojs:mergeReleaseJavaResource UP-TO-DATE
+2026-03-01T04:55:35.2804005Z > Task :autojs:syncReleaseLibJars UP-TO-DATE
+2026-03-01T04:55:35.2804930Z > Task :autojs:bundleReleaseAar UP-TO-DATE
+2026-03-01T04:55:35.2805641Z > Task :autojs:compileReleaseSources UP-TO-DATE
+2026-03-01T04:55:35.2806396Z > Task :autojs:mergeReleaseResources UP-TO-DATE
+2026-03-01T04:55:35.2807124Z > Task :autojs:verifyReleaseResources UP-TO-DATE
+2026-03-01T04:55:35.2807819Z > Task :autojs:assembleRelease UP-TO-DATE
+2026-03-01T04:55:35.2808443Z > Task :autojs:assemble UP-TO-DATE
+2026-03-01T04:55:37.2816547Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2819655Z 
+2026-03-01T04:55:37.2822660Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2827926Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2833108Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2878061Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2881982Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2886393Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:37.2888614Z > Task :autojs:lint
+2026-03-01T04:55:41.1800409Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1838078Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1843696Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1849647Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/release/META-INF/common_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1854680Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1860192Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/release/META-INF/autojs_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:41.1864090Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/release/META-INF/automator_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:46.5798471Z Ran lint on variant debug: 94 issues found
+2026-03-01T04:55:46.5799759Z Ran lint on variant release: 94 issues found
+2026-03-01T04:55:46.5801517Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/reports/lint-results.html
+2026-03-01T04:55:46.5803564Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/reports/lint-results.xml
+2026-03-01T04:55:46.5804924Z 
+2026-03-01T04:55:46.5806292Z > Task :autojs:preDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:46.5807083Z > Task :autojs:processDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:46.5807865Z > Task :autojs:preReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:46.5808647Z > Task :autojs:processReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:46.5809588Z > Task :automator:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:46.5810470Z > Task :automator:extractDebugAnnotations UP-TO-DATE
+2026-03-01T04:55:46.5811329Z > Task :automator:mergeDebugGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:46.5812236Z > Task :automator:mergeDebugConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:46.5813055Z > Task :automator:mergeDebugJavaResource UP-TO-DATE
+2026-03-01T04:55:46.5813756Z > Task :automator:syncDebugLibJars UP-TO-DATE
+2026-03-01T04:55:46.5814605Z > Task :automator:bundleDebugAar UP-TO-DATE
+2026-03-01T04:55:46.5815297Z > Task :automator:compileDebugSources UP-TO-DATE
+2026-03-01T04:55:46.5815974Z > Task :automator:assembleDebug UP-TO-DATE
+2026-03-01T04:55:46.5816806Z > Task :automator:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:46.6798305Z > Task :automator:extractReleaseAnnotations UP-TO-DATE
+2026-03-01T04:55:46.6804169Z > Task :automator:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:46.6805531Z > Task :automator:mergeReleaseConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:46.6807769Z > Task :automator:mergeReleaseJavaResource UP-TO-DATE
+2026-03-01T04:55:46.6809583Z > Task :automator:syncReleaseLibJars UP-TO-DATE
+2026-03-01T04:55:46.6810314Z > Task :automator:bundleReleaseAar UP-TO-DATE
+2026-03-01T04:55:46.6811053Z > Task :automator:compileReleaseSources UP-TO-DATE
+2026-03-01T04:55:46.6811814Z > Task :automator:mergeReleaseResources UP-TO-DATE
+2026-03-01T04:55:46.6812540Z > Task :automator:verifyReleaseResources UP-TO-DATE
+2026-03-01T04:55:46.6813229Z > Task :automator:assembleRelease UP-TO-DATE
+2026-03-01T04:55:46.6813902Z > Task :automator:assemble UP-TO-DATE
+2026-03-01T04:55:46.7801616Z > Task :autojs:generateDebugUnitTestStubRFile
+2026-03-01T04:55:46.7802419Z > Task :autojs:generateReleaseUnitTestStubRFile
+2026-03-01T04:55:48.6802238Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6816330Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6822091Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6827664Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6832071Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6836009Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:48.6837880Z 
+2026-03-01T04:55:48.6838124Z > Task :automator:lint
+2026-03-01T04:55:50.8798776Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:50.8804853Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:50.8810658Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:50.8816856Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:50.8822667Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/release/META-INF/automator_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:50.8826959Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/release/META-INF/common_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:54.6795900Z Ran lint on variant debug: 2 issues found
+2026-03-01T04:55:54.6796919Z Ran lint on variant release: 2 issues found
+2026-03-01T04:55:54.6798162Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/reports/lint-results.html
+2026-03-01T04:55:54.6807413Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/reports/lint-results.xml
+2026-03-01T04:55:54.7794661Z 
+2026-03-01T04:55:54.7796073Z > Task :automator:preDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:54.7797031Z > Task :autojs:kaptGenerateStubsDebugUnitTestKotlin
+2026-03-01T04:55:54.7805015Z > Task :automator:processDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:54.7811221Z > Task :automator:generateDebugUnitTestStubRFile
+2026-03-01T04:55:54.7811971Z > Task :autojs:kaptGenerateStubsReleaseUnitTestKotlin
+2026-03-01T04:55:54.8796831Z > Task :autojs:kaptDebugUnitTestKotlin
+2026-03-01T04:55:54.8802316Z > Task :autojs:compileDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:55.1795604Z > Task :autojs:compileDebugUnitTestJavaWithJavac
+2026-03-01T04:55:55.6797078Z > Task :autojs:testDebugUnitTest
+2026-03-01T04:55:55.6799538Z > Task :autojs:kaptReleaseUnitTestKotlin
+2026-03-01T04:55:55.6800445Z > Task :autojs:compileReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:55:55.7795468Z > Task :autojs:compileReleaseUnitTestJavaWithJavac
+2026-03-01T04:55:56.1795847Z > Task :autojs:testReleaseUnitTest
+2026-03-01T04:55:56.1798030Z > Task :autojs:test
+2026-03-01T04:55:56.1798535Z > Task :autojs:check
+2026-03-01T04:55:56.1799134Z > Task :autojs:build
+2026-03-01T04:55:56.2811048Z > Task :automator:preReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:56.2816927Z > Task :automator:processReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:56.2822198Z > Task :common:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:56.2827585Z > Task :common:extractDebugAnnotations UP-TO-DATE
+2026-03-01T04:55:56.2830129Z > Task :automator:generateReleaseUnitTestStubRFile
+2026-03-01T04:55:56.2831398Z > Task :common:mergeDebugGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:56.2832869Z > Task :common:mergeDebugConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:56.2834609Z > Task :common:mergeDebugJavaResource UP-TO-DATE
+2026-03-01T04:55:56.2837315Z > Task :common:syncDebugLibJars UP-TO-DATE
+2026-03-01T04:55:56.2838391Z > Task :common:bundleDebugAar UP-TO-DATE
+2026-03-01T04:55:56.2839282Z > Task :common:compileDebugSources UP-TO-DATE
+2026-03-01T04:55:56.2839963Z > Task :common:assembleDebug UP-TO-DATE
+2026-03-01T04:55:56.2840746Z > Task :common:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+2026-03-01T04:55:56.3806081Z > Task :common:extractReleaseAnnotations UP-TO-DATE
+2026-03-01T04:55:56.3865624Z > Task :common:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+2026-03-01T04:55:56.3866528Z > Task :common:mergeReleaseConsumerProguardFiles UP-TO-DATE
+2026-03-01T04:55:56.3867272Z > Task :common:mergeReleaseJavaResource UP-TO-DATE
+2026-03-01T04:55:56.3868215Z > Task :common:syncReleaseLibJars UP-TO-DATE
+2026-03-01T04:55:56.3868789Z > Task :common:bundleReleaseAar UP-TO-DATE
+2026-03-01T04:55:56.3869395Z > Task :common:compileReleaseSources UP-TO-DATE
+2026-03-01T04:55:56.3870025Z > Task :common:mergeReleaseResources UP-TO-DATE
+2026-03-01T04:55:56.3870719Z > Task :automator:kaptGenerateStubsDebugUnitTestKotlin
+2026-03-01T04:55:56.3871403Z > Task :common:verifyReleaseResources UP-TO-DATE
+2026-03-01T04:55:56.3872120Z > Task :automator:kaptGenerateStubsReleaseUnitTestKotlin
+2026-03-01T04:55:56.4798082Z > Task :automator:kaptDebugUnitTestKotlin
+2026-03-01T04:55:56.4810678Z > Task :automator:kaptReleaseUnitTestKotlin
+2026-03-01T04:55:56.5807221Z > Task :common:assembleRelease UP-TO-DATE
+2026-03-01T04:55:56.5808470Z > Task :common:assemble UP-TO-DATE
+2026-03-01T04:55:56.9795974Z > Task :automator:compileDebugUnitTestKotlin
+2026-03-01T04:55:56.9797028Z > Task :automator:compileReleaseUnitTestKotlin
+2026-03-01T04:55:58.5795436Z 
+2026-03-01T04:55:58.5799822Z > Task :common:lint
+2026-03-01T04:55:58.5807557Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5817677Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5829058Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5837914Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5845449Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5859548Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5864781Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:58.5869122Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/release/META-INF/common_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:55:59.0796779Z Ran lint on variant debug: 4 issues found
+2026-03-01T04:55:59.0801098Z Ran lint on variant release: 4 issues found
+2026-03-01T04:55:59.0802340Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/reports/lint-results.html
+2026-03-01T04:55:59.0804306Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/reports/lint-results.xml
+2026-03-01T04:55:59.0805340Z 
+2026-03-01T04:55:59.0805801Z > Task :automator:compileDebugUnitTestJavaWithJavac NO-SOURCE
+2026-03-01T04:55:59.5797346Z > Task :automator:testDebugUnitTest
+2026-03-01T04:55:59.5803217Z > Task :automator:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+2026-03-01T04:55:59.9846310Z > Task :automator:testReleaseUnitTest
+2026-03-01T04:55:59.9848618Z > Task :automator:test
+2026-03-01T04:55:59.9849122Z > Task :automator:check
+2026-03-01T04:55:59.9849601Z > Task :automator:build
+2026-03-01T04:55:59.9850230Z > Task :common:preDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:59.9851003Z > Task :common:processDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:59.9851782Z > Task :common:preReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:55:59.9852566Z > Task :common:processReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:55:59.9853255Z > Task :inrt:preBuild UP-TO-DATE
+2026-03-01T04:55:59.9853824Z > Task :inrt:preDebugBuild UP-TO-DATE
+2026-03-01T04:55:59.9854603Z > Task :inrt:compileDebugAidl NO-SOURCE
+2026-03-01T04:55:59.9855271Z > Task :inrt:compileDebugRenderscript NO-SOURCE
+2026-03-01T04:55:59.9855978Z > Task :inrt:generateDebugBuildConfig UP-TO-DATE
+2026-03-01T04:55:59.9856669Z > Task :inrt:checkDebugAarMetadata UP-TO-DATE
+2026-03-01T04:55:59.9857333Z > Task :inrt:generateDebugResValues UP-TO-DATE
+2026-03-01T04:55:59.9858038Z > Task :inrt:generateDebugResources UP-TO-DATE
+2026-03-01T04:55:59.9858704Z > Task :inrt:mergeDebugResources UP-TO-DATE
+2026-03-01T04:55:59.9859478Z > Task :inrt:createDebugCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:55:59.9860731Z > Task :inrt:extractDeepLinksDebug UP-TO-DATE
+2026-03-01T04:56:00.0795708Z > Task :inrt:processDebugMainManifest UP-TO-DATE
+2026-03-01T04:56:00.0796984Z > Task :inrt:processDebugManifest UP-TO-DATE
+2026-03-01T04:56:00.0798079Z > Task :inrt:processDebugManifestForPackage UP-TO-DATE
+2026-03-01T04:56:00.0798935Z > Task :inrt:processDebugResources UP-TO-DATE
+2026-03-01T04:56:00.0799689Z > Task :common:generateReleaseUnitTestStubRFile
+2026-03-01T04:56:00.0800438Z > Task :common:generateDebugUnitTestStubRFile
+2026-03-01T04:56:00.0801240Z > Task :common:kaptGenerateStubsReleaseUnitTestKotlin
+2026-03-01T04:56:00.0802056Z > Task :inrt:kaptGenerateStubsDebugKotlin UP-TO-DATE
+2026-03-01T04:56:00.0802863Z > Task :common:kaptGenerateStubsDebugUnitTestKotlin
+2026-03-01T04:56:00.1795672Z > Task :common:kaptReleaseUnitTestKotlin
+2026-03-01T04:56:00.1801340Z > Task :common:kaptDebugUnitTestKotlin
+2026-03-01T04:56:00.1807391Z > Task :common:compileDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:56:00.2797895Z > Task :common:compileDebugUnitTestJavaWithJavac
+2026-03-01T04:56:00.7795316Z > Task :common:testDebugUnitTest
+2026-03-01T04:56:00.7796155Z > Task :common:compileReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:56:00.8796036Z > Task :common:compileReleaseUnitTestJavaWithJavac
+2026-03-01T04:56:01.1795713Z > Task :common:testReleaseUnitTest
+2026-03-01T04:56:01.1796918Z > Task :common:test
+2026-03-01T04:56:01.1797649Z > Task :common:check
+2026-03-01T04:56:01.1804755Z > Task :common:build
+2026-03-01T04:56:01.2796223Z > Task :inrt:kaptDebugKotlin UP-TO-DATE
+2026-03-01T04:56:01.2802278Z > Task :inrt:compileDebugKotlin UP-TO-DATE
+2026-03-01T04:56:01.2813665Z > Task :inrt:compileDebugJavaWithJavac UP-TO-DATE
+2026-03-01T04:56:01.2819201Z > Task :inrt:compileDebugSources UP-TO-DATE
+2026-03-01T04:56:01.2821752Z > Task :inrt:mergeDebugNativeDebugMetadata NO-SOURCE
+2026-03-01T04:56:01.2827806Z > Task :inrt:mergeDebugShaders UP-TO-DATE
+2026-03-01T04:56:01.2831476Z > Task :inrt:compileDebugShaders NO-SOURCE
+2026-03-01T04:56:01.2834108Z > Task :inrt:generateDebugAssets UP-TO-DATE
+2026-03-01T04:56:01.2835605Z > Task :inrt:mergeDebugAssets UP-TO-DATE
+2026-03-01T04:56:01.2839373Z > Task :inrt:compressDebugAssets UP-TO-DATE
+2026-03-01T04:56:01.2840525Z > Task :inrt:processDebugJavaRes NO-SOURCE
+2026-03-01T04:56:01.2842178Z > Task :inrt:mergeDebugJavaResource UP-TO-DATE
+2026-03-01T04:56:01.2843194Z > Task :inrt:checkDebugDuplicateClasses UP-TO-DATE
+2026-03-01T04:56:01.2844248Z > Task :inrt:desugarDebugFileDependencies UP-TO-DATE
+2026-03-01T04:56:01.2845687Z > Task :inrt:multiDexListDebug UP-TO-DATE
+2026-03-01T04:56:01.2846527Z > Task :inrt:dexBuilderDebug UP-TO-DATE
+2026-03-01T04:56:01.2847351Z > Task :inrt:mergeDexDebug UP-TO-DATE
+2026-03-01T04:56:01.2848209Z > Task :inrt:mergeDebugJniLibFolders UP-TO-DATE
+2026-03-01T04:56:01.2849122Z > Task :inrt:mergeDebugNativeLibs UP-TO-DATE
+2026-03-01T04:56:01.2850086Z > Task :inrt:stripDebugDebugSymbols UP-TO-DATE
+2026-03-01T04:56:01.2852795Z > Task :inrt:validateSigningDebug UP-TO-DATE
+2026-03-01T04:56:01.2853752Z > Task :inrt:writeDebugAppMetadata UP-TO-DATE
+2026-03-01T04:56:01.2855021Z > Task :inrt:writeDebugSigningConfigVersions UP-TO-DATE
+2026-03-01T04:56:01.2857581Z > Task :inrt:packageDebug UP-TO-DATE
+2026-03-01T04:56:01.2858788Z > Task :inrt:assembleDebug UP-TO-DATE
+2026-03-01T04:56:01.2859803Z > Task :inrt:preReleaseBuild UP-TO-DATE
+2026-03-01T04:56:01.2860726Z > Task :inrt:compileReleaseAidl NO-SOURCE
+2026-03-01T04:56:01.2863222Z > Task :inrt:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:56:01.2864204Z > Task :inrt:generateReleaseBuildConfig UP-TO-DATE
+2026-03-01T04:56:01.2873673Z > Task :inrt:checkReleaseAarMetadata UP-TO-DATE
+2026-03-01T04:56:01.2875109Z > Task :inrt:generateReleaseResValues UP-TO-DATE
+2026-03-01T04:56:01.2876410Z > Task :inrt:generateReleaseResources UP-TO-DATE
+2026-03-01T04:56:01.3806391Z > Task :inrt:mergeReleaseResources UP-TO-DATE
+2026-03-01T04:56:01.3808003Z > Task :inrt:createReleaseCompatibleScreenManifests UP-TO-DATE
+2026-03-01T04:56:01.3815370Z > Task :inrt:extractDeepLinksRelease UP-TO-DATE
+2026-03-01T04:56:01.3816969Z > Task :inrt:processReleaseMainManifest UP-TO-DATE
+2026-03-01T04:56:01.3819239Z > Task :inrt:processReleaseManifest UP-TO-DATE
+2026-03-01T04:56:01.3820417Z > Task :inrt:processReleaseManifestForPackage UP-TO-DATE
+2026-03-01T04:56:01.3821221Z > Task :inrt:processReleaseResources UP-TO-DATE
+2026-03-01T04:56:01.3822000Z > Task :inrt:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+2026-03-01T04:56:01.3822716Z > Task :inrt:kaptReleaseKotlin UP-TO-DATE
+2026-03-01T04:56:01.3823375Z > Task :inrt:compileReleaseKotlin UP-TO-DATE
+2026-03-01T04:56:01.3829928Z > Task :inrt:writeReleaseApplicationId UP-TO-DATE
+2026-03-01T04:56:01.3830605Z > Task :inrt:analyticsRecordingRelease
+2026-03-01T04:56:01.3831294Z > Task :inrt:compileReleaseJavaWithJavac UP-TO-DATE
+2026-03-01T04:56:01.3831997Z > Task :inrt:compileReleaseSources UP-TO-DATE
+2026-03-01T04:56:01.3832701Z > Task :inrt:buildKotlinToolingMetadata UP-TO-DATE
+2026-03-01T04:56:01.3833370Z > Task :inrt:lintVitalRelease SKIPPED
+2026-03-01T04:56:01.3834029Z > Task :inrt:mergeReleaseJniLibFolders UP-TO-DATE
+2026-03-01T04:56:01.3834891Z > Task :inrt:mergeReleaseNativeLibs UP-TO-DATE
+2026-03-01T04:56:01.3835579Z > Task :inrt:stripReleaseDebugSymbols UP-TO-DATE
+2026-03-01T04:56:01.3836376Z > Task :inrt:extractReleaseNativeSymbolTables UP-TO-DATE
+2026-03-01T04:56:01.3837179Z > Task :inrt:mergeReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:56:01.3837888Z > Task :inrt:mergeReleaseShaders UP-TO-DATE
+2026-03-01T04:56:01.3838547Z > Task :inrt:compileReleaseShaders NO-SOURCE
+2026-03-01T04:56:01.3839222Z > Task :inrt:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:56:01.3839861Z > Task :inrt:mergeReleaseAssets UP-TO-DATE
+2026-03-01T04:56:01.3840510Z > Task :inrt:compressReleaseAssets UP-TO-DATE
+2026-03-01T04:56:01.3841231Z > Task :inrt:checkReleaseDuplicateClasses UP-TO-DATE
+2026-03-01T04:56:01.3842016Z > Task :inrt:desugarReleaseFileDependencies UP-TO-DATE
+2026-03-01T04:56:01.3842733Z > Task :inrt:multiDexListRelease UP-TO-DATE
+2026-03-01T04:56:01.3843377Z > Task :inrt:dexBuilderRelease UP-TO-DATE
+2026-03-01T04:56:01.3843989Z > Task :inrt:mergeDexRelease UP-TO-DATE
+2026-03-01T04:56:01.3844790Z > Task :inrt:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:56:01.3845476Z > Task :inrt:mergeReleaseJavaResource UP-TO-DATE
+2026-03-01T04:56:01.3846354Z > Task :inrt:optimizeReleaseResources UP-TO-DATE
+2026-03-01T04:56:01.3847070Z > Task :inrt:collectReleaseDependencies UP-TO-DATE
+2026-03-01T04:56:01.3847787Z > Task :inrt:sdkReleaseDependencyData UP-TO-DATE
+2026-03-01T04:56:01.3848484Z > Task :inrt:writeReleaseAppMetadata UP-TO-DATE
+2026-03-01T04:56:01.3849265Z > Task :inrt:writeReleaseSigningConfigVersions UP-TO-DATE
+2026-03-01T04:56:01.3849964Z > Task :inrt:packageRelease UP-TO-DATE
+2026-03-01T04:56:01.3850563Z > Task :inrt:assembleRelease UP-TO-DATE
+2026-03-01T04:56:01.3850898Z 
+2026-03-01T04:56:01.3851155Z > Task :inrt:buildApkPlugin
+2026-03-01T04:56:01.3851655Z pluginProjectDir not exists
+2026-03-01T04:56:01.3851931Z 
+2026-03-01T04:56:01.3852187Z > Task :inrt:assemble UP-TO-DATE
+2026-03-01T04:56:03.3816792Z 
+2026-03-01T04:56:03.3821411Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3824067Z > Task :inrt:lint
+2026-03-01T04:56:03.3827643Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3833186Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3839648Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3844800Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3848890Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.3852895Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4817094Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4822506Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4827822Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4833564Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4838615Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/release/META-INF/autojs_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4842698Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/release/META-INF/common_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:03.4847280Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/release/META-INF/automator_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:56:04.7798781Z Ran lint on variant debug: 9 issues found
+2026-03-01T04:56:04.7801718Z Ran lint on variant release: 9 issues found
+2026-03-01T04:56:04.7803077Z Wrote HTML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/reports/lint-results.html
+2026-03-01T04:56:04.7805454Z Wrote XML report to file:///home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/reports/lint-results.xml
+2026-03-01T04:56:04.7806321Z 
+2026-03-01T04:56:04.7806699Z > Task :inrt:preDebugUnitTestBuild UP-TO-DATE
+2026-03-01T04:56:04.7807535Z > Task :inrt:processDebugUnitTestJavaRes NO-SOURCE
+2026-03-01T04:56:04.7808391Z > Task :inrt:preReleaseUnitTestBuild UP-TO-DATE
+2026-03-01T04:56:04.7809188Z > Task :inrt:processReleaseUnitTestJavaRes NO-SOURCE
+2026-03-01T04:56:04.8800475Z > Task :inrt:bundleReleaseClasses
+2026-03-01T04:56:04.8801142Z > Task :inrt:bundleDebugClasses
+2026-03-01T04:56:04.8801795Z > Task :inrt:kaptGenerateStubsReleaseUnitTestKotlin
+2026-03-01T04:56:04.8802566Z > Task :inrt:kaptGenerateStubsDebugUnitTestKotlin
+2026-03-01T04:56:04.9797478Z > Task :inrt:kaptReleaseUnitTestKotlin
+2026-03-01T04:56:05.0797743Z > Task :inrt:kaptDebugUnitTestKotlin
+2026-03-01T04:56:05.0803334Z > Task :inrt:compileDebugUnitTestKotlin NO-SOURCE
+2026-03-01T04:56:05.1797589Z > Task :inrt:compileDebugUnitTestJavaWithJavac
+2026-03-01T04:56:05.5795614Z > Task :inrt:testDebugUnitTest
+2026-03-01T04:56:05.5797338Z > Task :inrt:compileReleaseUnitTestKotlin NO-SOURCE
+2026-03-01T04:56:05.7795772Z > Task :inrt:compileReleaseUnitTestJavaWithJavac
+2026-03-01T04:56:06.1787844Z > Task :inrt:testReleaseUnitTest
+2026-03-01T04:56:06.1789050Z > Task :inrt:test
+2026-03-01T04:56:06.1789837Z > Task :inrt:check
+2026-03-01T04:56:06.1790319Z > Task :inrt:build
+2026-03-01T04:56:06.1791481Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_7-1772340884558.json
+2026-03-01T04:56:06.1792333Z 
+2026-03-01T04:56:06.1793002Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+2026-03-01T04:56:06.1793671Z 
+2026-03-01T04:56:06.1794901Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-03-01T04:56:06.1795888Z 
+2026-03-01T04:56:06.1796612Z See https://docs.gradle.org/7.5/userguide/command_line_interface.html#sec:command_line_warnings
+2026-03-01T04:56:06.1797310Z 
+2026-03-01T04:56:06.1797541Z BUILD SUCCESSFUL in 1m 22s
+2026-03-01T04:56:06.1798151Z 504 actionable tasks: 78 executed, 426 up-to-date

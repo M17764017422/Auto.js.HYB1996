@@ -1,0 +1,614 @@
+﻿2026-03-01T04:52:43.3437543Z ##[group]Run ./gradlew assembleRelease
+2026-03-01T04:52:43.3438067Z [36;1m./gradlew assembleRelease[0m
+2026-03-01T04:52:43.3504730Z shell: /usr/bin/bash -e {0}
+2026-03-01T04:52:43.3505132Z env:
+2026-03-01T04:52:43.3505586Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:52:43.3506353Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:52:43.3506957Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T04:52:43.3507412Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T04:52:43.3507896Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T04:52:43.3508359Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T04:52:43.3508777Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T04:52:43.3509222Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T04:52:43.3510129Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T04:52:43.3510891Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T04:52:43.3511426Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T04:52:43.3511885Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T04:52:43.3512473Z   KEYSTORE_PASSWORD: ***
+2026-03-01T04:52:43.3512833Z   KEY_ALIAS: ***
+2026-03-01T04:52:43.3513184Z   KEY_PASSWORD: ***
+2026-03-01T04:52:43.3513469Z ##[endgroup]
+2026-03-01T04:52:44.3487537Z 
+2026-03-01T04:52:44.3494084Z > Configure project :app
+2026-03-01T04:52:44.3503098Z === Signing Configuration ===
+2026-03-01T04:52:44.3547969Z KEYSTORE_FILE env: app/release-keystore.jks
+2026-03-01T04:52:44.3549691Z Resolved keystore: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/release-keystore.jks
+2026-03-01T04:52:44.3551078Z KEYSTORE_PASSWORD set: YES
+2026-03-01T04:52:44.3552270Z KEY_ALIAS: ***
+2026-03-01T04:52:44.3552974Z Use release signing: true
+2026-03-01T04:52:44.3553574Z ==============================
+2026-03-01T04:52:44.3554914Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:52:44.4459341Z 
+2026-03-01T04:52:44.4473141Z > Configure project :autojs
+2026-03-01T04:52:44.4505710Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:52:44.5454868Z 
+2026-03-01T04:52:44.5465109Z > Configure project :automator
+2026-03-01T04:52:44.5477515Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:52:44.6459480Z 
+2026-03-01T04:52:44.6472046Z > Configure project :inrt
+2026-03-01T04:52:44.6475186Z WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+2026-03-01T04:52:46.7455500Z 
+2026-03-01T04:52:46.7456629Z > Task :apkbuilder:preBuild UP-TO-DATE
+2026-03-01T04:52:46.7457617Z > Task :apkbuilder:preReleaseBuild UP-TO-DATE
+2026-03-01T04:52:46.7464927Z > Task :apkbuilder:compileReleaseAidl NO-SOURCE
+2026-03-01T04:52:46.7465991Z > Task :apkbuilder:mergeReleaseJniLibFolders
+2026-03-01T04:52:46.7466812Z > Task :apkbuilder:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:52:46.7467661Z > Task :apkbuilder:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:52:46.7470225Z > Task :apkbuilder:copyReleaseJniLibsProjectAndLocalJars
+2026-03-01T04:52:46.7471844Z > Task :apkbuilder:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:46.7472810Z > Task :apkbuilder:generateReleaseBuildConfig
+2026-03-01T04:52:46.7473465Z > Task :apkbuilder:generateReleaseResValues
+2026-03-01T04:52:46.7475077Z > Task :apkbuilder:generateReleaseResources
+2026-03-01T04:52:46.7475889Z > Task :apkbuilder:packageReleaseResources
+2026-03-01T04:52:46.7476721Z > Task :apkbuilder:parseReleaseLocalResources
+2026-03-01T04:52:46.7477343Z > Task :apkbuilder:mergeReleaseShaders
+2026-03-01T04:52:46.7478347Z > Task :apkbuilder:compileReleaseShaders NO-SOURCE
+2026-03-01T04:52:46.7479456Z > Task :apkbuilder:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:52:46.7480126Z > Task :apkbuilder:processReleaseManifest
+2026-03-01T04:52:46.7480805Z > Task :apkbuilder:packageReleaseAssets
+2026-03-01T04:52:46.7481938Z > Task :apkbuilder:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:46.7482608Z > Task :apkbuilder:generateReleaseRFile
+2026-03-01T04:52:46.8466055Z > Task :apkbuilder:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:52:46.8466899Z > Task :apkbuilder:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:52:46.8467613Z > Task :apkbuilder:writeReleaseAarMetadata
+2026-03-01T04:52:46.9455559Z > Task :apkbuilder:kaptGenerateStubsReleaseKotlin
+2026-03-01T04:52:47.1456481Z > Task :apkbuilder:mergeReleaseResources
+2026-03-01T04:52:47.2509066Z > Task :apkbuilder:kaptReleaseKotlin
+2026-03-01T04:52:47.2516459Z > Task :app:preBuild UP-TO-DATE
+2026-03-01T04:52:47.2517523Z > Task :app:preCommonReleaseBuild UP-TO-DATE
+2026-03-01T04:52:47.2518388Z > Task :autojs:preBuild UP-TO-DATE
+2026-03-01T04:52:47.2519188Z > Task :autojs:preReleaseBuild UP-TO-DATE
+2026-03-01T04:52:47.2520265Z > Task :automator:preBuild UP-TO-DATE
+2026-03-01T04:52:47.2521114Z > Task :automator:preReleaseBuild UP-TO-DATE
+2026-03-01T04:52:47.2521905Z > Task :common:preBuild UP-TO-DATE
+2026-03-01T04:52:47.2522820Z > Task :common:preReleaseBuild UP-TO-DATE
+2026-03-01T04:52:47.2523685Z > Task :common:compileReleaseAidl NO-SOURCE
+2026-03-01T04:52:47.3476101Z > Task :automator:compileReleaseAidl NO-SOURCE
+2026-03-01T04:52:47.3477184Z > Task :autojs:compileReleaseAidl NO-SOURCE
+2026-03-01T04:52:47.3478858Z > Task :app:compileCommonReleaseAidl NO-SOURCE
+2026-03-01T04:52:47.3479560Z > Task :autojs:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:47.3480306Z > Task :automator:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:47.3481065Z > Task :common:packageReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:47.3481846Z > Task :app:compileCommonReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:47.3482555Z > Task :app:generateCommonReleaseBuildConfig
+2026-03-01T04:52:47.3483296Z > Task :apkbuilder:compileReleaseLibraryResources
+2026-03-01T04:52:47.3483890Z > Task :autojs:writeReleaseAarMetadata
+2026-03-01T04:52:47.3484664Z > Task :automator:writeReleaseAarMetadata
+2026-03-01T04:52:47.3485277Z > Task :common:writeReleaseAarMetadata
+2026-03-01T04:52:47.3485878Z > Task :app:generateCommonReleaseResValues
+2026-03-01T04:52:47.3486483Z > Task :app:generateCommonReleaseResources
+2026-03-01T04:52:47.3487104Z > Task :app:checkCommonReleaseAarMetadata
+2026-03-01T04:52:47.3487787Z > Task :autojs:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:47.4495923Z > Task :autojs:generateReleaseResValues
+2026-03-01T04:52:47.4496582Z > Task :autojs:generateReleaseResources
+2026-03-01T04:52:47.9455682Z > Task :apkbuilder:verifyReleaseResources
+2026-03-01T04:52:48.0470703Z > Task :autojs:packageReleaseResources
+2026-03-01T04:52:48.0476694Z > Task :automator:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:48.0477862Z > Task :automator:generateReleaseResValues
+2026-03-01T04:52:48.0478615Z > Task :automator:generateReleaseResources
+2026-03-01T04:52:48.1478437Z > Task :automator:packageReleaseResources
+2026-03-01T04:52:48.1479693Z > Task :common:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:48.1480636Z > Task :common:generateReleaseResValues
+2026-03-01T04:52:48.1481810Z > Task :common:generateReleaseResources
+2026-03-01T04:52:48.1482586Z > Task :common:packageReleaseResources
+2026-03-01T04:52:48.6456159Z 
+2026-03-01T04:52:48.6463681Z > Task :apkbuilder:compileReleaseKotlin
+2026-03-01T04:52:48.6472067Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/src/main/java/zhao/arsceditor/ArscUtil.kt: (71, 9): Parameter 'resType' is never used
+2026-03-01T04:52:48.6475539Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/src/main/java/zhao/arsceditor/ArscUtil.kt: (81, 13): Variable 'innerCallback' is never used
+2026-03-01T04:52:48.6478646Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/src/main/java/zhao/arsceditor/ArscUtil.kt: (145, 34): Parameter 'value' is never used
+2026-03-01T04:52:48.6481582Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/src/main/java/zhao/arsceditor/ArscUtil.kt: (173, 17): Name shadowed: value
+2026-03-01T04:52:50.1454293Z 
+2026-03-01T04:52:50.1459417Z > Task :apkbuilder:compileReleaseJavaWithJavac
+2026-03-01T04:52:50.1463847Z 
+2026-03-01T04:52:50.1466328Z Note: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/src/main/java/pxb/android/arsc/ArscParser.java uses unchecked or unsafe operations.
+2026-03-01T04:52:50.1467684Z Note: Recompile with -Xlint:unchecked for details.
+2026-03-01T04:52:50.1472423Z > Task :apkbuilder:extractReleaseAnnotations
+2026-03-01T04:52:50.1478238Z > Task :apkbuilder:mergeReleaseGeneratedProguardFiles
+2026-03-01T04:52:50.1480730Z > Task :apkbuilder:mergeReleaseConsumerProguardFiles
+2026-03-01T04:52:50.1483139Z > Task :apkbuilder:compileReleaseSources
+2026-03-01T04:52:50.1485660Z > Task :apkbuilder:mergeReleaseJavaResource
+2026-03-01T04:52:50.1488556Z > Task :app:createCommonReleaseCompatibleScreenManifests
+2026-03-01T04:52:50.1515086Z > Task :apkbuilder:bundleLibCompileToJarRelease
+2026-03-01T04:52:50.1516318Z > Task :apkbuilder:syncReleaseLibJars
+2026-03-01T04:52:50.1516935Z 
+2026-03-01T04:52:50.1520833Z > Task :app:mergeCommonReleaseResources
+2026-03-01T04:52:50.1523309Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/values-en/strings.xml:25:4: Multiple substitutions specified in non-positional format of string resource string/text_execution_finished. Did you mean to add the formatted="false" attribute?
+2026-03-01T04:52:50.2467879Z 
+2026-03-01T04:52:50.2470664Z > Task :apkbuilder:bundleReleaseAar
+2026-03-01T04:52:50.2473249Z > Task :apkbuilder:assembleRelease
+2026-03-01T04:52:50.2476315Z > Task :apkbuilder:extractDeepLinksRelease
+2026-03-01T04:52:50.2492989Z > Task :app:extractDeepLinksCommonRelease
+2026-03-01T04:52:50.2493830Z > Task :autojs:extractDeepLinksRelease
+2026-03-01T04:52:50.2499054Z > Task :automator:extractDeepLinksRelease
+2026-03-01T04:52:50.2499843Z > Task :common:extractDeepLinksRelease
+2026-03-01T04:52:50.2519818Z > Task :automator:processReleaseManifest
+2026-03-01T04:52:50.2564825Z > Task :autojs:processReleaseManifest
+2026-03-01T04:52:50.2573732Z > Task :common:processReleaseManifest
+2026-03-01T04:52:50.5485305Z 
+2026-03-01T04:52:50.5486507Z > Task :app:processCommonReleaseMainManifest
+2026-03-01T04:52:50.5487946Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/AndroidManifest.xml:29:5-316:19 Warning:
+2026-03-01T04:52:50.5494867Z 	application@android:icon was tagged at AndroidManifest.xml:29 to replace other declarations but no other declaration present
+2026-03-01T04:52:50.6454237Z 
+2026-03-01T04:52:50.6457214Z > Task :app:processCommonReleaseManifest
+2026-03-01T04:52:52.0457117Z > Task :autojs:parseReleaseLocalResources
+2026-03-01T04:52:52.0458634Z > Task :app:processCommonReleaseManifestForPackage
+2026-03-01T04:52:52.0462609Z > Task :automator:parseReleaseLocalResources
+2026-03-01T04:52:52.0463825Z > Task :common:parseReleaseLocalResources
+2026-03-01T04:52:52.0464979Z > Task :automator:compileReleaseLibraryResources
+2026-03-01T04:52:52.1457721Z > Task :common:compileReleaseLibraryResources
+2026-03-01T04:52:52.1463748Z > Task :autojs:generateReleaseBuildConfig
+2026-03-01T04:52:52.1489872Z > Task :automator:generateReleaseBuildConfig
+2026-03-01T04:52:52.1490945Z > Task :common:generateReleaseRFile
+2026-03-01T04:52:52.1495008Z > Task :common:generateReleaseBuildConfig
+2026-03-01T04:52:52.1495762Z > Task :automator:generateReleaseRFile
+2026-03-01T04:52:52.2501872Z > Task :app:writeCommonReleaseApplicationId
+2026-03-01T04:52:52.2503086Z > Task :app:analyticsRecordingCommonRelease
+2026-03-01T04:52:52.2504074Z > Task :app:buildKotlinToolingMetadata
+2026-03-01T04:52:52.2505297Z > Task :autojs:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:52:52.2506275Z > Task :automator:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:52:52.2507406Z > Task :common:prepareLintJarForPublish UP-TO-DATE
+2026-03-01T04:52:52.3454966Z > Task :apkbuilder:bundleLibResRelease
+2026-03-01T04:52:52.3460867Z > Task :autojs:generateReleaseRFile
+2026-03-01T04:52:52.3471010Z > Task :apkbuilder:copyReleaseJniLibsProjectOnly
+2026-03-01T04:52:52.3476257Z > Task :common:kaptGenerateStubsReleaseKotlin
+2026-03-01T04:52:52.3477277Z > Task :app:mergeCommonReleaseJniLibFolders
+2026-03-01T04:52:52.4486127Z > Task :common:kaptReleaseKotlin
+2026-03-01T04:52:52.4489314Z > Task :autojs:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:52:52.5459141Z > Task :autojs:compileReleaseLibraryResources
+2026-03-01T04:52:52.5497466Z > Task :autojs:mergeReleaseJniLibFolders
+2026-03-01T04:52:52.5498543Z > Task :autojs:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:52:52.6455943Z > Task :autojs:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:52:52.6465462Z > Task :automator:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:52:52.6501936Z > Task :autojs:copyReleaseJniLibsProjectOnly
+2026-03-01T04:52:52.6510962Z > Task :automator:mergeReleaseJniLibFolders
+2026-03-01T04:52:52.6512148Z > Task :automator:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:52:52.6513122Z > Task :automator:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:52:52.6513958Z > Task :automator:copyReleaseJniLibsProjectOnly
+2026-03-01T04:52:52.6514964Z > Task :common:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:52:52.6515727Z > Task :common:mergeReleaseJniLibFolders
+2026-03-01T04:52:52.6516508Z > Task :common:mergeReleaseNativeLibs NO-SOURCE
+2026-03-01T04:52:52.6517369Z > Task :common:stripReleaseDebugSymbols NO-SOURCE
+2026-03-01T04:52:52.6518210Z > Task :common:copyReleaseJniLibsProjectOnly
+2026-03-01T04:52:52.6518987Z > Task :app:mergeCommonReleaseShaders
+2026-03-01T04:52:52.6519816Z > Task :app:compileCommonReleaseShaders NO-SOURCE
+2026-03-01T04:52:52.6520706Z > Task :app:generateCommonReleaseAssets UP-TO-DATE
+2026-03-01T04:52:52.6521525Z > Task :autojs:mergeReleaseShaders
+2026-03-01T04:52:52.6522342Z > Task :autojs:compileReleaseShaders NO-SOURCE
+2026-03-01T04:52:52.6523517Z > Task :autojs:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:52:52.7503515Z > Task :autojs:packageReleaseAssets
+2026-03-01T04:52:52.7505679Z > Task :automator:mergeReleaseShaders
+2026-03-01T04:52:52.7520138Z > Task :automator:compileReleaseShaders NO-SOURCE
+2026-03-01T04:52:52.7521194Z > Task :automator:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:52:52.7522031Z > Task :automator:packageReleaseAssets
+2026-03-01T04:52:52.7522786Z > Task :common:mergeReleaseShaders
+2026-03-01T04:52:52.7523560Z > Task :common:compileReleaseShaders NO-SOURCE
+2026-03-01T04:52:52.7524592Z > Task :common:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:52:52.7525405Z > Task :common:packageReleaseAssets
+2026-03-01T04:52:52.9459994Z > Task :app:mergeCommonReleaseAssets
+2026-03-01T04:52:52.9461176Z > Task :app:processCommonReleaseJavaRes NO-SOURCE
+2026-03-01T04:52:53.1486091Z > Task :app:checkCommonReleaseDuplicateClasses
+2026-03-01T04:52:53.2455736Z > Task :app:compressCommonReleaseAssets
+2026-03-01T04:52:53.4455532Z > Task :apkbuilder:bundleLibRuntimeToJarRelease
+2026-03-01T04:52:54.1456880Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/layout/preference_category_custom.xml:18: warn: generated id 'android:id/title' for external package 'android'.
+2026-03-01T04:52:54.1458202Z 
+2026-03-01T04:52:54.3456111Z > Task :app:collectCommonReleaseDependencies
+2026-03-01T04:52:54.4485378Z 
+2026-03-01T04:52:54.4515645Z > Task :common:compileReleaseKotlin
+2026-03-01T04:52:54.4518965Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/src/main/java/com/stardust/app/AppOps.kt: (13, 23): 'checkOpNoThrow(String, Int, String): Int' is deprecated. Deprecated in Java
+2026-03-01T04:52:54.5498159Z 
+2026-03-01T04:52:54.5499236Z > Task :app:sdkCommonReleaseDependencyData
+2026-03-01T04:52:55.3456546Z Note: Some input files use or override a deprecated API.
+2026-03-01T04:52:55.3457372Z Note: Recompile with -Xlint:deprecation for details.
+2026-03-01T04:52:55.3457809Z 
+2026-03-01T04:52:55.3458130Z > Task :common:compileReleaseJavaWithJavac
+2026-03-01T04:52:55.9456470Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/layout/preference_category_custom.xml:18: warn: generated id 'android:id/title' for external package 'android'.
+2026-03-01T04:52:55.9462879Z 
+2026-03-01T04:52:56.0453947Z 
+2026-03-01T04:52:56.0478439Z > Task :common:bundleLibResRelease
+2026-03-01T04:52:56.0483759Z > Task :common:bundleLibCompileToJarRelease
+2026-03-01T04:52:56.0490693Z > Task :app:processCommonReleaseResources
+2026-03-01T04:52:56.0494224Z > Task :common:bundleLibRuntimeToJarRelease
+2026-03-01T04:52:56.4459712Z > Task :app:generateCommonReleaseR2
+2026-03-01T04:52:56.5492213Z > Task :automator:kaptGenerateStubsReleaseKotlin
+2026-03-01T04:52:57.2466450Z > Task :automator:kaptReleaseKotlin
+2026-03-01T04:52:57.4501957Z > Task :app:validateSigningCommonRelease
+2026-03-01T04:52:57.4505185Z > Task :app:writeCommonReleaseAppMetadata
+2026-03-01T04:52:57.4505991Z > Task :app:writeCommonReleaseSigningConfigVersions
+2026-03-01T04:52:57.4506731Z > Task :app:preCoolapkReleaseBuild UP-TO-DATE
+2026-03-01T04:52:57.4507723Z > Task :app:compileCoolapkReleaseAidl NO-SOURCE
+2026-03-01T04:52:57.4508462Z > Task :app:compileCoolapkReleaseRenderscript NO-SOURCE
+2026-03-01T04:52:57.4509173Z > Task :app:generateCoolapkReleaseBuildConfig
+2026-03-01T04:52:57.4509815Z > Task :app:checkCoolapkReleaseAarMetadata
+2026-03-01T04:52:57.4510446Z > Task :app:generateCoolapkReleaseResValues
+2026-03-01T04:52:57.4511082Z > Task :app:generateCoolapkReleaseResources
+2026-03-01T04:52:59.4479081Z 
+2026-03-01T04:52:59.4485218Z > Task :app:mergeCoolapkReleaseResources
+2026-03-01T04:52:59.4488312Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/values-en/strings.xml:25:4: Multiple substitutions specified in non-positional format of string resource string/text_execution_finished. Did you mean to add the formatted="false" attribute?
+2026-03-01T04:53:00.2457445Z 
+2026-03-01T04:53:00.2458237Z > Task :app:desugarCommonReleaseFileDependencies
+2026-03-01T04:53:00.2459184Z > Task :app:createCoolapkReleaseCompatibleScreenManifests
+2026-03-01T04:53:00.2460043Z > Task :app:extractDeepLinksCoolapkRelease
+2026-03-01T04:53:00.5469223Z 
+2026-03-01T04:53:00.5470309Z > Task :app:processCoolapkReleaseMainManifest
+2026-03-01T04:53:00.5471724Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/AndroidManifest.xml:29:5-316:19 Warning:
+2026-03-01T04:53:00.5475049Z 	application@android:icon was tagged at AndroidManifest.xml:29 to replace other declarations but no other declaration present
+2026-03-01T04:53:00.5476826Z 
+2026-03-01T04:53:00.5477305Z > Task :app:processCoolapkReleaseManifest
+2026-03-01T04:53:00.8455303Z > Task :app:processCoolapkReleaseManifestForPackage
+2026-03-01T04:53:00.8464167Z > Task :app:writeCoolapkReleaseApplicationId
+2026-03-01T04:53:00.8470462Z > Task :app:analyticsRecordingCoolapkRelease
+2026-03-01T04:53:00.9489478Z > Task :app:mergeCoolapkReleaseJniLibFolders
+2026-03-01T04:53:00.9530027Z > Task :app:mergeCoolapkReleaseShaders
+2026-03-01T04:53:00.9530957Z > Task :app:compileCoolapkReleaseShaders NO-SOURCE
+2026-03-01T04:53:00.9531908Z > Task :app:generateCoolapkReleaseAssets UP-TO-DATE
+2026-03-01T04:53:01.2478653Z > Task :app:mergeCoolapkReleaseAssets
+2026-03-01T04:53:01.3455750Z > Task :app:optimizeCommonReleaseResources
+2026-03-01T04:53:01.3456927Z > Task :app:processCoolapkReleaseJavaRes NO-SOURCE
+2026-03-01T04:53:01.4482417Z > Task :app:checkCoolapkReleaseDuplicateClasses
+2026-03-01T04:53:01.5460717Z > Task :app:compressCoolapkReleaseAssets
+2026-03-01T04:53:01.6471442Z > Task :app:collectCoolapkReleaseDependencies
+2026-03-01T04:53:01.6515731Z > Task :app:sdkCoolapkReleaseDependencyData
+2026-03-01T04:53:01.6516468Z > Task :app:validateSigningCoolapkRelease
+2026-03-01T04:53:01.6517391Z > Task :app:writeCoolapkReleaseAppMetadata
+2026-03-01T04:53:01.6518325Z > Task :app:writeCoolapkReleaseSigningConfigVersions
+2026-03-01T04:53:01.6519427Z > Task :autojs:copyReleaseJniLibsProjectAndLocalJars
+2026-03-01T04:53:04.9456073Z > Task :autojs:mergeReleaseResources
+2026-03-01T04:53:06.7455376Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/layout/preference_category_custom.xml:18: warn: generated id 'android:id/title' for external package 'android'.
+2026-03-01T04:53:06.7461684Z 
+2026-03-01T04:53:07.6456394Z 
+2026-03-01T04:53:07.6460581Z > Task :automator:compileReleaseKotlin
+2026-03-01T04:53:07.6465155Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/UiObject.kt: (28, 136): 'constructor AccessibilityNodeInfoCompat(Any!)' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6513498Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/UiObject.kt: (53, 36): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6517324Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/UiObject.kt: (64, 35): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6522086Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/Able.kt: (19, 41): The corresponding parameter in the supertype 'Able' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6527714Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/Able.kt: (24, 41): The corresponding parameter in the supertype 'Able' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6532960Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/Able.kt: (29, 41): The corresponding parameter in the supertype 'Able' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6538532Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/Able.kt: (34, 41): The corresponding parameter in the supertype 'Able' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6543852Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/Able.kt: (39, 41): The corresponding parameter in the supertype 'Able' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6550067Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/SearchUpTargetAction.kt: (13, 31): The corresponding parameter in the supertype 'SearchTargetAction' is named 'node'. This may cause problems when calling this function with named arguments.
+2026-03-01T04:53:07.6555398Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/automator/simple_action/SearchUpTargetAction.kt: (35, 59): Unnecessary non-null assertion (!!) on a non-null receiver of type Class<SearchUpTargetAction>
+2026-03-01T04:53:07.6559754Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoAllocator.kt: (28, 20): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6563962Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoAllocator.kt: (39, 20): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6568180Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoAllocator.kt: (76, 26): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6572267Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoAllocator.kt: (109, 53): 'getter for info: Any!' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6636700Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoAllocator.kt: (177, 42): Condition 'nodeInfo != null' is always 'true'
+2026-03-01T04:53:07.6641160Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoHelper.kt: (36, 13): Variable 'intersect' is never used
+2026-03-01T04:53:07.6645671Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoHelper.kt: (42, 18): 'getBoundsInParent(Rect!): Unit' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6650318Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNodeInfoHelper.kt: (60, 18): 'getBoundsInParent(Rect!): Unit' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.6654842Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/AccessibilityNotificationObserver.kt: (91, 25): Parameter 'event' is never used
+2026-03-01T04:53:07.6658946Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/src/main/java/com/stardust/view/accessibility/NodeInfo.kt: (91, 14): 'getBoundsInParent(Rect!): Unit' is deprecated. Deprecated in Java
+2026-03-01T04:53:07.9455004Z 
+2026-03-01T04:53:07.9455847Z > Task :automator:compileReleaseJavaWithJavac
+2026-03-01T04:53:08.2455350Z > Task :app:desugarCoolapkReleaseFileDependencies
+2026-03-01T04:53:08.2457828Z > Task :automator:bundleLibCompileToJarRelease
+2026-03-01T04:53:08.2459945Z > Task :automator:bundleLibResRelease
+2026-03-01T04:53:08.6455132Z > Task :autojs:kaptGenerateStubsReleaseKotlin
+2026-03-01T04:53:08.7455038Z > Task :automator:bundleLibRuntimeToJarRelease
+2026-03-01T04:53:08.9515675Z > Task :autojs:kaptReleaseKotlin
+2026-03-01T04:53:09.0513435Z /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/res/layout/preference_category_custom.xml:18: warn: generated id 'android:id/title' for external package 'android'.
+2026-03-01T04:53:09.0545011Z 
+2026-03-01T04:53:09.0545696Z > Task :app:processCoolapkReleaseResources
+2026-03-01T04:53:09.0546707Z > Task :autojs:verifyReleaseResources
+2026-03-01T04:53:09.2478216Z > Task :app:generateCoolapkReleaseR2
+2026-03-01T04:53:09.2480451Z > Task :automator:copyReleaseJniLibsProjectAndLocalJars
+2026-03-01T04:53:09.2481546Z > Task :automator:extractReleaseAnnotations
+2026-03-01T04:53:09.3533560Z > Task :automator:mergeReleaseGeneratedProguardFiles
+2026-03-01T04:53:09.3539045Z > Task :automator:mergeReleaseConsumerProguardFiles
+2026-03-01T04:53:09.5455963Z > Task :automator:compileReleaseSources
+2026-03-01T04:53:09.5461947Z > Task :automator:mergeReleaseJavaResource
+2026-03-01T04:53:10.1505999Z > Task :automator:mergeReleaseResources
+2026-03-01T04:53:10.2455582Z > Task :automator:syncReleaseLibJars
+2026-03-01T04:53:10.2460778Z > Task :automator:bundleReleaseAar
+2026-03-01T04:53:10.9476005Z > Task :app:optimizeCoolapkReleaseResources
+2026-03-01T04:53:10.9491031Z > Task :common:extractReleaseAnnotations
+2026-03-01T04:53:11.0454836Z > Task :common:copyReleaseJniLibsProjectAndLocalJars
+2026-03-01T04:53:11.0462286Z > Task :common:mergeReleaseGeneratedProguardFiles
+2026-03-01T04:53:11.0467492Z > Task :common:mergeReleaseConsumerProguardFiles
+2026-03-01T04:53:11.0472303Z > Task :common:compileReleaseSources
+2026-03-01T04:53:11.0475843Z > Task :common:mergeReleaseJavaResource
+2026-03-01T04:53:11.9457345Z > Task :common:mergeReleaseResources
+2026-03-01T04:53:11.9462246Z > Task :common:syncReleaseLibJars
+2026-03-01T04:53:12.0454583Z > Task :common:bundleReleaseAar
+2026-03-01T04:53:12.0461010Z > Task :automator:verifyReleaseResources
+2026-03-01T04:53:13.0458002Z > Task :automator:assembleRelease
+2026-03-01T04:53:13.0483411Z > Task :inrt:preBuild UP-TO-DATE
+2026-03-01T04:53:13.0484594Z > Task :inrt:preReleaseBuild UP-TO-DATE
+2026-03-01T04:53:13.0485272Z > Task :inrt:compileReleaseAidl NO-SOURCE
+2026-03-01T04:53:13.0486046Z > Task :inrt:compileReleaseRenderscript NO-SOURCE
+2026-03-01T04:53:13.0490723Z > Task :inrt:generateReleaseBuildConfig
+2026-03-01T04:53:13.0491797Z > Task :inrt:generateReleaseResValues
+2026-03-01T04:53:13.0492627Z > Task :inrt:generateReleaseResources
+2026-03-01T04:53:13.3459994Z > Task :inrt:checkReleaseAarMetadata
+2026-03-01T04:53:13.3465348Z 
+2026-03-01T04:53:13.3465829Z > Task :autojs:compileReleaseKotlin
+2026-03-01T04:53:13.3468454Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/core/activity/ActivityInfoProvider.kt: (106, 13): Unsafe use of a nullable receiver of type String?
+2026-03-01T04:53:13.3472053Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/core/activity/ActivityInfoProvider.kt: (115, 51): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:13.3475920Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/core/pref/Pref.kt: (3, 27): 'PreferenceManager' is deprecated. Deprecated in Java
+2026-03-01T04:53:13.3479441Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/core/pref/Pref.kt: (7, 31): 'PreferenceManager' is deprecated. Deprecated in Java
+2026-03-01T04:53:13.3483531Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/core/pref/Pref.kt: (7, 49): 'getDefaultSharedPreferences(Context!): SharedPreferences!' is deprecated. Deprecated in Java
+2026-03-01T04:53:14.3455226Z 
+2026-03-01T04:53:14.3455914Z > Task :common:verifyReleaseResources
+2026-03-01T04:53:14.3456559Z > Task :inrt:mergeReleaseResources
+2026-03-01T04:53:15.5463047Z Note: Some input files use or override a deprecated API.
+2026-03-01T04:53:15.5463584Z 
+2026-03-01T04:53:15.5463917Z > Task :autojs:compileReleaseJavaWithJavac
+2026-03-01T04:53:15.5466696Z Note: Recompile with -Xlint:deprecation for details.
+2026-03-01T04:53:15.5468384Z Note: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/src/main/java/com/stardust/autojs/rhino/AndroidClassLoader.java uses unchecked or unsafe operations.
+2026-03-01T04:53:15.5469867Z Note: Recompile with -Xlint:unchecked for details.
+2026-03-01T04:53:15.6468702Z 
+2026-03-01T04:53:15.6469820Z > Task :autojs:bundleLibResRelease
+2026-03-01T04:53:15.6470709Z > Task :autojs:bundleLibCompileToJarRelease
+2026-03-01T04:53:15.6471537Z > Task :autojs:bundleLibRuntimeToJarRelease
+2026-03-01T04:53:16.2455447Z 
+2026-03-01T04:53:16.2456385Z > Task :app:mergeCommonReleaseNativeLibs
+2026-03-01T04:53:16.2459165Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-termexec2.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:16.2464312Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-androidterm5.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:16.3454709Z 
+2026-03-01T04:53:16.3455636Z > Task :app:stripCommonReleaseDebugSymbols
+2026-03-01T04:53:16.3457239Z Unable to strip the following libraries, packaging them as they are: libBugly-ext.so, libjackpal-androidterm5.so, libjackpal-termexec2.so, libopencv_java3.so.
+2026-03-01T04:53:16.4460616Z 
+2026-03-01T04:53:16.4462595Z > Task :app:extractCommonReleaseNativeSymbolTables
+2026-03-01T04:53:16.4465307Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/x86/libjackpal-termexec2.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:16.4468717Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/x86/libBugly-ext.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:16.4472718Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/x86/libjackpal-androidterm5.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:16.4476571Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:16.4480207Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi/libBugly-ext.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:16.4484099Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:16.4548540Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi-v7a/libopencv_java3.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:16.4552584Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi-v7a/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:16.4556687Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi-v7a/libBugly-ext.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:16.4560596Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/armeabi-v7a/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:16.4564598Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/x86_64/libBugly-ext.so because unable to locate the objcopy executable for the x86_64 ABI.
+2026-03-01T04:53:16.4568220Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/mips/libjackpal-termexec2.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:16.4571923Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/mips/libjackpal-androidterm5.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:16.4576004Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/commonRelease/out/lib/arm64-v8a/libBugly-ext.so because unable to locate the objcopy executable for the arm64-v8a ABI.
+2026-03-01T04:53:16.4577619Z 
+2026-03-01T04:53:16.4578061Z > Task :app:mergeCommonReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:53:17.8466181Z > Task :app:kaptGenerateStubsCommonReleaseKotlin
+2026-03-01T04:53:18.3486361Z > Task :app:kaptGenerateStubsCoolapkReleaseKotlin
+2026-03-01T04:53:19.5455444Z 
+2026-03-01T04:53:19.5463177Z > Task :app:mergeCoolapkReleaseNativeLibs
+2026-03-01T04:53:19.5466421Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-termexec2.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:19.5473554Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-androidterm5.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:19.6505492Z 
+2026-03-01T04:53:19.6591852Z > Task :app:stripCoolapkReleaseDebugSymbols
+2026-03-01T04:53:19.6593521Z Unable to strip the following libraries, packaging them as they are: libBugly-ext.so, libjackpal-androidterm5.so, libjackpal-termexec2.so, libopencv_java3.so.
+2026-03-01T04:53:19.6595131Z 
+2026-03-01T04:53:19.6595498Z > Task :app:extractCoolapkReleaseNativeSymbolTables
+2026-03-01T04:53:19.6597869Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/x86/libjackpal-termexec2.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:19.6601437Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/x86/libBugly-ext.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:19.6605204Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/x86/libjackpal-androidterm5.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:19.6608884Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:19.6612651Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi/libBugly-ext.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:19.6620133Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:19.6624088Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi-v7a/libopencv_java3.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:19.6629527Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi-v7a/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:19.6656767Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi-v7a/libBugly-ext.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:19.6660715Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/armeabi-v7a/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:19.6667288Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/x86_64/libBugly-ext.so because unable to locate the objcopy executable for the x86_64 ABI.
+2026-03-01T04:53:19.6671393Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/mips/libjackpal-termexec2.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:19.6704957Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/mips/libjackpal-androidterm5.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:19.6708750Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/build/intermediates/merged_native_libs/coolapkRelease/out/lib/arm64-v8a/libBugly-ext.so because unable to locate the objcopy executable for the arm64-v8a ABI.
+2026-03-01T04:53:19.6710710Z 
+2026-03-01T04:53:19.6711185Z > Task :app:mergeCoolapkReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:53:19.7454755Z > Task :autojs:extractReleaseAnnotations
+2026-03-01T04:53:19.8472810Z > Task :autojs:mergeReleaseGeneratedProguardFiles
+2026-03-01T04:53:19.8473898Z > Task :autojs:mergeReleaseConsumerProguardFiles
+2026-03-01T04:53:19.8474756Z > Task :autojs:mergeReleaseJavaResource
+2026-03-01T04:53:20.0492891Z > Task :autojs:syncReleaseLibJars
+2026-03-01T04:53:20.4453947Z > Task :autojs:bundleReleaseAar
+2026-03-01T04:53:20.4455286Z > Task :autojs:compileReleaseSources
+2026-03-01T04:53:20.4456046Z > Task :autojs:assembleRelease
+2026-03-01T04:53:20.4456563Z > Task :common:assembleRelease
+2026-03-01T04:53:20.4457171Z > Task :inrt:createReleaseCompatibleScreenManifests
+2026-03-01T04:53:20.4457870Z > Task :inrt:extractDeepLinksRelease
+2026-03-01T04:53:20.6454184Z > Task :inrt:processReleaseMainManifest
+2026-03-01T04:53:20.6456453Z warning: A class activity declared in the AndroidManifest.xml cannot be found in the compile path: [com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher$Activity]
+2026-03-01T04:53:20.6459120Z warning: A class activity declared in the AndroidManifest.xml cannot be found in the compile path: [androidx.startup.InitializationProvider]
+2026-03-01T04:53:20.6460842Z > Task :inrt:processReleaseManifest
+2026-03-01T04:53:20.6461567Z > Task :inrt:writeReleaseApplicationId
+2026-03-01T04:53:20.6462162Z > Task :inrt:analyticsRecordingRelease
+2026-03-01T04:53:20.6462725Z > Task :inrt:buildKotlinToolingMetadata
+2026-03-01T04:53:20.6463282Z > Task :inrt:mergeReleaseJniLibFolders
+2026-03-01T04:53:20.6463886Z > Task :inrt:processReleaseManifestForPackage
+2026-03-01T04:53:20.6464246Z 
+2026-03-01T04:53:20.6464676Z > Task :app:kaptCommonReleaseKotlin
+2026-03-01T04:53:21.2453267Z 
+2026-03-01T04:53:21.2454227Z > Task :inrt:mergeReleaseNativeLibs
+2026-03-01T04:53:21.2456375Z warning: A class activity declared in the AndroidManifest.xml cannot be found in the compile path: [com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher$Activity]
+2026-03-01T04:53:21.2458900Z warning: A class activity declared in the AndroidManifest.xml cannot be found in the compile path: [androidx.startup.InitializationProvider]
+2026-03-01T04:53:21.2462266Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-termexec2.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:21.2467091Z More than one file was found with OS independent path 'lib/armeabi/libjackpal-androidterm5.so'. This version of the Android Gradle Plugin chooses the file from the app or dynamic-feature module, but this can cause unexpected behavior or errors at runtime. Future versions of the Android Gradle Plugin will throw an error in this case.
+2026-03-01T04:53:21.2469137Z 
+2026-03-01T04:53:21.2469632Z > Task :app:kaptCoolapkReleaseKotlin
+2026-03-01T04:53:21.3458151Z 
+2026-03-01T04:53:21.3458790Z > Task :inrt:stripReleaseDebugSymbols
+2026-03-01T04:53:21.3460258Z Unable to strip the following libraries, packaging them as they are: libjackpal-androidterm5.so, libjackpal-termexec2.so, libopencv_java3.so.
+2026-03-01T04:53:21.3461237Z 
+2026-03-01T04:53:21.3461572Z > Task :inrt:extractReleaseNativeSymbolTables
+2026-03-01T04:53:21.3463915Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/x86/libjackpal-termexec2.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:21.3467732Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/x86/libjackpal-androidterm5.so because unable to locate the objcopy executable for the x86 ABI.
+2026-03-01T04:53:21.3471737Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/armeabi/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:21.3475661Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/armeabi/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi ABI.
+2026-03-01T04:53:21.3479302Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/armeabi-v7a/libopencv_java3.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:21.3483059Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/armeabi-v7a/libjackpal-termexec2.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:21.3517184Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/armeabi-v7a/libjackpal-androidterm5.so because unable to locate the objcopy executable for the armeabi-v7a ABI.
+2026-03-01T04:53:21.3520927Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/mips/libjackpal-termexec2.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:21.3524819Z Unable to extract native debug metadata from /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/build/intermediates/merged_native_libs/release/out/lib/mips/libjackpal-androidterm5.so because unable to locate the objcopy executable for the mips ABI.
+2026-03-01T04:53:21.3526477Z 
+2026-03-01T04:53:21.3526875Z > Task :inrt:mergeReleaseNativeDebugMetadata NO-SOURCE
+2026-03-01T04:53:21.3527758Z > Task :inrt:mergeReleaseShaders
+2026-03-01T04:53:21.4468230Z > Task :inrt:compileReleaseShaders NO-SOURCE
+2026-03-01T04:53:21.4469276Z > Task :inrt:generateReleaseAssets UP-TO-DATE
+2026-03-01T04:53:21.4471443Z > Task :inrt:mergeReleaseAssets
+2026-03-01T04:53:21.5455032Z > Task :inrt:compressReleaseAssets
+2026-03-01T04:53:21.5460045Z > Task :inrt:checkReleaseDuplicateClasses
+2026-03-01T04:53:21.7454610Z 
+2026-03-01T04:53:21.7460725Z > Task :app:kaptCoolapkReleaseKotlin
+2026-03-01T04:53:21.7463083Z [WARN] Incremental annotation processing requested, but support is disabled because the following processors are not incremental: org.androidannotations.internal.AndroidAnnotationProcessor (DYNAMIC).
+2026-03-01T04:53:21.9485442Z 
+2026-03-01T04:53:21.9486571Z > Task :app:kaptCommonReleaseKotlin
+2026-03-01T04:53:21.9488821Z [WARN] Incremental annotation processing requested, but support is disabled because the following processors are not incremental: org.androidannotations.internal.AndroidAnnotationProcessor (DYNAMIC).
+2026-03-01T04:53:27.8485428Z 
+2026-03-01T04:53:27.8486530Z > Task :app:compileCoolapkReleaseKotlin
+2026-03-01T04:53:27.8489288Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 65): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:27.8493200Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 107): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:27.8497311Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 153): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:27.8505354Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/autojs/api/timing/TimedTasks.kt: (19, 16): Parameter 'path' is never used
+2026-03-01T04:53:27.8509268Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/autojs/api/timing/TimedTasks.kt: (19, 30): Parameter 'millis' is never used
+2026-03-01T04:53:27.8513261Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (105, 56): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:27.8517348Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (128, 52): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:27.8521135Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (135, 108): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:27.8526618Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/ui/main/market/MarketFragment.kt: (49, 9): This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+2026-03-01T04:53:27.8532462Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/ui/main/market/MarketFragment.kt: (119, 13): This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+2026-03-01T04:53:28.3455684Z 
+2026-03-01T04:53:28.3461217Z > Task :app:compileCommonReleaseKotlin
+2026-03-01T04:53:28.3464105Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 65): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:28.3472478Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 107): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:28.3476473Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/App.kt: (73, 153): 'getColor(Int): Int' is deprecated. Deprecated in Java
+2026-03-01T04:53:28.3480609Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/autojs/api/timing/TimedTasks.kt: (19, 16): Parameter 'path' is never used
+2026-03-01T04:53:28.3484030Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/autojs/api/timing/TimedTasks.kt: (19, 30): Parameter 'millis' is never used
+2026-03-01T04:53:28.3518188Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (105, 56): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:28.3522268Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (128, 52): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:28.3535284Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/model/script/Scripts.kt: (135, 108): Type mismatch: inferred type is String? but String was expected
+2026-03-01T04:53:28.3540944Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/ui/main/market/MarketFragment.kt: (49, 9): This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+2026-03-01T04:53:28.3567456Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/app/src/main/java/org/autojs/autojs/ui/main/market/MarketFragment.kt: (119, 13): This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+2026-03-01T04:53:28.8454774Z 
+2026-03-01T04:53:28.8460083Z > Task :inrt:processReleaseResources
+2026-03-01T04:53:29.9459601Z > Task :inrt:desugarReleaseFileDependencies
+2026-03-01T04:53:30.8454795Z 
+2026-03-01T04:53:30.8459858Z > Task :app:compileCoolapkReleaseJavaWithJavac
+2026-03-01T04:53:30.8465672Z Note: Some input files use or override a deprecated API.
+2026-03-01T04:53:30.8477232Z Note: Recompile with -Xlint:deprecation for details.
+2026-03-01T04:53:30.8482681Z Note: Some input files use unchecked or unsafe operations.
+2026-03-01T04:53:30.8488296Z Note: Recompile with -Xlint:unchecked for details.
+2026-03-01T04:53:32.9455878Z Note: Some input files use or override a deprecated API.
+2026-03-01T04:53:32.9456417Z 
+2026-03-01T04:53:32.9456757Z > Task :app:compileCommonReleaseJavaWithJavac
+2026-03-01T04:53:32.9457828Z Note: Recompile with -Xlint:deprecation for details.
+2026-03-01T04:53:32.9458627Z Note: Some input files use unchecked or unsafe operations.
+2026-03-01T04:53:32.9459382Z Note: Recompile with -Xlint:unchecked for details.
+2026-03-01T04:53:32.9462906Z 
+2026-03-01T04:53:32.9464854Z > Task :app:compileCommonReleaseSources
+2026-03-01T04:53:36.1453479Z 
+2026-03-01T04:53:36.1454173Z > Task :app:lintVitalCommonRelease
+2026-03-01T04:53:36.1488536Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:53:36.1494291Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:53:36.1509974Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1515489Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1520438Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1545775Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1550576Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1554578Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1559031Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:53:36.1585750Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:36.1589623Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:53:49.1453533Z 
+2026-03-01T04:53:49.1459121Z > Task :app:mergeCommonReleaseJavaResource
+2026-03-01T04:53:49.1466370Z > Task :app:multiDexListCommonRelease
+2026-03-01T04:53:49.7453945Z > Task :app:dexBuilderCommonRelease
+2026-03-01T04:53:59.1475429Z 
+2026-03-01T04:53:59.1483552Z > Task :app:mergeDexCommonRelease
+2026-03-01T04:53:59.1485928Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1489153Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1492290Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1495620Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1499172Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1502550Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1506026Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1526714Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1530841Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1534616Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1538235Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:53:59.1585993Z WARNING:/home/runner/.gradle/caches/transforms-3/d9408e1748928dfafb76860c688911dd/transformed/jetified-android-plugin-client-sdk-for-locale-4.0.3-runtime.jar: D8: Expected stack map table for method with non-linear control flow.
+2026-03-01T04:54:04.2452949Z 
+2026-03-01T04:54:04.2486353Z > Task :app:compileCoolapkReleaseSources
+2026-03-01T04:54:06.2453099Z 
+2026-03-01T04:54:06.2453750Z > Task :app:lintVitalCoolapkRelease
+2026-03-01T04:54:06.2458089Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2463066Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2468403Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2473582Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2498424Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/debug/META-INF/automator_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2503183Z e: /home/runner/.gradle/caches/transforms-3/093d54d29099e892f879d0d18f805e4e/transformed/jetified-core-ktx-1.8.0/jars/classes.jar!/META-INF/core-ktx_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:06.2508406Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.6.1/4e61fcdcc508cbaa37c4a284a50205d7c7767e37/kotlinx-coroutines-android-1.6.1.jar!/META-INF/kotlinx-coroutines-android.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:06.2513522Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/apkbuilder/build/tmp/kotlin-classes/debug/META-INF/apkbuilder_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2518135Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/debug/META-INF/common_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:06.2522985Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.1/97fd74ccf54a863d221956ffcd21835e168e2aaa/kotlinx-coroutines-core-jvm-1.6.1.jar!/META-INF/kotlinx-coroutines-core.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.6.0, expected version is 1.4.0.
+2026-03-01T04:54:06.2557943Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/debug/META-INF/autojs_debug.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:13.1453407Z 
+2026-03-01T04:54:13.1461792Z > Task :app:mergeCoolapkReleaseJavaResource
+2026-03-01T04:54:13.6453847Z > Task :app:multiDexListCoolapkRelease
+2026-03-01T04:54:13.7453710Z > Task :app:dexBuilderCoolapkRelease
+2026-03-01T04:54:13.8469099Z > Task :app:packageCommonRelease
+2026-03-01T04:54:13.8469738Z > Task :app:assembleCommonRelease
+2026-03-01T04:54:14.0477555Z > Task :inrt:processReleaseJavaRes NO-SOURCE
+2026-03-01T04:54:14.1467713Z > Task :inrt:collectReleaseDependencies
+2026-03-01T04:54:14.1473294Z > Task :inrt:sdkReleaseDependencyData
+2026-03-01T04:54:14.1478795Z > Task :inrt:writeReleaseAppMetadata
+2026-03-01T04:54:14.1484321Z > Task :inrt:writeReleaseSigningConfigVersions
+2026-03-01T04:54:15.6465940Z > Task :inrt:kaptGenerateStubsReleaseKotlin
+2026-03-01T04:54:16.0453885Z > Task :inrt:optimizeReleaseResources
+2026-03-01T04:54:16.2453901Z > Task :inrt:kaptReleaseKotlin
+2026-03-01T04:54:18.3455457Z 
+2026-03-01T04:54:18.3455995Z > Task :inrt:compileReleaseKotlin
+2026-03-01T04:54:18.3458234Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/Pref.kt: (4, 27): 'PreferenceManager' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3461211Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/Pref.kt: (20, 28): 'PreferenceManager' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3464890Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/Pref.kt: (20, 46): 'getDefaultSharedPreferences(Context!): SharedPreferences!' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3468675Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (23, 9): 'getter for fragmentManager: FragmentManager!' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3472164Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (23, 25): 'beginTransaction(): FragmentTransaction!' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3476185Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (23, 44): 'replace(Int, Fragment!): FragmentTransaction!' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3479432Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (23, 97): 'commit(): Int' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3482757Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (31, 32): 'constructor PreferenceFragment()' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3505535Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (31, 51): 'PreferenceFragment' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3509046Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (34, 19): 'onCreate(Bundle?): Unit' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3512500Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SettingsActivity.kt: (35, 13): 'addPreferencesFromResource(Int): Unit' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3515926Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SplashActivity.kt: (37, 13): 'constructor Handler()' is deprecated. Deprecated in Java
+2026-03-01T04:54:18.3519177Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/SplashActivity.kt: (56, 36): Unnecessary non-null assertion (!!) on a non-null receiver of type AutoJs
+2026-03-01T04:54:18.3522809Z ##[warning]w: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/inrt/src/main/java/com/stardust/auojs/inrt/autojs/GlobalKeyObserver.kt: (34, 28): Unnecessary non-null assertion (!!) on a non-null receiver of type AutoJs
+2026-03-01T04:54:18.6452833Z 
+2026-03-01T04:54:18.6458969Z > Task :app:mergeDexCoolapkRelease
+2026-03-01T04:54:18.6463561Z > Task :inrt:compileReleaseJavaWithJavac
+2026-03-01T04:54:18.6468533Z > Task :inrt:compileReleaseSources
+2026-03-01T04:54:20.6457693Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.7.10/d70d7d2c56371f7aa18f32e984e3e2e998fe9081/kotlin-stdlib-jdk8-1.7.10.jar!/META-INF/kotlin-stdlib-jdk8.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6462844Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.7.10/1ef73fee66f45d52c67e2aca12fd945dbe0659bf/kotlin-stdlib-jdk7-1.7.10.jar!/META-INF/kotlin-stdlib-jdk7.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6468026Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.7.10/d2abf9e77736acc4450dc4a3f707fa2c10f5099d/kotlin-stdlib-1.7.10.jar!/META-INF/kotlin-stdlib.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6472934Z e: /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10/bac80c520d0a9e3f3673bc2658c6ed02ef45a76a/kotlin-stdlib-common-1.7.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6477546Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/automator/build/tmp/kotlin-classes/release/META-INF/automator_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6481746Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/common/build/tmp/kotlin-classes/release/META-INF/common_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6486689Z e: /home/runner/work/Auto.js.HYB1996/Auto.js.HYB1996/autojs/build/tmp/kotlin-classes/release/META-INF/autojs_release.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.7.1, expected version is 1.4.0.
+2026-03-01T04:54:20.6488246Z 
+2026-03-01T04:54:20.6488490Z > Task :inrt:lintVitalRelease
+2026-03-01T04:54:22.6452807Z 
+2026-03-01T04:54:22.6458210Z > Task :inrt:dexBuilderRelease
+2026-03-01T04:54:22.7475976Z > Task :app:packageCoolapkRelease
+2026-03-01T04:54:22.7479874Z > Task :app:assembleCoolapkRelease
+2026-03-01T04:54:22.7480826Z > Task :app:assembleRelease
+2026-03-01T04:54:22.9453344Z > Task :inrt:mergeReleaseJavaResource
+2026-03-01T04:54:23.1467539Z > Task :inrt:multiDexListRelease
+2026-03-01T04:54:28.7457426Z > Task :inrt:mergeDexRelease
+2026-03-01T04:54:29.5453731Z > Task :inrt:packageRelease
+2026-03-01T04:54:29.5454272Z > Task :inrt:assembleRelease
+2026-03-01T04:54:29.5454705Z 
+2026-03-01T04:54:29.5455634Z > Task :inrt:buildApkPlugin
+2026-03-01T04:54:29.5456037Z pluginProjectDir not exists
+2026-03-01T04:54:29.5457010Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_5-1772340763963.json
+2026-03-01T04:54:29.5457822Z 
+2026-03-01T04:54:29.5458660Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+2026-03-01T04:54:29.5459565Z 
+2026-03-01T04:54:29.5460455Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-03-01T04:54:29.5461244Z 
+2026-03-01T04:54:29.5461815Z See https://docs.gradle.org/7.5/userguide/command_line_interface.html#sec:command_line_warnings
+2026-03-01T04:54:29.5462370Z 
+2026-03-01T04:54:29.5462546Z BUILD SUCCESSFUL in 1m 46s
+2026-03-01T04:54:29.5463004Z 235 actionable tasks: 231 executed, 4 up-to-date

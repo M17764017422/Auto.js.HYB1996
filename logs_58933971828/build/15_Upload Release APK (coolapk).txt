@@ -1,0 +1,36 @@
+﻿2026-03-01T04:54:38.1675826Z ##[group]Run actions/upload-artifact@v4
+2026-03-01T04:54:38.1676165Z with:
+2026-03-01T04:54:38.1676374Z   name: release-apk-coolapk
+2026-03-01T04:54:38.1676660Z   path: app/build/outputs/apk/coolapk/release/*.apk
+2026-03-01T04:54:38.1676971Z   if-no-files-found: warn
+2026-03-01T04:54:38.1677206Z   compression-level: 6
+2026-03-01T04:54:38.1677442Z   overwrite: false
+2026-03-01T04:54:38.1677654Z   include-hidden-files: false
+2026-03-01T04:54:38.1677884Z env:
+2026-03-01T04:54:38.1678177Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:54:38.1678666Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T04:54:38.1679068Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T04:54:38.1679362Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T04:54:38.1679679Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T04:54:38.1679974Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T04:54:38.1680256Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T04:54:38.1680568Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T04:54:38.1680995Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T04:54:38.1681461Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T04:54:38.1681910Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T04:54:38.1682195Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T04:54:38.1682460Z ##[endgroup]
+2026-03-01T04:54:38.3869449Z With the provided path, there will be 2 files uploaded
+2026-03-01T04:54:38.3874020Z Artifact name is valid!
+2026-03-01T04:54:38.3875757Z Root directory input is valid!
+2026-03-01T04:54:38.6495773Z Beginning upload of artifact content to blob storage
+2026-03-01T04:54:39.8930280Z Uploaded bytes 8388608
+2026-03-01T04:54:40.1807679Z Uploaded bytes 16777216
+2026-03-01T04:54:40.5052839Z Uploaded bytes 25165824
+2026-03-01T04:54:40.6801019Z Uploaded bytes 26427017
+2026-03-01T04:54:40.7642209Z Finished uploading artifact content to blob storage!
+2026-03-01T04:54:40.7645705Z SHA256 digest of uploaded artifact zip is 1a1fc0087800a39887698f26a72f5dce1fa5c8cac44c6932eef2815cff578c23
+2026-03-01T04:54:40.7647648Z Finalizing artifact upload
+2026-03-01T04:54:40.9157270Z Artifact release-apk-coolapk.zip successfully finalized. Artifact ID 5707783713
+2026-03-01T04:54:40.9159014Z Artifact release-apk-coolapk has been successfully uploaded! Final size is 26427017 bytes. Artifact ID is 5707783713
+2026-03-01T04:54:40.9166859Z Artifact download URL: https://github.com/M17764017422/Auto.js.HYB1996/actions/runs/22536189730/artifacts/5707783713

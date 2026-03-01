@@ -1,0 +1,29 @@
+﻿2026-03-01T10:25:41.6452659Z ##[group]Run find . -name "*.apk" -type f
+2026-03-01T10:25:41.6453004Z [36;1mfind . -name "*.apk" -type f[0m
+2026-03-01T10:25:41.6501940Z shell: /usr/bin/bash -e {0}
+2026-03-01T10:25:41.6502175Z env:
+2026-03-01T10:25:41.6502466Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:41.6502974Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:41.6503381Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T10:25:41.6503668Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T10:25:41.6503961Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T10:25:41.6504241Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T10:25:41.6504506Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T10:25:41.6504779Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T10:25:41.6505184Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T10:25:41.6505639Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T10:25:41.6505957Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T10:25:41.6506228Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T10:25:41.6506483Z ##[endgroup]
+2026-03-01T10:25:41.7863788Z ./app/build/outputs/apk/common/release/app-common-x86-release.apk
+2026-03-01T10:25:41.7864603Z ./app/build/outputs/apk/common/release/app-common-armeabi-v7a-release.apk
+2026-03-01T10:25:41.7865358Z ./app/build/outputs/apk/common/debug/app-common-armeabi-v7a-debug.apk
+2026-03-01T10:25:41.7866180Z ./app/build/outputs/apk/common/debug/app-common-x86-debug.apk
+2026-03-01T10:25:41.7866822Z ./app/build/outputs/apk/coolapk/release/app-coolapk-x86-release.apk
+2026-03-01T10:25:41.7867536Z ./app/build/outputs/apk/coolapk/release/app-coolapk-armeabi-v7a-release.apk
+2026-03-01T10:25:41.7868601Z ./app/build/outputs/apk/coolapk/debug/app-coolapk-x86-debug.apk
+2026-03-01T10:25:41.7869528Z ./app/build/outputs/apk/coolapk/debug/app-coolapk-armeabi-v7a-debug.apk
+2026-03-01T10:25:41.7870548Z ./inrt/build/outputs/apk/release/inrt-x86-release-unsigned.apk
+2026-03-01T10:25:41.7871162Z ./inrt/build/outputs/apk/release/inrt-armeabi-v7a-release-unsigned.apk
+2026-03-01T10:25:41.7871676Z ./inrt/build/outputs/apk/debug/inrt-x86-debug.apk
+2026-03-01T10:25:41.7872137Z ./inrt/build/outputs/apk/debug/inrt-armeabi-v7a-debug.apk

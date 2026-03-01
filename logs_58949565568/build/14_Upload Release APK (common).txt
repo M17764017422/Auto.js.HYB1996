@@ -1,0 +1,36 @@
+﻿2026-03-01T10:25:45.2116188Z ##[group]Run actions/upload-artifact@v4
+2026-03-01T10:25:45.2116491Z with:
+2026-03-01T10:25:45.2116692Z   name: release-apk-common
+2026-03-01T10:25:45.2116973Z   path: app/build/outputs/apk/common/release/*.apk
+2026-03-01T10:25:45.2117283Z   if-no-files-found: warn
+2026-03-01T10:25:45.2117515Z   compression-level: 6
+2026-03-01T10:25:45.2117730Z   overwrite: false
+2026-03-01T10:25:45.2117943Z   include-hidden-files: false
+2026-03-01T10:25:45.2118170Z env:
+2026-03-01T10:25:45.2118458Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:45.2118936Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-01T10:25:45.2119330Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-01T10:25:45.2119638Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-01T10:25:45.2120331Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-01T10:25:45.2120640Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-01T10:25:45.2120933Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-01T10:25:45.2121244Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-01T10:25:45.2121669Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-01T10:25:45.2122137Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-01T10:25:45.2122453Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-01T10:25:45.2122731Z   KEYSTORE_FILE: app/release-keystore.jks
+2026-03-01T10:25:45.2122992Z ##[endgroup]
+2026-03-01T10:25:45.4275808Z With the provided path, there will be 2 files uploaded
+2026-03-01T10:25:45.4281657Z Artifact name is valid!
+2026-03-01T10:25:45.4282791Z Root directory input is valid!
+2026-03-01T10:25:45.5106280Z Beginning upload of artifact content to blob storage
+2026-03-01T10:25:45.9806174Z Uploaded bytes 8388608
+2026-03-01T10:25:46.2782737Z Uploaded bytes 16777216
+2026-03-01T10:25:46.5642770Z Uploaded bytes 25165824
+2026-03-01T10:25:46.6116127Z Uploaded bytes 26998591
+2026-03-01T10:25:46.6270826Z Finished uploading artifact content to blob storage!
+2026-03-01T10:25:46.6274746Z SHA256 digest of uploaded artifact zip is e041f4e4a25f00ee104129a9581b682048a530bfe57ba39326cdea721bd1f5aa
+2026-03-01T10:25:46.6276334Z Finalizing artifact upload
+2026-03-01T10:25:46.7027086Z Artifact release-apk-common.zip successfully finalized. Artifact ID 5709293495
+2026-03-01T10:25:46.7028834Z Artifact release-apk-common has been successfully uploaded! Final size is 26998591 bytes. Artifact ID is 5709293495
+2026-03-01T10:25:46.7035462Z Artifact download URL: https://github.com/M17764017422/Auto.js.HYB1996/actions/runs/22541315028/artifacts/5709293495
