@@ -30,6 +30,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.autojs.autojs.storage.FileProviderFactory;
+
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.stardust.autojs.engine.JavaScriptEngine;
 import com.stardust.autojs.engine.ScriptEngine;
@@ -244,10 +246,10 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     private Observable<String> loadUri(final Uri uri) {
         mEditor.setProgress(true);
         return Observable.fromCallable(() -> {
-                    // 对于 file:// URI，直接读取文件，绕过 ContentResolver
-                    // 这解决了 Android 11+ MediaProvider 权限问题
+                    // 对于 file:// URI，使用 FileProviderFactory 读取文件
+                    // 这支持 SAF 模式和完全访问模式
                     if ("file".equals(uri.getScheme())) {
-                        return PFiles.read(uri.getPath());
+                        return FileProviderFactory.getProvider().read(uri.getPath());
                     }
                     return PFiles.read(getContext().getContentResolver().openInputStream(uri));
                 })
@@ -439,9 +441,10 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
         return Observable.just(mEditor.getText())
                 .observeOn(Schedulers.io())
                 .doOnNext(s -> {
-                    // 对于 file:// URI，直接写入文件，绕过 ContentResolver
+                    // 对于 file:// URI，使用 FileProviderFactory 写入文件
+                    // 这支持 SAF 模式和完全访问模式
                     if ("file".equals(mUri.getScheme())) {
-                        PFiles.write(path, s);
+                        FileProviderFactory.getProvider().write(path, s);
                     } else {
                         PFiles.write(getContext().getContentResolver().openOutputStream(mUri), s);
                     }
