@@ -851,4 +851,189 @@ Android 11 (API 30) 引入分区存储 (Scoped Storage)，应用无法直接访�
 - **性能风险**: 低 - SAF 模式下略有性能损失
 
 ---
-更新时间: 2026-03-02 03:30
+
+## 第十阶段: SAF 架构完善 ✅
+
+### 问题发现
+SAF 授权模式下，ExplorerFileProvider 和 WorkspaceFileProvider 仍使用 `PFile.listFiles()`，导致只能看到目录，无法看到文件。
+
+### 修复内容
+
+**修改文件**:
+- `ExplorerFileProvider.java` - 重写 listFiles 方法使用 FileProviderFactory
+- `WorkspaceFileProvider.java` - 同样修改
+
+**修复代码**:
+```java
+@Override
+protected Observable<PFile> listFiles(String directoryPath) {
+    return Observable.fromCallable(() -> {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        List<IFileProvider.FileInfo> files = provider.listFiles(directoryPath);
+        return files;
+    })
+    .flatMap(files -> Observable.fromIterable(files))
+    .map(fileInfo -> new PFile(fileInfo.path));
+}
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `e6221a3b` | fix: use FileProviderFactory in ExplorerFileProvider and WorkspaceFileProvider |
+
+---
+
+## 第十一阶段: EditorView MediaProvider 权限修复 ✅
+
+### 问题背景
+Android 11+ 上，即使有 `MANAGE_EXTERNAL_STORAGE` 权限，编辑文件时报错：
+```
+Permission to access file: /storage/emulated/0/脚本/Auto.js/test.js is denied
+```
+
+### 问题分析
+MediaProvider 拦截 `ContentResolver.openInputStream(file://URI)`，即使有完全访问权限也返回 EACCES。
+
+### 解决方案
+绕过 ContentResolver，对 `file://` URI 直接使用 File API。
+
+**修改文件**: `EditorView.java`
+
+**修复代码**:
+```java
+// loadUri() 方法
+private Observable<String> loadUri(final Uri uri) {
+    mEditor.setProgress(true);
+    return Observable.fromCallable(() -> {
+        // 对于 file:// URI，直接读取文件，绕过 ContentResolver
+        if ("file".equals(uri.getScheme())) {
+            return PFiles.read(uri.getPath());
+        }
+        return PFiles.read(getContext().getContentResolver().openInputStream(uri));
+    })
+    // ...
+}
+
+// save() 方法
+public Observable<String> save() {
+    // ...
+    .doOnNext(s -> {
+        if ("file".equals(mUri.getScheme())) {
+            PFiles.write(path, s);
+        } else {
+            PFiles.write(getContext().getContentResolver().openOutputStream(mUri), s);
+        }
+    })
+    // ...
+}
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| 同上 | fix: bypass ContentResolver for file:// URIs in EditorView |
+
+---
+
+## 第十二阶段: WebDAV 坚果云同步 ✅
+
+### 功能目标
+构建完成后自动上传 APK 到坚果云 WebDAV，实现与本地电脑同步。
+
+### 配置内容
+
+**GitHub Secrets**:
+| 变量名 | 说明 |
+|--------|------|
+| `WEBDAV_URL` | `https://dav.jianguoyun.com/dav/` |
+| `WEBDAV_USER` | 坚果云用户名 |
+| `WEBDAV_PASSWORD` | 应用密码 |
+
+**工作流修改** (`android.yml`):
+```yaml
+- name: Upload to WebDAV (坚果云)
+  env:
+    WEBDAV_URL: ${{ secrets.WEBDAV_URL }}
+    WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
+    WEBDAV_PASSWORD: ${{ secrets.WEBDAV_PASSWORD }}
+  run: |
+    if [ -n "$WEBDAV_URL" ]; then
+      TAG_NAME=${GITHUB_REF#refs/tags/}
+      
+      # 逐级创建目录
+      curl -X MKCOL -u "$USER:$PASS" "${URL}/Auto.js.HYB1996" || true
+      curl -X MKCOL -u "$USER:$PASS" "${URL}/Auto.js.HYB1996/${TAG_NAME}" || true
+      
+      # 上传 APK
+      curl -T "app-coolapk-armeabi-v7a-release.apk" \
+           -u "$USER:$PASS" \
+           "${URL}/Auto.js.HYB1996/${TAG_NAME}/"
+    fi
+```
+
+### 问题修复
+
+| 问题 | 原因 | 解决方案 |
+|------|------|----------|
+| AncestorsNotFound | WebDAV 需逐级创建目录 | 先创建父目录再创建子目录 |
+| 重复构建 | 分支推送 + 标签推送 | 移除 temp-test-branch 触发器 |
+
+### 工作流触发优化
+
+**修改前**:
+```yaml
+on:
+  push:
+    branches: [main, master, temp-test-branch]
+    tags: ['*']
+```
+
+**修改后**:
+```yaml
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    tags: ['*']
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `4636fb63` | ci: add WebDAV upload for nutstore sync |
+| `f4c477a4` | fix: create WebDAV directories step by step |
+
+---
+
+## 版本发布记录
+
+| 版本 | Tag | 状态 | 主要更新 |
+|------|-----|------|----------|
+| v4.1.1-alpha4 | `b60d8290` | ✅ | 签名验证修复 |
+| v4.1.1-alpha5 | `f4c477a4` | ✅ | SAF + WebDAV |
+
+---
+
+## 当前待办事项
+
+### 高优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| PFiles.java 重构 | 待开始 | 154 处需改用 IFileProvider |
+| JS files API 适配 | 待开始 | 依赖 PFiles 重构 |
+
+### 中优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| Git 历史清理 | 待处理 | 删除敏感文件历史 |
+| WorkManager 迁移 | 待处理 | 替代 android-job |
+| ApkBuilderPlugin | 待处理 | 恢复打包功能 |
+
+---
+更新时间: 2026-03-02 04:15
