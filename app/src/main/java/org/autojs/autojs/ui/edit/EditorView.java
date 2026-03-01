@@ -243,7 +243,14 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     @SuppressLint("CheckResult")
     private Observable<String> loadUri(final Uri uri) {
         mEditor.setProgress(true);
-        return Observable.fromCallable(() -> PFiles.read(getContext().getContentResolver().openInputStream(uri)))
+        return Observable.fromCallable(() -> {
+                    // 对于 file:// URI，直接读取文件，绕过 ContentResolver
+                    // 这解决了 Android 11+ MediaProvider 权限问题
+                    if ("file".equals(uri.getScheme())) {
+                        return PFiles.read(uri.getPath());
+                    }
+                    return PFiles.read(getContext().getContentResolver().openInputStream(uri));
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(s -> {
@@ -431,7 +438,14 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
         PFiles.move(path, path + ".bak");
         return Observable.just(mEditor.getText())
                 .observeOn(Schedulers.io())
-                .doOnNext(s -> PFiles.write(getContext().getContentResolver().openOutputStream(mUri), s))
+                .doOnNext(s -> {
+                    // 对于 file:// URI，直接写入文件，绕过 ContentResolver
+                    if ("file".equals(mUri.getScheme())) {
+                        PFiles.write(path, s);
+                    } else {
+                        PFiles.write(getContext().getContentResolver().openOutputStream(mUri), s);
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(s -> {
                     mEditor.markTextAsSaved();
