@@ -211,7 +211,7 @@ public class TraditionalFileProvider implements IFileProvider {
     @Override
     public boolean append(String path, String content, String encoding) {
         try {
-            PFiles.write(resolvePath(path), content, encoding, true);
+            PFiles.append(resolvePath(path), content, encoding);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
