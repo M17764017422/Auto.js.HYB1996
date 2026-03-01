@@ -409,4 +409,10 @@
         <item quantity="one">描述至少要 %d 个字.</item>
         <item quantity="other">描述至少要 %d 个字.</item>
     </plurals>
+    
+    <!-- Storage Permission -->
+    <string name="text_storage_permission_required">存储权限</string>
+    <string name="explain_storage_permission">需要存储权限才能访问脚本文件。\n\n推荐选择「完全访问」以获得最佳兼容性。\n\n「选择目录」仅授权特定目录（实验功能，脚本中文件操作可能受限）</string>
+    <string name="text_select_directory">选择目录</string>
+    <string name="text_full_access">完全访问</string>
 </resources>

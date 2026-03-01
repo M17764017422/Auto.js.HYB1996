@@ -23,6 +23,7 @@ public class Pref {
     private static final SharedPreferences DISPOSABLE_BOOLEAN = GlobalAppContext.get().getSharedPreferences("DISPOSABLE_BOOLEAN", Context.MODE_PRIVATE);
     private static final String KEY_SERVER_ADDRESS = "KEY_SERVER_ADDRESS";
     private static final String KEY_SHOULD_SHOW_ANNUNCIATION = "KEY_SHOULD_SHOW_ANNUNCIATION";
+    private static final String KEY_SAF_DIRECTORY_URI = "KEY_SAF_DIRECTORY_URI";
     private static final String KEY_FLOATING_MENU_SHOWN = "KEY_FLOATING_MENU_SHOWN";
     private static final String KEY_EDITOR_THEME = "editor.theme";
     private static final String KEY_EDITOR_TEXT_SIZE = "editor.textSize";
@@ -170,5 +171,19 @@ public class Pref {
 
     public static boolean isForegroundServiceEnabled() {
         return def().getBoolean(getString(R.string.key_foreground_servie), false);
+    }
+
+    /**
+     * 获取 SAF 授权的目录 URI
+     */
+    public static String getSafDirectoryUri() {
+        return def().getString(KEY_SAF_DIRECTORY_URI, null);
+    }
+
+    /**
+     * 设置 SAF 授权的目录 URI
+     */
+    public static void setSafDirectoryUri(String uri) {
+        def().edit().putString(KEY_SAF_DIRECTORY_URI, uri).apply();
     }
 }

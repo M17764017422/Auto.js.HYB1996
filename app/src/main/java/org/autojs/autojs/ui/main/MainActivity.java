@@ -3,6 +3,7 @@ package org.autojs.autojs.ui.main;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.model.explorer.Explorers;
+import org.autojs.autojs.storage.StoragePermissionHelper;
 import org.autojs.autojs.tool.AccessibilityServiceTool;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
@@ -139,7 +141,38 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     }
 
     private void checkPermissions() {
-        checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+: 优先检查是否有存储访问权限
+            if (!StoragePermissionHelper.hasStorageAccess(this)) {
+                showStoragePermissionDialog();
+            }
+        } else {
+            // Android 10 及以下：使用传统权限
+            checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    /**
+     * 显示存储权限选择对话框
+     */
+    private void showStoragePermissionDialog() {
+        new NotAskAgainDialog.Builder(this, "MainActivity.storage_permission")
+                .title(R.string.text_storage_permission_required)
+                .content(R.string.explain_storage_permission)
+                .positiveText(R.string.text_full_access)
+                .negativeText(R.string.text_select_directory)
+                .neutralText(R.string.text_cancel)
+                .onPositive((dialog, which) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        StoragePermissionHelper.requestFullStorageAccess(MainActivity.this);
+                    }
+                })
+                .onNegative((dialog, which) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        StoragePermissionHelper.requestSafDirectoryAccess(MainActivity.this);
+                    }
+                })
+                .show();
     }
 
     private void showAccessibilitySettingPromptIfDisabled() {
@@ -233,6 +266,20 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         mActivityResultMediator.onActivityResult(requestCode, resultCode, data);
+        
+        // 处理 SAF 授权结果
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (StoragePermissionHelper.handleSafResult(this, requestCode, resultCode, data)) {
+                Explorers.workspace().refreshAll();
+            }
+        }
+        
+        // 处理完全存储访问授权结果
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (StoragePermissionHelper.handleManageStorageResult(requestCode)) {
+                Explorers.workspace().refreshAll();
+            }
+        }
     }
 
     @Override
@@ -241,8 +288,11 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
         if (mRequestPermissionCallbacks.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             return;
         }
-        if (getGrantResult(Manifest.permission.READ_EXTERNAL_STORAGE, permissions, grantResults) == PackageManager.PERMISSION_GRANTED) {
-            Explorers.workspace().refreshAll();
+        // Android 10 及以下：传统权限结果处理
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (getGrantResult(Manifest.permission.READ_EXTERNAL_STORAGE, permissions, grantResults) == PackageManager.PERMISSION_GRANTED) {
+                Explorers.workspace().refreshAll();
+            }
         }
     }
 
