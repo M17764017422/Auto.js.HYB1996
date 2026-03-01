@@ -1,6 +1,6 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: 构建成功 ✅ (Android 12+ 兼容性修复完成)
+## 当前状态: 构建中 (第四次修复 - try-catch 异常捕获)
 
 ---
 
@@ -119,6 +119,41 @@ compileSdkVersion 31  →  compileSdkVersion versions.compile
 
 ---
 
+## 第四阶段: android-job FLAG_IMMUTABLE 最终修复 🔧
+
+### 问题发现
+- **测试结果**: 构建成功，但安装后仍然闪退
+- **验证方法**: 检查日志发现 `TransientBundleCompat` 错误仍然存在
+- **根本原因**: `android-job 1.4.3` 并未修复 `FLAG_IMMUTABLE` 问题，库已停止维护
+
+### 最终修复方案
+**文件**: `app/src/main/java/org/autojs/autojs/timing/TimedTaskScheduler.java`
+
+添加 try-catch 捕获异常，防止应用启动崩溃：
+
+```java
+public static void init(@NotNull Context context) {
+    try {
+        JobManager.create(context).addJobCreator(tag -> { ... });
+        new JobRequest.Builder(JOB_TAG_CHECK_TASKS)
+                .setPeriodic(TimeUnit.MINUTES.toMillis(20))
+                .build()
+                .scheduleAsync();
+        checkTasks(context, true);
+    } catch (Exception e) {
+        // android-job library has FLAG_IMMUTABLE compatibility issues on Android 12+
+        Log.e(LOG_TAG, "Failed to initialize TimedTaskScheduler: " + e.getMessage());
+    }
+}
+```
+
+**影响**:
+- 定时任务功能在 Android 12+ 上暂时不可用
+- 应用可以正常启动和运行
+- TODO: 后续迁移到 WorkManager
+
+---
+
 ## 文件修改汇总
 
 | 文件 | 修改内容 |
@@ -133,6 +168,7 @@ compileSdkVersion 31  →  compileSdkVersion versions.compile
 | `inrt/build.gradle` | compileSdkVersion → versions.compile |
 | `apkbuilder/build.gradle` | compileSdkVersion → versions.compile |
 | `.github/workflows/android.yml` | 签名配置调试步骤 |
+| `TimedTaskScheduler.java` | try-catch 捕获 FLAG_IMMUTABLE 异常 |
 
 ---
 
@@ -173,14 +209,16 @@ grep -r "compileSdkVersion" --include="*.gradle"
 | `31b11e66` | ❌ | android-job 更新 (SDK 版本不匹配) |
 | `f153c920` | ❌ | SDK 版本更新 (仅 project-versions.json) |
 | `34bc2bf6` | ✅ | 所有模块统一使用 versions.compile |
+| `320b0485` | 🔄 | try-catch 捕获 FLAG_IMMUTABLE 异常 |
 
 ---
 
 ## 下一步
 
-- [x] 等待当前构建完成 ✅
+- [ ] 等待构建完成
 - [ ] 下载并安装新的 APK 进行测试
 - [ ] 验证 Android 12+ 兼容性修复是否生效
+- [ ] 后续: 迁移到 WorkManager 替代 android-job
 
 ---
 更新时间: 2026-03-01
