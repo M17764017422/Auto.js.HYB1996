@@ -46,13 +46,44 @@ jobs:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
         run: |
           if [ -n "$SIGNING_KEYSTORE_BASE64" ]; then
+            echo "Decoding keystore from secrets..."
             echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > app/release-keystore.jks
             echo "KEYSTORE_FILE=app/release-keystore.jks" >> $GITHUB_ENV
             echo "Keystore decoded successfully"
             ls -la app/release-keystore.jks
+            # Verify keystore file is valid
+            file app/release-keystore.jks
           else
             echo "SIGNING_KEYSTORE_BASE64 is empty, will use debug keystore"
           fi
+          
+      # Debug: Print environment variables (masking secrets)
+      - name: Debug signing config
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          echo "=== Signing Configuration Debug ==="
+          echo "KEYSTORE_FILE: $KEYSTORE_FILE"
+          echo "KEY_ALIAS: $KEY_ALIAS"
+          if [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "KEYSTORE_PASSWORD: [SET]"
+          else
+            echo "KEYSTORE_PASSWORD: [NOT SET]"
+          fi
+          if [ -n "$KEY_PASSWORD" ]; then
+            echo "KEY_PASSWORD: [SET]"
+          else
+            echo "KEY_PASSWORD: [NOT SET]"
+          fi
+          if [ -n "$KEYSTORE_FILE" ] && [ -f "$KEYSTORE_FILE" ]; then
+            echo "Keystore file exists: YES"
+            ls -la "$KEYSTORE_FILE"
+          else
+            echo "Keystore file exists: NO"
+          fi
+          echo "=================================="
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --info

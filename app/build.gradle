@@ -23,6 +23,24 @@ android {
     compileSdkVersion 31
     buildToolsVersion versions.buildTool
     
+    // Resolve keystore file path - handle both absolute and relative paths
+    def resolveKeystoreFile = { String path ->
+        if (!path) return null
+        def f = new File(path)
+        if (f.isAbsolute() && f.exists()) return f
+        // Try relative to project root (parent of app module)
+        def rootFile = new File(rootProject.projectDir, path)
+        if (rootFile.exists()) return rootFile
+        // Try relative to app module
+        def appFile = new File(projectDir, path)
+        if (appFile.exists()) return appFile
+        return null
+    }
+    
+    // Determine if release signing is available
+    def releaseKeystoreFile = resolveKeystoreFile(signingKeystoreFile)
+    def useReleaseSigning = signingKeystorePassword && releaseKeystoreFile != null
+    
     // Signing configurations
     signingConfigs {
         debug {
@@ -32,11 +50,8 @@ android {
             keyAlias 'autojs-debug'
         }
         release {
-            // Use keystore from file path (set by CI) or fallback to debug keystore
-            def keystoreFile = signingKeystoreFile && new File(signingKeystoreFile).exists() 
-                ? file(signingKeystoreFile) 
-                : file('debug/autojs-debug.jks')
-            storeFile keystoreFile
+            // Use resolved keystore file or fallback to debug keystore
+            storeFile releaseKeystoreFile ?: file('debug/autojs-debug.jks')
             storePassword signingKeystorePassword ?: 'autojs123'
             keyPassword signingKeyPassword ?: 'autojs123'
             keyAlias signingKeyAlias ?: 'autojs-debug'
@@ -63,11 +78,19 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            // Use release signing if keystore is configured, otherwise use debug signing
-            if (signingKeystorePassword && signingKeystoreFile && file(signingKeystoreFile).exists()) {
+            // Log signing configuration for debugging
+            println "=== Signing Configuration ==="
+            println "KEYSTORE_FILE env: ${signingKeystoreFile}"
+            println "Resolved keystore: ${releaseKeystoreFile}"
+            println "KEYSTORE_PASSWORD set: ${signingKeystorePassword ? 'YES' : 'NO'}"
+            println "KEY_ALIAS: ${signingKeyAlias}"
+            println "Use release signing: ${useReleaseSigning}"
+            println "=============================="
+            if (useReleaseSigning) {
                 signingConfig signingConfigs.release
             } else {
                 // Fallback to debug signing for CI builds without release keystore
+                println "WARNING: Using debug signing for release build!"
                 signingConfig signingConfigs.debug
             }
         }
