@@ -62,31 +62,46 @@ public class TimedTaskScheduler {
             return;
         }
         cancel(timedTask);
-        Log.d(LOG_TAG, "schedule task: task = " + timedTask + ", millis = " + millis + ", timeWindow = " + timeWindow);
-        new JobRequest.Builder(String.valueOf(timedTask.getId()))
-                .setExact(timeWindow)
-                .build()
-                .schedule();
+        try {
+            Log.d(LOG_TAG, "schedule task: task = " + timedTask + ", millis = " + millis + ", timeWindow = " + timeWindow);
+            new JobRequest.Builder(String.valueOf(timedTask.getId()))
+                    .setExact(timeWindow)
+                    .build()
+                    .schedule();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to schedule task: " + e.getMessage());
+        }
     }
 
     public static void cancel(TimedTask timedTask) {
-        int cancelCount = JobManager.instance().cancelAllForTag(String.valueOf(timedTask.getId()));
-        Log.d(LOG_TAG, "cancel task: task = " + timedTask + ", cancel = " + cancelCount);
+        try {
+            int cancelCount = JobManager.instance().cancelAllForTag(String.valueOf(timedTask.getId()));
+            Log.d(LOG_TAG, "cancel task: task = " + timedTask + ", cancel = " + cancelCount);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to cancel task: " + e.getMessage());
+        }
     }
 
     public static void init(@NotNull Context context) {
-        JobManager.create(context).addJobCreator(tag -> {
-            if (tag.equals(JOB_TAG_CHECK_TASKS)) {
-                return new CheckTasksJob(context);
-            } else {
-                return new TimedTaskJob(context);
-            }
-        });
-        new JobRequest.Builder(JOB_TAG_CHECK_TASKS)
-                .setPeriodic(TimeUnit.MINUTES.toMillis(20))
-                .build()
-                .scheduleAsync();
-        checkTasks(context, true);
+        try {
+            JobManager.create(context).addJobCreator(tag -> {
+                if (tag.equals(JOB_TAG_CHECK_TASKS)) {
+                    return new CheckTasksJob(context);
+                } else {
+                    return new TimedTaskJob(context);
+                }
+            });
+            new JobRequest.Builder(JOB_TAG_CHECK_TASKS)
+                    .setPeriodic(TimeUnit.MINUTES.toMillis(20))
+                    .build()
+                    .scheduleAsync();
+            checkTasks(context, true);
+        } catch (Exception e) {
+            // android-job library has FLAG_IMMUTABLE compatibility issues on Android 12+
+            // Catch the exception to prevent app crash on startup
+            // TODO: Migrate to WorkManager for proper Android 12+ support
+            Log.e(LOG_TAG, "Failed to initialize TimedTaskScheduler: " + e.getMessage());
+        }
     }
 
     private static void runTask(Context context, TimedTask task) {
