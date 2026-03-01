@@ -72,7 +72,8 @@ public class WorkspaceFileProvider extends ExplorerFileProvider {
         if (inSampleDir(directory)) {
             return listSamples(directory);
         }
-        return super.listFiles(directory);
+        // 使用父类的 SAF 兼容方法
+        return super.listFiles(directory.getPath());
     }
 
     private Observable<PFile> listSamples(PFile directory) {
