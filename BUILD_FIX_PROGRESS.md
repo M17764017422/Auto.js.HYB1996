@@ -1,8 +1,14 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: ✅ Files API SAF 适配完成，Debug APK 测试通过
+## 当前状态: ✅ 编辑器长按崩溃已修复
 
 ### 最近完成
+- **第十九阶段**: 编辑器长按崩溃修复 ✅ (2026-03-03)
+  - 问题：MIUI 设备编辑器长按选择文本时 100% 崩溃
+  - 原因：`miuix.toolbar.internal.menu.MenuBuilder` 处理资源 ID 异常
+  - 修复：参考 AutoX 项目注释掉 `menu.add()` 代码
+  - 文件：`EditActivity.java` 第 163-164 行
+
 - **第十八阶段**: Files API SAF 适配 ✅ (2026-03-03)
   - `files.open()` 支持 r/w/a 三种模式
   - PReadableTextFile/PWritableTextFile 添加流式构造函数
@@ -11,7 +17,7 @@
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
-| v1.8.5-saf-files | ✅ 构建成功 | Files API SAF 完整适配 |
+| v4.1.1-alpha11 | ✅ 构建成功 | 编辑器长按崩溃修复 |
 
 ---
 
@@ -1842,4 +1848,151 @@ import java.io.IOException;
 3. **版本发布**: 发布 v1.8.5-saf-files 版本
 
 ---
-更新时间: 2026-03-03 01:10
+
+## 未来功能规划: WebView 增强支持
+
+### 现有 WebView 功能
+
+项目已内置 WebView 支持，可通过 UI 布局使用：
+
+```javascript
+// 基础用法
+ui.layout(
+    <vertical>
+        <webview id="webView" w="*" h="*" />
+    </vertical>
+);
+
+ui.webView.loadUrl("https://www.baidu.com");
+```
+
+**现有 WebView 类**:
+
+| 类名 | 模块 | 功能 |
+|------|------|------|
+| `JsWebView` | autojs | 基础 WebView，支持 JS、缩放、DOM存储 |
+| `InjectableWebView` | autojs | 支持注入 JS 脚本执行 |
+| `EWebView` | app | 增强版，带刷新、进度条、文件选择 |
+| `NestedWebView` | app | 支持嵌套滚动 |
+
+### 已实现功能 ✅
+
+#### 1. JS 交互桥接 ✅ 已实现
+
+**文件**: `autojs/src/main/java/com/stardust/autojs/core/web/InjectableWebClient.java`
+
+WebView 中的 JavaScript 可以通过 `rhino.eval(script)` 执行 Auto.js 脚本：
+
+```javascript
+// Auto.js 脚本
+ui.layout(
+    <vertical>
+        <webview id="webView" w="*" h="*" />
+    </vertical>
+);
+
+// WebView 中的 HTML/JS 可以调用：
+// rhino.eval("toast('Hello from WebView!')");
+// rhino.eval("files.write('/sdcard/test.txt', 'content')");
+```
+
+**实现原理**:
+- `ScriptBridge` 类使用 `@JavascriptInterface` 注解
+- `addJavascriptInterface(mScriptBridge, "rhino")` 注入到 WebView
+- 支持同步返回执行结果
+
+#### 2. 文件选择支持 ✅ 已实现
+
+**文件**: `app/src/main/java/org/autojs/autojs/ui/widget/EWebView.java`
+
+支持 `<input type="file">` 文件上传，特别是图片选择：
+
+```java
+// 已实现的方法
+public boolean onShowFileChooser(WebView webView,
+                                  ValueCallback<Uri[]> filePathCallback,
+                                  WebChromeClient.FileChooserParams fileChooserParams)
+```
+
+**支持**: Android 4.1+ 的各种 `openFileChooser` 版本
+
+#### 3. 进度显示 ✅ 已实现
+
+**文件**: `app/src/main/java/org/autojs/autojs/ui/widget/EWebView.java`
+
+- 顶部进度条显示加载进度
+- 下拉刷新支持
+- `onProgressChanged` 回调更新进度条
+
+### 未实现功能 ❌
+
+#### 4. 下载拦截 ❌ 未实现
+
+自定义下载处理，如下载到指定目录、显示进度。
+
+**需要实现**: 添加 `DownloadListener`
+
+```javascript
+// 期望 API
+ui.webView.setDownloadListener(function(url, userAgent, contentDisposition, mimeType, contentLength) {
+    console.log("下载链接: " + url);
+    http.get(url, function(response) {
+        files.writeBytes("/sdcard/download.bin", response.body.bytes());
+    });
+});
+```
+
+**复杂度**: 低
+
+#### 5. 脚本可访问的进度/错误回调 ❌ 未实现
+
+当前进度条只在 UI 显示，未暴露给脚本：
+
+```javascript
+// 期望 API
+ui.webView.setOnProgressChanged(function(progress) {
+    console.log("加载进度: " + progress + "%");
+});
+
+ui.webView.setOnError(function(errorCode, description) {
+    console.log("加载错误: " + description);
+});
+```
+
+**复杂度**: 低
+
+### 功能实现状态汇总
+
+| 功能 | 状态 | 实现文件 |
+|------|------|----------|
+| JS 交互桥接 | ✅ 已实现 | `InjectableWebClient.java` |
+| 文件选择支持 | ✅ 已实现 | `EWebView.java` |
+| 进度显示 (UI) | ✅ 已实现 | `EWebView.java` |
+| 进度回调 (脚本) | ❌ 未实现 | - |
+| 错误回调 | ❌ 未实现 | - |
+| 下载拦截 | ❌ 未实现 | - |
+
+### 使用示例
+
+```javascript
+// 完整 WebView 使用示例
+ui.layout(
+    <vertical>
+        <webview id="webView" w="*" h="*" />
+    </vertical>
+);
+
+// 加载网页
+ui.webView.loadUrl("https://www.baidu.com");
+
+// 注入 JS 执行
+ui.webView.evaluateJavascript("document.title", function(result) {
+    console.log("页面标题: " + result);
+});
+
+// WebView 内 JS 可通过 rhino.eval() 调用脚本
+// HTML: <button onclick="rhino.eval('toast(\"clicked\")')">点击</button>
+```
+
+---
+更新时间: 2026-03-03 01:20

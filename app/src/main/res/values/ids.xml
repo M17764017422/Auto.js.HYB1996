@@ -12,4 +12,6 @@
     <item name="layout_hierarchy" type="id"/>
     <item name="pointer_location" type="id"/>
     <item name="disable_pointer_location" type="id"/>
+    <item name="action_delete_line" type="id"/>
+    <item name="action_copy_line" type="id"/>
 </resources>
