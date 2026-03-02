@@ -244,6 +244,11 @@ public class TraditionalFileProvider implements IFileProvider {
     }
 
     @Override
+    public boolean append(String path, String content) {
+        return append(path, content, "UTF-8");
+    }
+
+    @Override
     public boolean writeBytes(String path, byte[] bytes) {
         String resolvedPath = resolvePath(path);
         Log.d(TAG, "writeBytes: resolved=" + resolvedPath + ", size=" + bytes.length);

@@ -127,14 +127,29 @@ public class ProjectConfig {
         Log.d(TAG, "fromFile: path=" + path + ", fileProvider=" + (sFileProvider != null ? sFileProvider.getClass().getSimpleName() : "null"));
         try {
             String json;
-            // 优先使用 IFileProvider (支持 SAF 模式)
-            if (sFileProvider != null) {
-                Log.d(TAG, "fromFile: using IFileProvider to read");
-                json = sFileProvider.read(path);
+            
+            // 优先从 FileProviderFactory 获取最新的提供者（支持 SAF 模式动态切换）
+            IFileProvider provider = null;
+            try {
+                Class<?> factoryClass = Class.forName("com.stardust.pio.FileProviderFactory");
+                java.lang.reflect.Method getProviderMethod = factoryClass.getMethod("getProvider");
+                provider = (IFileProvider) getProviderMethod.invoke(null);
+            } catch (Exception e) {
+                Log.w(TAG, "fromFile: FileProviderFactory not available: " + e.getMessage());
+            }
+            
+            if (provider == null) {
+                provider = sFileProvider;
+            }
+            
+            if (provider != null) {
+                Log.d(TAG, "fromFile: using " + provider.getClass().getSimpleName() + " to read");
+                json = provider.read(path);
             } else {
                 Log.d(TAG, "fromFile: using PFiles.read (traditional mode)");
                 json = PFiles.read(path);
             }
+            
             if (json == null) {
                 Log.e(TAG, "fromFile: failed to read file content");
                 return null;

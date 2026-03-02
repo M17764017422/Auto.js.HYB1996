@@ -5,6 +5,7 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -36,9 +37,11 @@ public class PWritableTextFile implements Closeable, PFileInterface {
 
     private BufferedWriter mBufferedWriter;
     private String mPath;
+    private boolean mIsStreamMode;
 
     public PWritableTextFile(String path, String encoding, int bufferingSize, boolean append) {
         mPath = path;
+        mIsStreamMode = false;
         if (bufferingSize <= 0) {
             bufferingSize = DEFAULT_BUFFER_SIZE;
         }
@@ -47,6 +50,36 @@ public class PWritableTextFile implements Closeable, PFileInterface {
         } catch (UnsupportedEncodingException | FileNotFoundException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * 从 OutputStream 创建写入器（用于 SAF 模式）
+     */
+    public PWritableTextFile(OutputStream outputStream, String encoding, int bufferingSize) {
+        mPath = null;
+        mIsStreamMode = true;
+        if (bufferingSize <= 0) {
+            bufferingSize = DEFAULT_BUFFER_SIZE;
+        }
+        try {
+            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, encoding), bufferingSize);
+        } catch (UnsupportedEncodingException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * 从 OutputStream 创建写入器（用于 SAF 模式）
+     */
+    public PWritableTextFile(OutputStream outputStream, String encoding) {
+        this(outputStream, encoding, DEFAULT_BUFFER_SIZE);
+    }
+
+    /**
+     * 从 OutputStream 创建写入器（用于 SAF 模式）
+     */
+    public PWritableTextFile(OutputStream outputStream) {
+        this(outputStream, PFiles.DEFAULT_ENCODING, DEFAULT_BUFFER_SIZE);
     }
 
     public PWritableTextFile(String path) {

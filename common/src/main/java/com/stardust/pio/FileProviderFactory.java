@@ -6,8 +6,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
-
 /**
  * 文件访问提供者工厂
  * 根据当前权限状态选择合适的实现
@@ -18,7 +16,8 @@ public class FileProviderFactory {
     
     private static IFileProvider sInstance;
     private static int sCurrentMode = -1;
-    private static WeakReference<FileProviderConfig> sConfigRef;
+    // 使用强引用保存配置，防止被 GC 回收导致 SAF 配置丢失
+    private static FileProviderConfig sConfig;
 
     /**
      * 权限模式
@@ -32,7 +31,7 @@ public class FileProviderFactory {
      * 设置配置提供者（由应用模块在初始化时调用）
      */
     public static synchronized void setConfig(FileProviderConfig config) {
-        sConfigRef = new WeakReference<>(config);
+        sConfig = config;
         Log.i(TAG, "Config set: " + (config != null ? "provided" : "null"));
     }
 
@@ -40,7 +39,7 @@ public class FileProviderFactory {
      * 获取配置提供者
      */
     private static FileProviderConfig getConfig() {
-        return sConfigRef != null ? sConfigRef.get() : null;
+        return sConfig;
     }
 
     /**

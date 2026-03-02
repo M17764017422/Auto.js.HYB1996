@@ -296,6 +296,11 @@ public class SafFileProviderImpl implements IFileProvider {
     }
 
     @Override
+    public boolean append(String path, String content) {
+        return append(path, content, "UTF-8");
+    }
+
+    @Override
     public boolean writeBytes(String path, byte[] bytes) {
         Log.d(TAG, "writeBytes: path=" + path + ", size=" + bytes.length + " bytes");
         try (OutputStream os = openOutputStream(path)) {

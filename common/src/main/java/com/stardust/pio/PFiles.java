@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -35,14 +37,43 @@ public class PFiles {
     static final int DEFAULT_BUFFER_SIZE = 8192;
     static final String DEFAULT_ENCODING = Charset.defaultCharset().name();
 
+    /**
+     * 打开文件进行读写（支持 SAF 模式）
+     * @param path 文件路径
+     * @param mode 模式: "r" 读取, "w" 写入, "a" 追加
+     * @param encoding 编码
+     * @param bufferSize 缓冲区大小
+     * @return PFileInterface 实例
+     */
     public static PFileInterface open(String path, String mode, String encoding, int bufferSize) {
-        switch (mode) {
-            case "r":
-                return new PReadableTextFile(path, encoding, bufferSize);
-            case "w":
-                return new PWritableTextFile(path, encoding, bufferSize, false);
-            case "a":
-                return new PWritableTextFile(path, encoding, bufferSize, true);
+        // 使用 FileProviderFactory 获取合适的文件提供者
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        
+        // 如果是应用私有目录或传统模式，使用传统方式
+        if (provider == null || provider instanceof TraditionalFileProvider) {
+            switch (mode) {
+                case "r":
+                    return new PReadableTextFile(path, encoding, bufferSize);
+                case "w":
+                    return new PWritableTextFile(path, encoding, bufferSize, false);
+                case "a":
+                    return new PWritableTextFile(path, encoding, bufferSize, true);
+            }
+            return null;
+        }
+        
+        // SAF 模式：使用 FileProvider 的流
+        try {
+            switch (mode) {
+                case "r":
+                    return new PReadableTextFile(provider.openInputStream(path), encoding, bufferSize);
+                case "w":
+                    return new PWritableTextFile(provider.openOutputStream(path, false), encoding, bufferSize);
+                case "a":
+                    return new PWritableTextFile(provider.openOutputStream(path, true), encoding, bufferSize);
+            }
+        } catch (Exception e) {
+            throw new UncheckedIOException(new IOException("Failed to open file: " + path, e));
         }
         return null;
     }
@@ -60,6 +91,26 @@ public class PFiles {
     }
 
     public static boolean create(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            if (path.endsWith(File.separator)) {
+                return provider.mkdir(path);
+            } else {
+                try {
+                    // 创建空文件
+                    OutputStream os = provider.openOutputStream(path);
+                    if (os != null) {
+                        os.close();
+                        return true;
+                    }
+                    return false;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+        // 传统模式
         File f = new File(path);
         if (path.endsWith(File.separator)) {
             return f.mkdir();
@@ -73,6 +124,15 @@ public class PFiles {
     }
 
     public static boolean createIfNotExists(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            if (provider.exists(path)) {
+                return true;
+            }
+            return create(path);
+        }
+        // 传统模式
         ensureDir(path);
         File file = new File(path);
         if (!file.exists()) {
@@ -90,6 +150,12 @@ public class PFiles {
     }
 
     public static boolean exists(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.exists(path);
+        }
+        // 传统模式
         return new File(path).exists();
     }
 
@@ -109,10 +175,20 @@ public class PFiles {
     }
 
     public static String read(String path, String encoding) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.read(path, encoding);
+        }
         return read(new File(path), encoding);
     }
 
     public static String read(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.read(path);
+        }
         return read(new File(path));
     }
 
@@ -201,10 +277,22 @@ public class PFiles {
 
 
     public static void write(String path, String text) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            provider.write(path, text);
+            return;
+        }
         write(new File(path), text);
     }
 
     public static void write(String path, String text, String encoding) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            provider.write(path, text, encoding);
+            return;
+        }
         try {
             write(new FileOutputStream(path), text, encoding);
         } catch (FileNotFoundException e) {
@@ -236,6 +324,12 @@ public class PFiles {
     }
 
     public static void append(String path, String text) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            provider.append(path, text);
+            return;
+        }
         create(path);
         try {
             write(new FileOutputStream(path, true), text);
@@ -246,6 +340,12 @@ public class PFiles {
 
 
     public static void append(String path, String text, String encoding) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            provider.append(path, text, encoding);
+            return;
+        }
         create(path);
         try {
             write(new FileOutputStream(path, true), text, encoding);
@@ -264,6 +364,17 @@ public class PFiles {
     }
 
     public static void appendBytes(String path, byte[] bytes) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式：读取现有内容后追加
+            byte[] existing = provider.readBytes(path);
+            if (existing == null) existing = new byte[0];
+            byte[] combined = new byte[existing.length + bytes.length];
+            System.arraycopy(existing, 0, combined, 0, existing.length);
+            System.arraycopy(bytes, 0, combined, existing.length, bytes.length);
+            provider.writeBytes(path, combined);
+            return;
+        }
         create(path);
         try {
             writeBytes(new FileOutputStream(path, true), bytes);
@@ -273,6 +384,12 @@ public class PFiles {
     }
 
     public static void writeBytes(String path, byte[] bytes) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            provider.writeBytes(path, bytes);
+            return;
+        }
         try {
             writeBytes(new FileOutputStream(path), bytes);
         } catch (FileNotFoundException e) {
@@ -428,10 +545,20 @@ public class PFiles {
     }
 
     public static boolean remove(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.delete(path);
+        }
         return new File(path).delete();
     }
 
     public static boolean removeDir(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.deleteRecursively(path);
+        }
         return deleteRecursively(new File(path));
     }
 
@@ -448,6 +575,16 @@ public class PFiles {
     }
 
     public static String[] listDir(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            List<IFileProvider.FileInfo> files = provider.listFiles(path);
+            String[] names = new String[files.size()];
+            for (int i = 0; i < files.size(); i++) {
+                names[i] = files.get(i).name;
+            }
+            return names;
+        }
         File file = new File(path);
         return wrapNonNull(file.list());
     }
@@ -459,6 +596,18 @@ public class PFiles {
     }
 
     public static String[] listDir(String path, final Func1<String, Boolean> filter) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            List<IFileProvider.FileInfo> files = provider.listFiles(path);
+            List<String> filtered = new ArrayList<>();
+            for (IFileProvider.FileInfo info : files) {
+                if (filter.call(info.name)) {
+                    filtered.add(info.name);
+                }
+            }
+            return filtered.toArray(new String[0]);
+        }
         final File file = new File(path);
         return wrapNonNull(file.list(new FilenameFilter() {
             @Override
@@ -469,10 +618,20 @@ public class PFiles {
     }
 
     public static boolean isFile(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.isFile(path);
+        }
         return new File(path).isFile();
     }
 
     public static boolean isDir(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.isDirectory(path);
+        }
         return new File(path).isDirectory();
     }
 
@@ -505,6 +664,11 @@ public class PFiles {
     }
 
     public static byte[] readBytes(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            return provider.readBytes(path);
+        }
         try {
             return readBytes(new FileInputStream(path));
         } catch (FileNotFoundException e) {

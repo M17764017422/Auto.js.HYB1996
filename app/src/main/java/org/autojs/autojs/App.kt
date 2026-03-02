@@ -28,7 +28,7 @@ import org.autojs.autojs.timing.TimedTaskManager
 import org.autojs.autojs.timing.TimedTaskScheduler
 import org.autojs.autojs.tool.CrashHandler
 import org.autojs.autojs.ui.error.ErrorReportActivity
-import org.autojs.autojs.storage.FileProviderFactory
+import com.stardust.pio.FileProviderFactory
 import com.stardust.autojs.project.ProjectConfig
 import com.stardust.pio.ScriptFileReader
 import com.stardust.pio.ScriptFileReaderRegistry
@@ -75,7 +75,11 @@ class App : MultiDexApplication() {
     }
 
     private fun init() {
-        // 初始化 ProjectConfig 的文件提供者，支持 SAF 模式
+        // 先初始化 AutoJs，这会设置 FileProviderFactory 的配置
+        ThemeColorManagerCompat.init(this, ThemeColor(resources.getColor(R.color.colorPrimary), resources.getColor(R.color.colorPrimaryDark), resources.getColor(R.color.colorAccent)))
+        AutoJs.initInstance(this)
+        
+        // 然后初始化 ProjectConfig 的文件提供者（此时 FileProviderFactory 已配置好）
         ProjectConfig.setFileProvider(FileProviderFactory.getProvider())
         
         // 注册 ScriptFileReader 以支持 SAF 模式下的脚本读取
@@ -93,8 +97,6 @@ class App : MultiDexApplication() {
             }
         })
         
-        ThemeColorManagerCompat.init(this, ThemeColor(resources.getColor(R.color.colorPrimary), resources.getColor(R.color.colorPrimaryDark), resources.getColor(R.color.colorAccent)))
-        AutoJs.initInstance(this)
         if (Pref.isRunningVolumeControlEnabled()) {
             GlobalKeyObserver.init()
         }

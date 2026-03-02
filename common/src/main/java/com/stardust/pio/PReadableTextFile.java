@@ -11,10 +11,11 @@ import java.util.List;
 public class PReadableTextFile implements Closeable, PFileInterface {
 
     private BufferedReader mBufferedReader;
-    private FileInputStream mFileInputStream;
+    private InputStream mInputStream;
     private int mBufferingSize;
     private String mEncoding;
     private String mPath;
+    private boolean mIsStreamMode;
 
     public PReadableTextFile(String path) {
         this(path, PFiles.DEFAULT_ENCODING);
@@ -28,11 +29,37 @@ public class PReadableTextFile implements Closeable, PFileInterface {
         mEncoding = encoding;
         mBufferingSize = bufferingSize;
         mPath = path;
+        mIsStreamMode = false;
         try {
-            mFileInputStream = new FileInputStream(path);
+            mInputStream = new FileInputStream(path);
         } catch (FileNotFoundException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * 从 InputStream 创建读取器（用于 SAF 模式）
+     */
+    public PReadableTextFile(InputStream inputStream, String encoding, int bufferingSize) {
+        mEncoding = encoding;
+        mBufferingSize = bufferingSize;
+        mPath = null;
+        mIsStreamMode = true;
+        mInputStream = inputStream;
+    }
+
+    /**
+     * 从 InputStream 创建读取器（用于 SAF 模式）
+     */
+    public PReadableTextFile(InputStream inputStream, String encoding) {
+        this(inputStream, encoding, -1);
+    }
+
+    /**
+     * 从 InputStream 创建读取器（用于 SAF 模式）
+     */
+    public PReadableTextFile(InputStream inputStream) {
+        this(inputStream, PFiles.DEFAULT_ENCODING, -1);
     }
 
 
@@ -40,9 +67,9 @@ public class PReadableTextFile implements Closeable, PFileInterface {
         if (mBufferedReader == null) {
             try {
                 if (mBufferingSize == -1)
-                    mBufferedReader = new BufferedReader(new InputStreamReader(mFileInputStream, mEncoding));
+                    mBufferedReader = new BufferedReader(new InputStreamReader(mInputStream, mEncoding));
                 else
-                    mBufferedReader = new BufferedReader(new InputStreamReader(mFileInputStream, mEncoding), mBufferingSize);
+                    mBufferedReader = new BufferedReader(new InputStreamReader(mInputStream, mEncoding), mBufferingSize);
             } catch (UnsupportedEncodingException e) {
                 throw new UncheckedIOException(e);
             }
@@ -52,8 +79,8 @@ public class PReadableTextFile implements Closeable, PFileInterface {
 
     public String read() {
         try {
-            byte[] data = new byte[mFileInputStream.available()];
-            mFileInputStream.read(data);
+            byte[] data = new byte[mInputStream.available()];
+            mInputStream.read(data);
             return new String(data, mEncoding);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -98,8 +125,8 @@ public class PReadableTextFile implements Closeable, PFileInterface {
         try {
             if (mBufferedReader != null) {
                 mBufferedReader.close();
-            } else {
-                mFileInputStream.close();
+            } else if (mInputStream != null) {
+                mInputStream.close();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

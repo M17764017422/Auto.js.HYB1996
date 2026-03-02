@@ -8,6 +8,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -331,6 +332,11 @@ public class SafFileProviderImpl implements IFileProvider {
     }
 
     @Override
+    public boolean append(String path, String content) {
+        return append(path, content, "UTF-8");
+    }
+
+    @Override
     public boolean writeBytes(String path, byte[] bytes) {
         Log.d(TAG, "writeBytes: path=" + path + ", size=" + bytes.length + " bytes");
         try (OutputStream os = openOutputStream(path)) {
@@ -374,11 +380,61 @@ public class SafFileProviderImpl implements IFileProvider {
         }
         
         if (append) {
-            // SAF 不支持追加模式，需要读取现有内容
-            throw new Exception("SAF does not support append mode directly");
+            // SAF 不直接支持追加模式，使用 AppendOutputStream 实现
+            Log.d(TAG, "openOutputStream: using AppendOutputStream for append mode");
+            return new AppendOutputStream(context, documentUri, path);
         }
         
         return context.getContentResolver().openOutputStream(documentUri, "wt");
+    }
+
+    /**
+     * 支持 SAF 追加模式的 OutputStream
+     * 在 close() 时读取现有内容，合并新内容后写入
+     */
+    private class AppendOutputStream extends ByteArrayOutputStream {
+        private final Context mContext;
+        private final Uri mDocumentUri;
+        private final String mPath;
+        
+        public AppendOutputStream(Context context, Uri documentUri, String path) {
+            mContext = context;
+            mDocumentUri = documentUri;
+            mPath = path;
+        }
+        
+        @Override
+        public void close() throws IOException {
+            super.close();
+            
+            // 读取现有内容
+            byte[] existingData = new byte[0];
+            try (InputStream is = mContext.getContentResolver().openInputStream(mDocumentUri)) {
+                if (is != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = is.read(buffer)) != -1) {
+                        baos.write(buffer, 0, len);
+                    }
+                    existingData = baos.toByteArray();
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "AppendOutputStream: failed to read existing content: " + e.getMessage());
+            }
+            
+            // 合并内容并写入
+            try (OutputStream os = mContext.getContentResolver().openOutputStream(mDocumentUri, "wt")) {
+                if (os != null) {
+                    os.write(existingData);
+                    os.write(toByteArray());
+                    Log.d(TAG, "AppendOutputStream: wrote " + (existingData.length + size()) + " bytes to " + mPath);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "AppendOutputStream: failed to write: " + e.getMessage());
+                throw new IOException("Failed to write appended content", e);
+            }
+        }
     }
 
     @Override
@@ -521,9 +577,12 @@ public class SafFileProviderImpl implements IFileProvider {
                     return null;
                 }
                 
+                int count = 0;
                 while (cursor.moveToNext()) {
+                    count++;
                     String docId = cursor.getString(0);
                     String name = cursor.getString(1);
+                    Log.v(TAG, "findDocumentId: checking child[" + count + "] name=" + name + ", docId=" + docId);
                     
                     if (name.equals(part)) {
                         currentDocumentId = docId;
@@ -532,6 +591,10 @@ public class SafFileProviderImpl implements IFileProvider {
                         break;
                     }
                 }
+                Log.d(TAG, "findDocumentId: queried " + count + " children for part=" + part + ", found=" + found);
+            } catch (Exception e) {
+                Log.e(TAG, "findDocumentId: query exception for part=" + part + ", error=" + e.getMessage(), e);
+                return null;
             }
             
             if (!found) {

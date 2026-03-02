@@ -101,6 +101,11 @@ public interface IFileProvider {
     boolean append(String path, String content, String encoding);
 
     /**
+     * 追加字符串到文件（UTF-8）
+     */
+    boolean append(String path, String content);
+
+    /**
      * 写入字节数组到文件
      */
     boolean writeBytes(String path, byte[] bytes);
