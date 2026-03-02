@@ -35,6 +35,46 @@ jobs:
       - name: Grant execute permissions for gradlew
         run: chmod +x gradlew
 
+      - name: Update version from git tag
+        run: |
+          # Get tag name or use default
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            # Remove 'v' prefix if present (v4.1.1-alpha8 -> 4.1.1-alpha8)
+            VERSION_NAME=${TAG_NAME#v}
+          else
+            # For non-tag builds, use commit hash
+            VERSION_NAME="dev-$(git rev-parse --short HEAD)"
+          fi
+          
+          # Calculate versionCode from tag or use timestamp
+          # For tags like 4.1.1-alpha8: major*10000 + minor*100 + patch + alpha/beta number
+          if [[ "$VERSION_NAME" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-alpha([0-9]+))?(-beta([0-9]+))?$ ]]; then
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            PATCH=${BASH_REMATCH[3]}
+            ALPHA=${BASH_REMATCH[5]:-0}
+            BETA=${BASH_REMATCH[7]:-0}
+            # versionCode: 4.1.1-alpha8 -> 4010180, allows up to 99 for each component
+            VERSION_CODE=$((MAJOR * 1000000 + MINOR * 10000 + PATCH * 1000 + ALPHA * 10 + BETA))
+          else
+            # Fallback: use timestamp-based code
+            VERSION_CODE=$(date +%s | tail -c 6)
+          fi
+          
+          echo "Version name: $VERSION_NAME"
+          echo "Version code: $VERSION_CODE"
+          
+          # Update project-versions.json
+          cat project-versions.json | jq \
+            --arg vn "$VERSION_NAME" \
+            --arg vc "$VERSION_CODE" \
+            '.appVersionName = $vn | .appVersionCode = ($vc | tonumber)' \
+            > project-versions.json.tmp && mv project-versions.json.tmp project-versions.json
+          
+          echo "Updated project-versions.json:"
+          cat project-versions.json
+
       - name: Build Debug APK (coolapk only)
         run: ./gradlew assembleCoolapkDebug --info
 
