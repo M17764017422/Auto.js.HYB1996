@@ -2,6 +2,7 @@ package com.stardust.autojs.script
 
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.io.OutputStream
 
 object EncryptedScriptFileHeader {
@@ -16,8 +17,12 @@ object EncryptedScriptFileHeader {
 
     fun getHeaderFlags(file: File): Short {
         val fis = FileInputStream(file)
+        return getHeaderFlags(fis)
+    }
+
+    fun getHeaderFlags(inputStream: InputStream): Short {
         val bytes = ByteArray(BLOCK_SIZE)
-        if (fis.read(bytes) < BLOCK_SIZE) {
+        if (inputStream.read(bytes) < BLOCK_SIZE) {
             return FLAG_INVALID_FILE
         }
         if (!isValidFile(bytes)) {

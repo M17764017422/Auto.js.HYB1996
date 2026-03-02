@@ -6,8 +6,10 @@ import com.stardust.pio.PFiles;
 import com.stardust.pio.UncheckedIOException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 
 /**
@@ -45,11 +47,25 @@ public class JavaScriptFileSource extends JavaScriptSource {
 
     @Override
     protected int parseExecutionMode() {
-        short flags = EncryptedScriptFileHeader.INSTANCE.getHeaderFlags(mFile);
-        if (flags == EncryptedScriptFileHeader.FLAG_INVALID_FILE) {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(mFile);
+            short flags = EncryptedScriptFileHeader.INSTANCE.getHeaderFlags(fis);
+            if (flags == EncryptedScriptFileHeader.FLAG_INVALID_FILE) {
+                return super.parseExecutionMode();
+            }
+            return flags;
+        } catch (Exception e) {
             return super.parseExecutionMode();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
-        return flags;
     }
 
     @Override
