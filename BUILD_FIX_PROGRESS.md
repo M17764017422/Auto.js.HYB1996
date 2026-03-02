@@ -1109,3 +1109,180 @@ if ("file".equals(mUri.getScheme())) {
 
 ---
 更新时间: 2026-03-02 06:15
+
+---
+
+## 第十四阶段: 调试日志系统完善 ✅
+
+### 需求背景
+为方便 SAF 模式开发和调试，需要：
+1. 为脚本文件操作添加详细日志
+2. 将脚本控制台日志输出到 Logcat
+3. 日志 TAG 格式便于过滤
+
+### 日志 TAG 规范
+
+**格式**: `AutoJS.模块.方法`
+
+| 模块 | TAG 示例 |
+|------|----------|
+| Files | `AutoJS.Files.open`, `AutoJS.Files.read`, `AutoJS.Files.write` |
+| Console | `AutoJS.Console.verbose`, `AutoJS.Console.log`, `AutoJS.Console.error` |
+
+### 实现内容
+
+#### 任务 1: 脚本文件操作日志
+
+**修改文件**: `autojs/src/main/java/com/stardust/autojs/runtime/api/Files.java`
+
+添加日志的方法：
+| 方法 | TAG | 日志内容 |
+|------|-----|----------|
+| `open()` | `AutoJS.Files.open` | 路径、模式、编码 |
+| `read()` | `AutoJS.Files.read` | 路径、结果长度 |
+| `readBytes()` | `AutoJS.Files.readBytes` | 路径、结果长度 |
+| `write()` | `AutoJS.Files.write` | 路径、内容长度 |
+| `writeBytes()` | `AutoJS.Files.writeBytes` | 路径、数据长度 |
+| `append()` | `AutoJS.Files.append` | 路径、内容长度 |
+| `copy()` | `AutoJS.Files.copy` | 源路径、目标路径、结果 |
+| `move()` | `AutoJS.Files.move` | 源路径、目标路径、结果 |
+| `rename()` | `AutoJS.Files.rename` | 路径、新名称、结果 |
+| `remove()` | `AutoJS.Files.remove` | 路径、结果 |
+| `removeDir()` | `AutoJS.Files.removeDir` | 路径、结果 |
+| `listDir()` | `AutoJS.Files.listDir` | 路径、返回数量 |
+| `create()` | `AutoJS.Files.create` | 路径、结果 |
+| `createWithDirs()` | `AutoJS.Files.createWithDirs` | 路径、结果 |
+| `exists()` | `AutoJS.Files.exists` | 路径、结果 |
+
+#### 任务 2: 脚本控制台日志输出到 Logcat
+
+**修改文件**: `autojs/src/main/java/com/stardust/autojs/core/console/ConsoleImpl.java`
+
+在 `println()` 方法中添加 Logcat 输出，根据日志级别调用对应的 `Log.v/d/i/w/e()` 方法。
+
+日志级别 → TAG 映射：
+| 方法 | Android Log | TAG |
+|------|-------------|-----|
+| verbose() | `Log.v()` | `AutoJS.Console.verbose` |
+| log() | `Log.d()` | `AutoJS.Console.log` |
+| info() | `Log.i()` | `AutoJS.Console.info` |
+| warn() | `Log.w()` | `AutoJS.Console.warn` |
+| error() | `Log.e()` | `AutoJS.Console.error` |
+
+### 日志过滤示例
+
+```bash
+# 过滤所有 AutoJS 日志
+adb logcat | grep "AutoJS\."
+
+# 过滤 Files 模块所有操作
+adb logcat | grep "AutoJS\.Files"
+
+# 过滤 Console 所有日志
+adb logcat | grep "AutoJS\.Console"
+
+# 过滤特定方法
+adb logcat | grep "AutoJS\.Files\.read"
+adb logcat | grep "AutoJS\.Console\.error"
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `cd1a09e6` | feat: add AutoJS.* TAG logs for script file operations and console output |
+
+---
+
+## 第十五阶段: CI 优化 ✅
+
+### 需求
+1. APK 版本号与 git tag 同步
+2. 坚果云只上传 armeabi-v7a 版本节约流量
+
+### 实现内容
+
+#### 版本号同步
+
+**修改文件**: `.github/workflows/android.yml`
+
+在构建前添加步骤，从 git tag 读取版本信息并更新 `project-versions.json`：
+
+```yaml
+- name: Update version from git tag
+  run: |
+    if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+      TAG_NAME=${GITHUB_REF#refs/tags/}
+      VERSION_NAME=${TAG_NAME#v}  # v4.1.1-alpha8 -> 4.1.1-alpha8
+    else
+      VERSION_NAME="dev-$(git rev-parse --short HEAD)"
+    fi
+    
+    # versionCode: 4.1.1-alpha8 -> 4010180
+    VERSION_CODE=$((MAJOR * 1000000 + MINOR * 10000 + PATCH * 1000 + ALPHA * 10 + BETA))
+    
+    # Update project-versions.json
+    cat project-versions.json | jq \
+      --arg vn "$VERSION_NAME" \
+      --arg vc "$VERSION_CODE" \
+      '.appVersionName = $vn | .appVersionCode = ($vc | tonumber)' \
+      > project-versions.json.tmp && mv project-versions.json.tmp project-versions.json
+```
+
+**版本号示例**：
+| Tag | versionName | versionCode |
+|-----|-------------|-------------|
+| v4.1.1-alpha8 | 4.1.1-alpha8 | 4010180 |
+| v4.1.1-beta1 | 4.1.1-beta1 | 4010101 |
+| v4.1.1 | 4.1.1 | 4011000 |
+
+#### 坚果云上传优化
+
+**修改**: 只上传 armeabi-v7a (arm) 版本
+
+```bash
+# 只查找 armeabi-v7a APK
+APK_FILE=$(find artifacts -name "*armeabi-v7a*.apk" -type f | head -1)
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `eafbbd79` | ci: upload only armeabi-v7a APK to WebDAV to save bandwidth |
+| `23e8cb77` | ci: sync APK version with git tag |
+
+---
+
+## 版本发布记录
+
+| 版本 | Tag | 状态 | 主要更新 |
+|------|-----|------|----------|
+| v4.1.1-alpha4 | `b60d8290` | ✅ | 签名验证修复 |
+| v4.1.1-alpha5 | `f4c477a4` | ✅ | SAF + WebDAV |
+| v4.1.1-alpha6 | `25ce8ff0` | ✅ | ProjectConfig SAF 支持 |
+| v4.1.1-alpha7 | `1abcdb4f` | ✅ | 文件操作调试日志 |
+| v4.1.1-alpha8 | `23e8cb77` | 🔄 | 版本同步 + 脚本日志到 Logcat |
+
+---
+
+## 当前待办事项
+
+### 高优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| SAF 模式测试 | ⏳ 等待构建 | 验证文件操作和控制台日志 |
+| PFiles.java 重构 | 待开始 | 154 处需改用 IFileProvider |
+| JS files API 适配 | 待开始 | 依赖 PFiles 重构 |
+
+### 中优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| Git 历史清理 | 待处理 | 删除敏感文件历史 |
+| WorkManager 迁移 | 待处理 | 替代 android-job |
+| ApkBuilderPlugin | 待处理 | 恢复打包功能 |
+
+---
+更新时间: 2026-03-02 14:30
