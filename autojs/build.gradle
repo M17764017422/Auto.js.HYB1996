@@ -74,9 +74,10 @@ dependencies {
     api(name: 'libtermexec-release', ext: 'aar')
     api(name: 'emulatorview-release', ext: 'aar')
     api(name: 'term-debug', ext: 'aar')
-    // Rhino JavaScript Engine - upgraded from 1.7.7.2 to 1.7.14
-    // https://mvnrepository.com/artifact/org.mozilla/rhino
-    api 'org.mozilla:rhino:1.7.14'
+    // Rhino JavaScript Engine - using jdk7 version to avoid javax.lang.model.SourceVersion issue on Android
+    // Standard rhino:1.7.14 references javax.lang.model.SourceVersion which is not available on Android
+    // The jdk7 build avoids this dependency while maintaining ES6 support
+    api files('libs/rhino-1.7.14-jdk7.jar')
     api project(path: ':common')
     api project(path: ':automator')
 }
