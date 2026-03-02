@@ -3,10 +3,13 @@ package com.stardust.autojs.runtime.api;
 import android.util.Log;
 
 import com.stardust.autojs.runtime.ScriptRuntime;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFileInterface;
 import com.stardust.pio.PFiles;
 import com.stardust.pio.UncheckedIOException;
 import com.stardust.util.Func1;
+
+import com.stardust.pio.FileProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,7 +111,8 @@ public class Files {
     public String read(String path, String encoding) {
         String resolvedPath = path(path);
         Log.d(TAG + ".read", "path=" + resolvedPath + ", encoding=" + encoding);
-        String result = PFiles.read(resolvedPath, encoding);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        String result = provider.read(resolvedPath, encoding);
         Log.d(TAG + ".read", "result: length=" + (result != null ? result.length() : 0));
         return result;
     }
@@ -117,7 +121,8 @@ public class Files {
     public String read(String path) {
         String resolvedPath = path(path);
         Log.d(TAG + ".read", "path=" + resolvedPath);
-        String result = PFiles.read(resolvedPath);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        String result = provider.read(resolvedPath);
         Log.d(TAG + ".read", "result: length=" + (result != null ? result.length() : 0));
         return result;
     }
@@ -137,7 +142,8 @@ public class Files {
     public byte[] readBytes(String path) {
         String resolvedPath = path(path);
         Log.d(TAG + ".readBytes", "path=" + resolvedPath);
-        byte[] result = PFiles.readBytes(resolvedPath);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        byte[] result = provider.readBytes(resolvedPath);
         Log.d(TAG + ".readBytes", "result: size=" + (result != null ? result.length : 0) + " bytes");
         return result;
     }
@@ -145,44 +151,44 @@ public class Files {
     public void write(String path, String text) {
         String resolvedPath = path(path);
         Log.d(TAG + ".write", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0));
-        PFiles.write(resolvedPath, text);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        provider.write(resolvedPath, text);
     }
 
     public void write(String path, String text, String encoding) {
         String resolvedPath = path(path);
         Log.d(TAG + ".write", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0) + ", encoding=" + encoding);
-        PFiles.write(resolvedPath, text, encoding);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        provider.write(resolvedPath, text, encoding);
     }
 
     public void append(String path, String text) {
         String resolvedPath = path(path);
         Log.d(TAG + ".append", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0));
-        PFiles.append(resolvedPath, text);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        provider.append(resolvedPath, text, "UTF-8");
     }
 
     public void append(String path, String text, String encoding) {
         String resolvedPath = path(path);
         Log.d(TAG + ".append", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0) + ", encoding=" + encoding);
-        PFiles.append(resolvedPath, text, encoding);
-    }
-
-    public void appendBytes(String path, byte[] bytes) {
-        String resolvedPath = path(path);
-        Log.d(TAG + ".appendBytes", "path=" + resolvedPath + ", size=" + (bytes != null ? bytes.length : 0));
-        PFiles.appendBytes(resolvedPath, bytes);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        provider.append(resolvedPath, text, encoding);
     }
 
     public void writeBytes(String path, byte[] bytes) {
         String resolvedPath = path(path);
         Log.d(TAG + ".writeBytes", "path=" + resolvedPath + ", size=" + (bytes != null ? bytes.length : 0));
-        PFiles.writeBytes(resolvedPath, bytes);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        provider.writeBytes(resolvedPath, bytes);
     }
 
     public boolean copy(String pathFrom, String pathTo) {
         String from = path(pathFrom);
         String to = path(pathTo);
         Log.d(TAG + ".copy", "from=" + from + ", to=" + to);
-        boolean result = PFiles.copy(from, to);
+        IFileProvider provider = FileProviderFactory.getProvider(from);
+        boolean result = provider.copy(from, to);
         Log.d(TAG + ".copy", "result=" + result);
         return result;
     }
@@ -207,7 +213,8 @@ public class Files {
         String from = path(path);
         String to = path(newPath);
         Log.d(TAG + ".move", "from=" + from + ", to=" + to);
-        boolean result = PFiles.move(from, to);
+        IFileProvider provider = FileProviderFactory.getProvider(from);
+        boolean result = provider.move(from, to);
         Log.d(TAG + ".move", "result=" + result);
         return result;
     }
@@ -227,7 +234,8 @@ public class Files {
     public boolean remove(String path) {
         String resolvedPath = path(path);
         Log.d(TAG + ".remove", "path=" + resolvedPath);
-        boolean result = PFiles.remove(resolvedPath);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        boolean result = provider.delete(resolvedPath);
         Log.d(TAG + ".remove", "result=" + result);
         return result;
     }

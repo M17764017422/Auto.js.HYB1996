@@ -6,7 +6,9 @@ import android.util.Log;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.stardust.concurrent.VolatileBox;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
+import com.stardust.pio.FileProviderFactory;
 
 import org.autojs.autojs.R;
 import org.autojs.autojs.model.script.ScriptFile;
@@ -18,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.util.concurrent.ConcurrentHashMap;
@@ -143,7 +146,6 @@ public class DownloadManager {
         private String mPath;
         private VolatileBox<Boolean> mStatus;
         private InputStream mInputStream;
-        private FileOutputStream mFileOutputStream;
         private PublishSubject<Integer> mProgress;
 
         public DownloadTask(String url, String path) {
@@ -156,9 +158,10 @@ public class DownloadManager {
             mProgress = PublishSubject.create();
         }
 
-        private void startImpl(ResponseBody body) throws IOException {
+        private void startImpl(ResponseBody body) throws Exception {
             byte[] buffer = new byte[4096];
-            mFileOutputStream = new FileOutputStream(mPath);
+            IFileProvider provider = FileProviderFactory.getProvider(mPath);
+            OutputStream os = provider.openOutputStream(mPath);
             mInputStream = body.byteStream();
             long total = body.contentLength();
             long read = 0;
@@ -172,7 +175,7 @@ public class DownloadManager {
                     break;
                 }
                 read += len;
-                mFileOutputStream.write(buffer, 0, len);
+                os.write(buffer, 0, len);
                 if (total > 0) {
                     mProgress.onNext((int) (100 * read / total));
                 }
@@ -183,7 +186,11 @@ public class DownloadManager {
 
         public void start(ResponseBody body) {
             try {
-                PFiles.ensureDir(mPath);
+                IFileProvider provider = FileProviderFactory.getProvider(mPath);
+                // 如果文件不存在，创建一个空文件
+                if (!provider.exists(mPath)) {
+                    provider.write(mPath, "");
+                }
                 startImpl(body);
             } catch (Exception e) {
                 mProgress.onError(e);
@@ -202,12 +209,6 @@ public class DownloadManager {
                     mInputStream.close();
                 } catch (IOException ignored) {
 
-                }
-            }
-            if (mFileOutputStream != null) {
-                try {
-                    mFileOutputStream.close();
-                } catch (IOException ignored) {
                 }
             }
 

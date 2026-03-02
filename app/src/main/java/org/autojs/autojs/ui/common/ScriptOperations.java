@@ -18,8 +18,10 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.stardust.app.DialogUtils;
 import com.stardust.app.GlobalAppContext;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
 import com.stardust.pio.UncheckedIOException;
+import com.stardust.pio.FileProviderFactory;
 import com.tencent.bugly.crashreport.BuglyLog;
 
 import org.autojs.autojs.Pref;
@@ -45,6 +47,7 @@ import org.reactivestreams.Publisher;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -103,19 +106,27 @@ public class ScriptOperations {
     }
 
     public void createScriptFile(String path, String script, boolean edit) {
-        if (PFiles.createIfNotExists(path)) {
-            if (script != null) {
-                try {
-                    PFiles.write(path, script);
-                } catch (UncheckedIOException e) {
-                    showMessage(R.string.text_file_write_fail);
-                    return;
-                }
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        // 如果文件不存在，写入内容会自动创建文件
+        if (script != null) {
+            try {
+                provider.write(path, script);
+                notifyFileCreated(mCurrentDirectory, new ScriptFile(path));
+                if (edit)
+                    Scripts.INSTANCE.edit(mContext, path);
+                return;
+            } catch (Exception e) {
+                showMessage(R.string.text_file_write_fail);
+                return;
             }
+        }
+        // 创建空文件
+        try {
+            provider.write(path, "");
             notifyFileCreated(mCurrentDirectory, new ScriptFile(path));
             if (edit)
                 Scripts.INSTANCE.edit(mContext, path);
-        } else {
+        } catch (Exception e) {
             showMessage(R.string.text_create_fail);
         }
     }
@@ -175,7 +186,8 @@ public class ScriptOperations {
                 .observeOn(Schedulers.io())
                 .map(input -> {
                     final String pathTo = getCurrentDirectoryPath() + input + "." + PFiles.getExtension(pathFrom);
-                    if (PFiles.copy(pathFrom, pathTo)) {
+                    IFileProvider provider = FileProviderFactory.getProvider(pathTo);
+                    if (provider.copy(pathFrom, pathTo)) {
                         showMessage(R.string.text_import_succeed);
                     } else {
                         showMessage(R.string.text_import_fail);
@@ -191,9 +203,11 @@ public class ScriptOperations {
                 .observeOn(Schedulers.io())
                 .map(input -> {
                     final String pathTo = getCurrentDirectoryPath() + input + "." + ext;
-                    if (PFiles.copyStream(inputStream, pathTo)) {
+                    IFileProvider provider = FileProviderFactory.getProvider(pathTo);
+                    try (OutputStream os = provider.openOutputStream(pathTo)) {
+                        PFiles.write(inputStream, os, true);
                         showMessage(R.string.text_import_succeed);
-                    } else {
+                    } catch (Exception e) {
                         showMessage(R.string.text_import_fail);
                     }
                     notifyFileCreated(mCurrentDirectory, new ScriptFile(pathTo));

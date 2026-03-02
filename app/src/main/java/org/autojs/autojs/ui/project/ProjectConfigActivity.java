@@ -15,7 +15,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputLayout;
 import com.stardust.autojs.project.ProjectConfig;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
+import com.stardust.pio.FileProviderFactory;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -34,6 +36,7 @@ import org.autojs.autojs.ui.widget.SimpleTextWatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
@@ -264,10 +267,10 @@ public class ProjectConfigActivity extends BaseActivity {
                         iconPath = "res/logo.png";
                     }
                     File iconFile = new File(mDirectory, iconPath);
-                    PFiles.ensureDir(iconFile.getPath());
-                    FileOutputStream fos = new FileOutputStream(iconFile);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
+                    IFileProvider provider = FileProviderFactory.getProvider(iconFile.getPath());
+                    try (OutputStream os = provider.openOutputStream(iconFile.getPath())) {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+                    }
                     return iconPath;
                 })
                 .subscribeOn(Schedulers.io())

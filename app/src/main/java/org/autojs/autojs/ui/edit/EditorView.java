@@ -30,12 +30,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.autojs.autojs.storage.FileProviderFactory;
+import com.stardust.pio.IFileProvider;
+import com.stardust.pio.FileProviderFactory;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.stardust.autojs.engine.JavaScriptEngine;
 import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.execution.ScriptExecution;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
 import com.stardust.util.BackPressedHandler;
 import com.stardust.util.Callback;
@@ -438,7 +440,9 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     public Observable<String> save() {
         String path = mUri.getPath();
-        PFiles.move(path, path + ".bak");
+        // 使用 FileProviderFactory 创建备份，支持 SAF 模式
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        provider.copy(path, path + ".bak");
         return Observable.just(mEditor.getText())
                 .observeOn(Schedulers.io())
                 .doOnNext(s -> {

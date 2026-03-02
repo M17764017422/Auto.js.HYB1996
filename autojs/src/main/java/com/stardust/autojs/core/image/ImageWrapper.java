@@ -7,13 +7,17 @@ import android.os.Build;
 
 import com.stardust.autojs.core.opencv.Mat;
 import com.stardust.autojs.core.opencv.OpenCVHelper;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.UncheckedIOException;
+import com.stardust.pio.PFiles;
+import com.stardust.pio.FileProviderFactory;
 
 import org.opencv.android.Utils;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import androidx.annotation.RequiresApi;
@@ -113,9 +117,12 @@ public class ImageWrapper {
         ensureNotRecycled();
         if (mBitmap != null) {
             try {
-                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(path));
-            } catch (FileNotFoundException e) {
-                throw new UncheckedIOException(e);
+                IFileProvider provider = FileProviderFactory.getProvider(path);
+                try (OutputStream os = provider.openOutputStream(path)) {
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+                }
+            } catch (Exception e) {
+                throw new UncheckedIOException(new java.io.IOException(e));
             }
         } else {
             Imgcodecs.imwrite(path, mMat);

@@ -12,7 +12,9 @@ import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.autojs.project.ProjectLauncher;
 import com.stardust.autojs.script.StringScriptSource;
 import com.stardust.io.Zip;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
+import com.stardust.pio.FileProviderFactory;
 import com.stardust.util.MD5;
 
 import org.autojs.autojs.Pref;
@@ -157,9 +159,10 @@ public class DevPluginResponseHandler implements Handler {
         if (!name.endsWith(".js")) {
             name = name + ".js";
         }
-        File file = new File(Pref.getScriptDirPath(), name);
-        PFiles.ensureDir(file.getPath());
-        PFiles.write(file, script);
+        String filePath = Pref.getScriptDirPath() + "/" + name;
+        IFileProvider provider = FileProviderFactory.getProvider(filePath);
+        // 如果文件不存在，写入内容会自动创建文件
+        provider.write(filePath, script);
         GlobalAppContext.toast(R.string.text_script_save_successfully);
     }
 
@@ -184,7 +187,7 @@ public class DevPluginResponseHandler implements Handler {
 
     }
 
-    private void copyDir(File fromDir, File toDir) throws FileNotFoundException {
+    private void copyDir(File fromDir, File toDir) throws Exception {
         toDir.mkdirs();
         File[] files = fromDir.listFiles();
         if (files == null || files.length == 0) {
@@ -194,8 +197,12 @@ public class DevPluginResponseHandler implements Handler {
             if (file.isDirectory()) {
                 copyDir(file, new File(toDir, file.getName()));
             } else {
-                FileOutputStream fos = new FileOutputStream(new File(toDir, file.getName()));
-                PFiles.write(new FileInputStream(file), fos, true);
+                String toFilePath = new File(toDir, file.getName()).getPath();
+                IFileProvider provider = FileProviderFactory.getProvider(toFilePath);
+                // 写入内容会自动创建文件
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    provider.writeBytes(toFilePath, PFiles.readBytes(fis));
+                }
             }
         }
     }

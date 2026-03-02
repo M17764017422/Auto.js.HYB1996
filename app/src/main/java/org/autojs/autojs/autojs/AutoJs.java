@@ -15,12 +15,14 @@ import com.stardust.autojs.runtime.accessibility.AccessibilityConfig;
 import com.stardust.autojs.runtime.api.AppUtils;
 import com.stardust.autojs.runtime.exception.ScriptException;
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException;
+import com.stardust.pio.FileProviderFactory;
 
 import org.autojs.autojs.BuildConfig;
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.pluginclient.DevPluginService;
+import org.autojs.autojs.storage.AppFileProviderConfig;
 import org.autojs.autojs.ui.floating.FloatyWindowManger;
 import org.autojs.autojs.ui.floating.FullScreenFloatyWindow;
 import org.autojs.autojs.ui.floating.layoutinspector.LayoutBoundsFloatyWindow;
@@ -80,6 +82,10 @@ public class AutoJs extends com.stardust.autojs.AutoJs {
 
     private AutoJs(final Application application) {
         super(application);
+        
+        // 初始化 FileProviderConfig
+        FileProviderFactory.setConfig(new AppFileProviderConfig(application));
+        
         getScriptEngineService().registerGlobalScriptExecutionListener(new ScriptExecutionGlobalListener());
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(LayoutBoundsFloatyWindow.class.getName());
