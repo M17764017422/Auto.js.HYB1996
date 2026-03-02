@@ -8,6 +8,7 @@ import android.os.Environment;
 import com.stardust.app.GlobalAppContext;
 import com.stardust.pio.IFileProvider;
 import com.stardust.pio.TraditionalFileProvider;
+import com.stardust.autojs.project.ProjectConfig;
 
 import org.autojs.autojs.Pref;
 
@@ -98,6 +99,8 @@ public class FileProviderFactory {
     public static synchronized void refresh() {
         sInstance = null;
         sCurrentMode = -1;
+        // 同步更新 ProjectConfig 的文件提供者
+        ProjectConfig.setFileProvider(getProvider());
     }
 
     /**

@@ -28,6 +28,8 @@ import org.autojs.autojs.timing.TimedTaskManager
 import org.autojs.autojs.timing.TimedTaskScheduler
 import org.autojs.autojs.tool.CrashHandler
 import org.autojs.autojs.ui.error.ErrorReportActivity
+import org.autojs.autojs.storage.FileProviderFactory
+import com.stardust.autojs.project.ProjectConfig
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -70,6 +72,9 @@ class App : MultiDexApplication() {
     }
 
     private fun init() {
+        // 初始化 ProjectConfig 的文件提供者，支持 SAF 模式
+        ProjectConfig.setFileProvider(FileProviderFactory.getProvider())
+        
         ThemeColorManagerCompat.init(this, ThemeColor(resources.getColor(R.color.colorPrimary), resources.getColor(R.color.colorPrimaryDark), resources.getColor(R.color.colorAccent)))
         AutoJs.initInstance(this)
         if (Pref.isRunningVolumeControlEnabled()) {

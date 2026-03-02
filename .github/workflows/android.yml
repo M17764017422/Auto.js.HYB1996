@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - '*'
-    branches:
-      - main
-      - master
   pull_request:
     branches:
       - main
@@ -38,108 +35,17 @@ jobs:
       - name: Grant execute permissions for gradlew
         run: chmod +x gradlew
 
-      # Decode keystore from secrets (if configured)
-      - name: Decode keystore
-        env:
-          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
-        run: |
-          if [ -n "$SIGNING_KEYSTORE_BASE64" ]; then
-            echo "Decoding keystore from secrets..."
-            echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > app/release-keystore.jks
-            echo "KEYSTORE_FILE=app/release-keystore.jks" >> $GITHUB_ENV
-            echo "Keystore decoded successfully"
-            ls -la app/release-keystore.jks
-            # Verify keystore file is valid
-            file app/release-keystore.jks
-          else
-            echo "SIGNING_KEYSTORE_BASE64 is empty, will use debug keystore"
-          fi
-          
-      # Debug: Print environment variables (masking secrets)
-      - name: Debug signing config
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        run: |
-          echo "=== Signing Configuration Debug ==="
-          echo "KEYSTORE_FILE: $KEYSTORE_FILE"
-          echo "KEY_ALIAS: $KEY_ALIAS"
-          if [ -n "$KEYSTORE_PASSWORD" ]; then
-            echo "KEYSTORE_PASSWORD: [SET]"
-          else
-            echo "KEYSTORE_PASSWORD: [NOT SET]"
-          fi
-          if [ -n "$KEY_PASSWORD" ]; then
-            echo "KEY_PASSWORD: [SET]"
-          else
-            echo "KEY_PASSWORD: [NOT SET]"
-          fi
-          if [ -n "$KEYSTORE_FILE" ] && [ -f "$KEYSTORE_FILE" ]; then
-            echo "Keystore file exists: YES"
-            ls -la "$KEYSTORE_FILE"
-          else
-            echo "Keystore file exists: NO"
-          fi
-          echo "=================================="
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --info
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          KEYSTORE_FILE: app/release-keystore.jks
-
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          KEYSTORE_FILE: app/release-keystore.jks
+      - name: Build Debug APK (coolapk only)
+        run: ./gradlew assembleCoolapkDebug --info
 
       - name: List APK files
         run: find . -name "*.apk" -type f
-
-      - name: Upload Debug APK (common)
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-apk-common
-          path: app/build/outputs/apk/common/debug/*.apk
-        continue-on-error: true
 
       - name: Upload Debug APK (coolapk)
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk-coolapk
           path: app/build/outputs/apk/coolapk/debug/*.apk
-        continue-on-error: true
-
-      - name: Upload Release APK (common)
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk-common
-          path: app/build/outputs/apk/common/release/*.apk
-        continue-on-error: true
-
-      - name: Upload Release APK (coolapk)
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk-coolapk
-          path: app/build/outputs/apk/coolapk/release/*.apk
-        continue-on-error: true
-
-      - name: Upload INRT APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: inrt-apk
-          path: inrt/build/outputs/apk/**/*.apk
-        continue-on-error: true
-
-      - name: Build with all variants
-        run: ./gradlew build
-        continue-on-error: true
 
   # Release job - only runs on tags
   release:
@@ -151,11 +57,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
+          name: debug-apk-coolapk
           path: artifacts
-        continue-on-error: true
 
       - name: List downloaded files
         run: find artifacts -name "*.apk" -type f
@@ -163,8 +69,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            artifacts/**/*.apk
+          files: artifacts/*.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -185,14 +90,15 @@ jobs:
             
             WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
-            # Upload only coolapk release APK
-            APK_FILE="artifacts/release-apk-coolapk/app-coolapk-armeabi-v7a-release.apk"
-            if [ -f "$APK_FILE" ]; then
-              echo "Uploading app-coolapk-armeabi-v7a-release.apk..."
-              curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/app-coolapk-armeabi-v7a-release.apk"
+            # Upload coolapk debug APK
+            APK_FILE=$(find artifacts -name "*.apk" -type f | head -1)
+            if [ -n "$APK_FILE" ]; then
+              APK_NAME=$(basename "$APK_FILE")
+              echo "Uploading $APK_NAME..."
+              curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"
               echo "WebDAV upload completed!"
             else
-              echo "APK file not found: $APK_FILE"
+              echo "APK file not found"
               find artifacts -name "*.apk" -type f
             fi
           else

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
 
 import java.io.File;
@@ -24,6 +25,26 @@ public class ProjectConfig {
     public static final String CONFIG_FILE_NAME = "project.json";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    
+    /**
+     * 自定义文件提供者，用于 SAF 模式下读取配置文件
+     * 由 app 模块的 FileProviderFactory 设置
+     */
+    private static IFileProvider sFileProvider;
+
+    /**
+     * 设置文件提供者
+     */
+    public static void setFileProvider(IFileProvider provider) {
+        sFileProvider = provider;
+    }
+    
+    /**
+     * 获取当前文件提供者
+     */
+    public static IFileProvider getFileProvider() {
+        return sFileProvider;
+    }
 
     @SerializedName("name")
     private String mName;
@@ -100,7 +121,14 @@ public class ProjectConfig {
 
     public static ProjectConfig fromFile(String path) {
         try {
-            return fromJson(PFiles.read(path));
+            String json;
+            // 优先使用 IFileProvider (支持 SAF 模式)
+            if (sFileProvider != null) {
+                json = sFileProvider.read(path);
+            } else {
+                json = PFiles.read(path);
+            }
+            return fromJson(json);
         } catch (Exception e) {
             return null;
         }
