@@ -248,8 +248,9 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
         return Observable.fromCallable(() -> {
                     // 对于 file:// URI，使用 FileProviderFactory 读取文件
                     // 这支持 SAF 模式和完全访问模式
+                    // 传入路径参数，让工厂根据路径选择合适的 Provider
                     if ("file".equals(uri.getScheme())) {
-                        return FileProviderFactory.getProvider().read(uri.getPath());
+                        return FileProviderFactory.getProvider(uri.getPath()).read(uri.getPath());
                     }
                     return PFiles.read(getContext().getContentResolver().openInputStream(uri));
                 })
@@ -443,8 +444,9 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 .doOnNext(s -> {
                     // 对于 file:// URI，使用 FileProviderFactory 写入文件
                     // 这支持 SAF 模式和完全访问模式
+                    // 传入路径参数，让工厂根据路径选择合适的 Provider
                     if ("file".equals(mUri.getScheme())) {
-                        FileProviderFactory.getProvider().write(path, s);
+                        FileProviderFactory.getProvider(path).write(path, s);
                     } else {
                         PFiles.write(getContext().getContentResolver().openOutputStream(mUri), s);
                     }

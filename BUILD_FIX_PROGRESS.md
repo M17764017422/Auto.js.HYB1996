@@ -679,6 +679,15 @@ api 'org.mozilla:rhino:1.7.14'
   # Temporary files
   *.crdownload
   release-keystore-base64.txt
+  
+  # Test screenshots and temporary files - 不要提交测试用的截图和临时文件
+  screenshot_test*.png
+  screenshot*.png
+  *_test.png
+  *.tmp
+  *.bak
+  ```
+  release-keystore-base64.txt
   ```
 - 远程仓库当前分支已更新，敏感文件不在工作目录中
 
@@ -1262,7 +1271,82 @@ APK_FILE=$(find artifacts -name "*armeabi-v7a*.apk" -type f | head -1)
 | v4.1.1-alpha5 | `f4c477a4` | ✅ | SAF + WebDAV |
 | v4.1.1-alpha6 | `25ce8ff0` | ✅ | ProjectConfig SAF 支持 |
 | v4.1.1-alpha7 | `1abcdb4f` | ✅ | 文件操作调试日志 |
-| v4.1.1-alpha8 | `23e8cb77` | 🔄 | 版本同步 + 脚本日志到 Logcat |
+| v4.1.1-alpha8 | `23e8cb77` | ✅ | 版本同步 + 脚本日志到 Logcat |
+| v4.1.1-alpha9 | `ac2f0bae` | 🔄 | SAF 模式下应用私有目录支持 |
+
+---
+
+## 第十六阶段: SAF 模式下应用私有目录支持 🔄
+
+### 问题发现
+在 SAF 模式下打开内置示例脚本时出错：
+```
+错误: 无法读取文件 - Callable returned null
+路径: /data/user/0/org.autojs.autojs/files/sample/本地存储/保存数组和复杂对象.js
+```
+
+### 问题分析
+```
+Mode: SAF_DIRECTORY
+findDocumentId: part not found: data in path=/data/user/0/...
+File not found: /data/user/0/org.autojs.autojs/files/sample/...
+```
+
+**根本原因**：
+1. SAF 模式下使用 `SafFileProviderImpl` 访问文件
+2. 内置示例文件在**应用私有目录** `/data/user/0/org.autojs.autojs/files/sample/`
+3. `SafFileProviderImpl` 尝试在 SAF 授权目录中查找应用私有目录的文件 → 找不到
+
+### 解决方案
+
+**修改文件**: `app/src/main/java/org/autojs/autojs/storage/FileProviderFactory.java`
+
+添加智能路径选择：
+```java
+/**
+ * 根据路径获取合适的文件访问提供者实例
+ * 对于应用私有目录，始终使用 TraditionalFileProvider
+ */
+public static IFileProvider getProvider(String path) {
+    // 对于应用私有目录，始终使用 TraditionalFileProvider
+    if (path != null && isAppPrivatePath(path)) {
+        return new TraditionalFileProvider(...);
+    }
+    // 其他情况根据权限模式选择
+    ...
+}
+
+private static boolean isAppPrivatePath(String path) {
+    String privatePrefix = "/data/user/0/" + context.getPackageName();
+    return path.startsWith(privatePrefix) 
+           || path.startsWith(context.getFilesDir().getAbsolutePath())
+           || path.startsWith(context.getCacheDir().getAbsolutePath());
+}
+```
+
+**修改文件**: `app/src/main/java/org/autojs/autojs/ui/edit/EditorView.java`
+
+传入路径参数让工厂智能选择：
+```java
+// loadUri 方法
+FileProviderFactory.getProvider(uri.getPath()).read(uri.getPath());
+
+// save 方法
+FileProviderFactory.getProvider(path).write(path, s);
+```
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `ac2f0bae` | fix: use TraditionalFileProvider for app private paths in SAF mode |
+
+### 测试状态
+
+| 模式 | 内置示例文件 | 用户脚本目录 |
+|------|-------------|-------------|
+| 完全访问 | ✅ | ✅ |
+| SAF 目录 | 🔄 修复中 | ✅ |
 
 ---
 

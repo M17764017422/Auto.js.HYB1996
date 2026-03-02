@@ -75,9 +75,23 @@ public class FileProviderFactory {
      * 获取文件访问提供者实例
      */
     public static synchronized IFileProvider getProvider() {
+        return getProvider(null);
+    }
+    
+    /**
+     * 根据路径获取合适的文件访问提供者实例
+     * @param path 要访问的文件路径，如果为 null 则返回默认提供者
+     */
+    public static synchronized IFileProvider getProvider(String path) {
+        // 对于应用私有目录，始终使用 TraditionalFileProvider
+        if (path != null && isAppPrivatePath(path)) {
+            Log.d(TAG, "getProvider: path=" + path + " is app private, using TraditionalFileProvider");
+            return new TraditionalFileProvider(Pref.getScriptDirPath());
+        }
+        
         int mode = getCurrentMode();
         
-        Log.d(TAG, "getProvider: mode=" + mode + " (" + getModeDescription() + ")" 
+        Log.d(TAG, "getProvider: path=" + path + ", mode=" + mode + " (" + getModeDescription() + ")" 
                 + ", cachedInstance=" + (sInstance != null) 
                 + ", cachedMode=" + sCurrentMode);
         
@@ -119,6 +133,29 @@ public class FileProviderFactory {
                 sInstance = new TraditionalFileProvider(Pref.getScriptDirPath());
                 return sInstance;
         }
+    }
+    
+    /**
+     * 检查路径是否为应用私有目录
+     */
+    private static boolean isAppPrivatePath(String path) {
+        if (path == null) return false;
+        
+        Context context = GlobalAppContext.get();
+        if (context == null) return false;
+        
+        // 应用私有目录前缀
+        String privatePrefix = "/data/user/0/" + context.getPackageName();
+        String privatePrefixAlt = "/data/data/" + context.getPackageName();
+        
+        // 应用内部存储目录
+        String filesDir = context.getFilesDir().getAbsolutePath();
+        String cacheDir = context.getCacheDir().getAbsolutePath();
+        
+        return path.startsWith(privatePrefix) 
+                || path.startsWith(privatePrefixAlt)
+                || path.startsWith(filesDir)
+                || path.startsWith(cacheDir);
     }
 
     /**

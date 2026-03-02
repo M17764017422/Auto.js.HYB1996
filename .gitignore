@@ -28,3 +28,7 @@ app/release-keystore.jks
 *.jks
 !app/debug/*.jks
 release-keystore-base64.txt
+
+screenshot_test*.png
+*.tmp
+*.bak
