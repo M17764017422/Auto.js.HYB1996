@@ -30,6 +30,9 @@ import org.autojs.autojs.tool.CrashHandler
 import org.autojs.autojs.ui.error.ErrorReportActivity
 import org.autojs.autojs.storage.FileProviderFactory
 import com.stardust.autojs.project.ProjectConfig
+import com.stardust.pio.ScriptFileReader
+import com.stardust.pio.ScriptFileReaderRegistry
+import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -74,6 +77,21 @@ class App : MultiDexApplication() {
     private fun init() {
         // 初始化 ProjectConfig 的文件提供者，支持 SAF 模式
         ProjectConfig.setFileProvider(FileProviderFactory.getProvider())
+        
+        // 注册 ScriptFileReader 以支持 SAF 模式下的脚本读取
+        ScriptFileReaderRegistry.register(object : ScriptFileReader {
+            override fun read(filePath: String): String {
+                return FileProviderFactory.getProvider().read(filePath)
+            }
+            
+            override fun read(filePath: String, encoding: String): String {
+                return FileProviderFactory.getProvider().read(filePath, encoding)
+            }
+            
+            override fun openInputStream(filePath: String): InputStream {
+                return FileProviderFactory.getProvider().openInputStream(filePath)
+            }
+        })
         
         ThemeColorManagerCompat.init(this, ThemeColor(resources.getColor(R.color.colorPrimary), resources.getColor(R.color.colorPrimaryDark), resources.getColor(R.color.colorAccent)))
         AutoJs.initInstance(this)

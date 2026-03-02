@@ -3,6 +3,8 @@ package com.stardust.autojs.script;
 import androidx.annotation.NonNull;
 
 import com.stardust.pio.PFiles;
+import com.stardust.pio.ScriptFileReader;
+import com.stardust.pio.ScriptFileReaderRegistry;
 import com.stardust.pio.UncheckedIOException;
 
 import java.io.File;
@@ -40,8 +42,21 @@ public class JavaScriptFileSource extends JavaScriptSource {
     @NonNull
     @Override
     public String getScript() {
-        if (mScript == null)
-            mScript = PFiles.read(mFile);
+        if (mScript == null) {
+            String filePath = mFile.getAbsolutePath();
+            ScriptFileReader reader = ScriptFileReaderRegistry.get();
+            if (reader != null) {
+                try {
+                    mScript = reader.read(filePath);
+                } catch (Exception e) {
+                    // 如果注册的读取器失败，尝试使用传统方式
+                    mScript = PFiles.read(mFile);
+                }
+            } else {
+                // 未注册读取器，使用传统方式
+                mScript = PFiles.read(mFile);
+            }
+        }
         return mScript;
     }
 
@@ -70,10 +85,27 @@ public class JavaScriptFileSource extends JavaScriptSource {
 
     @Override
     public Reader getScriptReader() {
-        try {
-            return new FileReader(mFile);
-        } catch (FileNotFoundException e) {
-            throw new UncheckedIOException(e);
+        String filePath = mFile.getAbsolutePath();
+        ScriptFileReader reader = ScriptFileReaderRegistry.get();
+        if (reader != null) {
+            try {
+                // 获取 InputStream 并包装为 InputStreamReader
+                return new java.io.InputStreamReader(reader.openInputStream(filePath), "utf-8");
+            } catch (Exception e) {
+                // 如果注册的读取器失败，尝试使用传统方式
+                try {
+                    return new FileReader(mFile);
+                } catch (FileNotFoundException e2) {
+                    throw new UncheckedIOException(e2);
+                }
+            }
+        } else {
+            // 未注册读取器，使用传统方式
+            try {
+                return new FileReader(mFile);
+            } catch (FileNotFoundException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
