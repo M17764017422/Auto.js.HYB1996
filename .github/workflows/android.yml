@@ -90,11 +90,11 @@ jobs:
             
             WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
-            # Upload coolapk debug APK
-            APK_FILE=$(find artifacts -name "*.apk" -type f | head -1)
+            # Upload only armeabi-v7a APK (arm version)
+            APK_FILE=$(find artifacts -name "*armeabi-v7a*.apk" -type f | head -1)
             if [ -n "$APK_FILE" ]; then
               APK_NAME=$(basename "$APK_FILE")
-              echo "Uploading $APK_NAME..."
+              echo "Uploading $APK_NAME (arm only)..."
               curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"
               echo "WebDAV upload completed!"
             else
