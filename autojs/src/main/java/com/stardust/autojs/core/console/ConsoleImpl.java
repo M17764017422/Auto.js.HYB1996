@@ -124,6 +124,30 @@ public class ConsoleImpl extends AbstractConsole {
 
     @Override
     public String println(int level, CharSequence charSequence) {
+        // 输出到 Logcat
+        String logContent = charSequence != null ? charSequence.toString() : "";
+        switch (level) {
+            case android.util.Log.VERBOSE:
+                android.util.Log.v("AutoJS.Console.verbose", logContent);
+                break;
+            case android.util.Log.DEBUG:
+                android.util.Log.d("AutoJS.Console.log", logContent);
+                break;
+            case android.util.Log.INFO:
+                android.util.Log.i("AutoJS.Console.info", logContent);
+                break;
+            case android.util.Log.WARN:
+                android.util.Log.w("AutoJS.Console.warn", logContent);
+                break;
+            case android.util.Log.ERROR:
+            case android.util.Log.ASSERT:
+                android.util.Log.e("AutoJS.Console.error", logContent);
+                break;
+            default:
+                android.util.Log.d("AutoJS.Console", logContent);
+                break;
+        }
+        
         LogEntry logEntry = new LogEntry(mIdCounter.getAndIncrement(), level, charSequence, true);
         synchronized (mLogEntries) {
             mLogEntries.add(logEntry);
