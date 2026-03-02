@@ -122,6 +122,7 @@ public class CodeEditText extends AppCompatEditText {
         if (mParentScrollView == null) {
             mParentScrollView = (HVScrollView) getParent();
         }
+        mParentScrollView.setHorizontalScrollBarEnabled(false);
         if (getLayout() == null) {
             super.onDraw(canvas);
             invalidate();
@@ -271,9 +272,14 @@ public class CodeEditText extends AppCompatEditText {
                 //postInvalidate();
                 return;
             }
-            canvas.drawText(text, previousColorPos, visibleCharEnd, paddingLeft + offsetX, lineBaseline, paint);
-            if (DEBUG) {
-                mLogger.addSplit("draw line " + line + " (" + (visibleCharEnd - visibleCharStart) + ") ");
+            // 修复长按删除崩溃
+            try {
+                canvas.drawText(text, previousColorPos, visibleCharEnd, paddingLeft + offsetX, lineBaseline, paint);
+                if (DEBUG) {
+                    mLogger.addSplit("draw line " + line + " (" + (visibleCharEnd - visibleCharStart) + ") ");
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, e.toString());
             }
         }
     }
@@ -343,6 +349,7 @@ public class CodeEditText extends AppCompatEditText {
         //调用父类的onSelectionChanged时会发送一个AccessibilityEvent，当文本过大时造成异常
         //super.onSelectionChanged(selStart, selEnd);
         //父类构造函数会调用onSelectionChanged, 此时mCursorChangeCallbacks还没有初始化
+        super.onSelectionChanged(selStart, selEnd);
         if (mCursorChangeCallbacks == null || mCursorChangeCallbacks.isEmpty() || selStart != selEnd) {
             return;
         }
