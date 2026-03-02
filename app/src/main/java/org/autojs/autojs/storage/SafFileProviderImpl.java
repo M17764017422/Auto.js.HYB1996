@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
+import android.util.Log;
 
 import com.stardust.pio.IFileProvider;
 
@@ -22,6 +23,8 @@ import androidx.annotation.RequiresApi;
  */
 public class SafFileProviderImpl implements IFileProvider {
 
+    private static final String TAG = "SafFileProvider";
+
     private final Context mContext;
     private final Uri mTreeUri;
     private String mWorkingDirectory;
@@ -37,30 +40,43 @@ public class SafFileProviderImpl implements IFileProvider {
         mTreeUri = treeUri;
         mRootPath = rootPath;
         mWorkingDirectory = rootPath;
+        Log.i(TAG, "Created: treeUri=" + treeUri + ", rootPath=" + rootPath);
     }
 
     @Override
     public boolean exists(String path) {
         String documentId = findDocumentId(path);
-        return documentId != null;
+        boolean result = documentId != null;
+        Log.d(TAG, "exists: path=" + path + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean isFile(String path) {
         String documentId = findDocumentId(path);
-        if (documentId == null) return false;
+        if (documentId == null) {
+            Log.d(TAG, "isFile: path=" + path + ", result=false (not found)");
+            return false;
+        }
         
         String mimeType = getMimeType(documentId);
-        return mimeType != null && !mimeType.equals(DocumentsContract.Document.MIME_TYPE_DIR);
+        boolean result = mimeType != null && !mimeType.equals(DocumentsContract.Document.MIME_TYPE_DIR);
+        Log.d(TAG, "isFile: path=" + path + ", mimeType=" + mimeType + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean isDirectory(String path) {
         String documentId = findDocumentId(path);
-        if (documentId == null) return false;
+        if (documentId == null) {
+            Log.d(TAG, "isDirectory: path=" + path + ", result=false (not found)");
+            return false;
+        }
         
         String mimeType = getMimeType(documentId);
-        return mimeType != null && mimeType.equals(DocumentsContract.Document.MIME_TYPE_DIR);
+        boolean result = mimeType != null && mimeType.equals(DocumentsContract.Document.MIME_TYPE_DIR);
+        Log.d(TAG, "isDirectory: path=" + path + ", mimeType=" + mimeType + ", result=" + result);
+        return result;
     }
 
     @Override
@@ -145,14 +161,19 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public List<FileInfo> listFiles(String path) {
+        Log.d(TAG, "listFiles: path=" + path);
         List<FileInfo> result = new ArrayList<>();
         
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Log.w(TAG, "listFiles: API level < 21, returning empty list");
             return result;
         }
         
         Uri childrenUri = getChildrenUri(path);
-        if (childrenUri == null) return result;
+        if (childrenUri == null) {
+            Log.e(TAG, "listFiles: getChildrenUri returned null for path=" + path);
+            return result;
+        }
         
         String[] projection = {
                 DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -164,7 +185,10 @@ public class SafFileProviderImpl implements IFileProvider {
         
         try (Cursor cursor = mContext.getContentResolver().query(
                 childrenUri, projection, null, null, null)) {
-            if (cursor == null) return result;
+            if (cursor == null) {
+                Log.e(TAG, "listFiles: query returned null cursor");
+                return result;
+            }
             
             while (cursor.moveToNext()) {
                 String name = cursor.getString(1);
@@ -176,9 +200,11 @@ public class SafFileProviderImpl implements IFileProvider {
                 String childPath = path.endsWith("/") ? path + name : path + "/" + name;
                 
                 result.add(new FileInfo(name, childPath, isDir, size, lastModified));
+                Log.v(TAG, "listFiles: found " + (isDir ? "dir" : "file") + ": " + name);
             }
+            Log.d(TAG, "listFiles: found " + result.size() + " items");
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "listFiles: error=" + e.getMessage(), e);
         }
         
         return result;
@@ -186,12 +212,18 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public String read(String path, String encoding) {
+        Log.d(TAG, "read: path=" + path + ", encoding=" + encoding);
         byte[] data = readBytes(path);
-        if (data == null) return null;
+        if (data == null) {
+            Log.e(TAG, "read: failed to read bytes from " + path);
+            return null;
+        }
         try {
-            return new String(data, encoding);
+            String result = new String(data, encoding);
+            Log.d(TAG, "read: success, length=" + result.length() + " chars");
+            return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "read: encoding error=" + e.getMessage(), e);
             return null;
         }
     }
@@ -203,8 +235,12 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public byte[] readBytes(String path) {
+        Log.d(TAG, "readBytes: path=" + path);
         try (InputStream is = openInputStream(path)) {
-            if (is == null) return null;
+            if (is == null) {
+                Log.e(TAG, "readBytes: openInputStream returned null");
+                return null;
+            }
             
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
@@ -212,29 +248,35 @@ public class SafFileProviderImpl implements IFileProvider {
             while ((len = is.read(buffer)) > 0) {
                 bos.write(buffer, 0, len);
             }
-            return bos.toByteArray();
+            byte[] result = bos.toByteArray();
+            Log.d(TAG, "readBytes: success, size=" + result.length + " bytes");
+            return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "readBytes: error=" + e.getMessage(), e);
             return null;
         }
     }
 
     @Override
     public InputStream openInputStream(String path) throws Exception {
+        Log.d(TAG, "openInputStream: path=" + path);
         Uri documentUri = getDocumentUri(path);
         if (documentUri == null) {
+            Log.e(TAG, "openInputStream: documentUri is null for path=" + path);
             throw new Exception("File not found: " + path);
         }
+        Log.d(TAG, "openInputStream: documentUri=" + documentUri);
         return mContext.getContentResolver().openInputStream(documentUri);
     }
 
     @Override
     public boolean write(String path, String content, String encoding) {
+        Log.d(TAG, "write: path=" + path + ", contentLength=" + content.length() + ", encoding=" + encoding);
         try {
             byte[] data = content.getBytes(encoding);
             return writeBytes(path, data);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "write: encoding error=" + e.getMessage(), e);
             return false;
         }
     }
@@ -246,6 +288,7 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public boolean append(String path, String content, String encoding) {
+        Log.d(TAG, "append: path=" + path);
         // SAF 不直接支持追加，需要读取原有内容后重新写入
         String existing = read(path, encoding);
         if (existing == null) existing = "";
@@ -254,12 +297,17 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public boolean writeBytes(String path, byte[] bytes) {
+        Log.d(TAG, "writeBytes: path=" + path + ", size=" + bytes.length + " bytes");
         try (OutputStream os = openOutputStream(path)) {
-            if (os == null) return false;
+            if (os == null) {
+                Log.e(TAG, "writeBytes: openOutputStream returned null");
+                return false;
+            }
             os.write(bytes);
+            Log.d(TAG, "writeBytes: success");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "writeBytes: error=" + e.getMessage(), e);
             return false;
         }
     }
@@ -271,14 +319,18 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public OutputStream openOutputStream(String path, boolean append) throws Exception {
+        Log.d(TAG, "openOutputStream: path=" + path + ", append=" + append);
         Uri documentUri = getDocumentUri(path);
         
         if (documentUri == null) {
             // 文件不存在，创建新文件
+            Log.d(TAG, "openOutputStream: file not found, creating new file");
             documentUri = createFile(path);
             if (documentUri == null) {
+                Log.e(TAG, "openOutputStream: failed to create file: " + path);
                 throw new Exception("Cannot create file: " + path);
             }
+            Log.d(TAG, "openOutputStream: created new file, uri=" + documentUri);
         }
         
         if (append) {
@@ -349,10 +401,16 @@ public class SafFileProviderImpl implements IFileProvider {
     @Override
     public boolean isAccessible(String path) {
         // 检查路径是否在授权目录范围内
-        if (path == null) return false;
+        if (path == null) {
+            Log.d(TAG, "isAccessible: path is null, returning false");
+            return false;
+        }
         
         String resolvedPath = resolvePath(path);
-        return resolvedPath.startsWith(mRootPath);
+        boolean result = resolvedPath.startsWith(mRootPath);
+        Log.d(TAG, "isAccessible: path=" + path + ", resolved=" + resolvedPath 
+                + ", root=" + mRootPath + ", result=" + result);
+        return result;
     }
 
     @Override
@@ -385,8 +443,12 @@ public class SafFileProviderImpl implements IFileProvider {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private String findDocumentId(String path) {
         String relativePath = getRelativePath(path);
+        Log.v(TAG, "findDocumentId: path=" + path + ", relativePath=" + relativePath);
+        
         if (relativePath.isEmpty()) {
-            return DocumentsContract.getTreeDocumentId(mTreeUri);
+            String rootId = DocumentsContract.getTreeDocumentId(mTreeUri);
+            Log.v(TAG, "findDocumentId: root path, returning rootId=" + rootId);
+            return rootId;
         }
         
         String[] parts = relativePath.split("/");
@@ -405,7 +467,10 @@ public class SafFileProviderImpl implements IFileProvider {
             boolean found = false;
             try (Cursor cursor = mContext.getContentResolver().query(
                     childrenUri, projection, null, null, null)) {
-                if (cursor == null) return null;
+                if (cursor == null) {
+                    Log.e(TAG, "findDocumentId: query returned null cursor for part=" + part);
+                    return null;
+                }
                 
                 while (cursor.moveToNext()) {
                     String docId = cursor.getString(0);
@@ -414,14 +479,19 @@ public class SafFileProviderImpl implements IFileProvider {
                     if (name.equals(part)) {
                         currentDocumentId = docId;
                         found = true;
+                        Log.v(TAG, "findDocumentId: found part=" + part + ", docId=" + docId);
                         break;
                     }
                 }
             }
             
-            if (!found) return null;
+            if (!found) {
+                Log.w(TAG, "findDocumentId: part not found: " + part + " in path=" + path);
+                return null;
+            }
         }
         
+        Log.v(TAG, "findDocumentId: result=" + currentDocumentId);
         return currentDocumentId;
     }
 

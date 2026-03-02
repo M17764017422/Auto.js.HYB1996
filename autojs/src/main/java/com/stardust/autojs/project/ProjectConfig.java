@@ -2,6 +2,7 @@ package com.stardust.autojs.project;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,6 +23,8 @@ import java.util.Map;
 
 public class ProjectConfig {
 
+    private static final String TAG = "ProjectConfig";
+    
     public static final String CONFIG_FILE_NAME = "project.json";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -36,6 +39,7 @@ public class ProjectConfig {
      * 设置文件提供者
      */
     public static void setFileProvider(IFileProvider provider) {
+        Log.i(TAG, "setFileProvider: " + (provider != null ? provider.getClass().getSimpleName() : "null"));
         sFileProvider = provider;
     }
     
@@ -120,22 +124,39 @@ public class ProjectConfig {
     }
 
     public static ProjectConfig fromFile(String path) {
+        Log.d(TAG, "fromFile: path=" + path + ", fileProvider=" + (sFileProvider != null ? sFileProvider.getClass().getSimpleName() : "null"));
         try {
             String json;
             // 优先使用 IFileProvider (支持 SAF 模式)
             if (sFileProvider != null) {
+                Log.d(TAG, "fromFile: using IFileProvider to read");
                 json = sFileProvider.read(path);
             } else {
+                Log.d(TAG, "fromFile: using PFiles.read (traditional mode)");
                 json = PFiles.read(path);
             }
-            return fromJson(json);
+            if (json == null) {
+                Log.e(TAG, "fromFile: failed to read file content");
+                return null;
+            }
+            Log.d(TAG, "fromFile: read " + json.length() + " chars, parsing JSON");
+            ProjectConfig config = fromJson(json);
+            if (config != null) {
+                Log.i(TAG, "fromFile: success, project name=" + config.getName());
+            } else {
+                Log.w(TAG, "fromFile: JSON parsed but validation failed");
+            }
+            return config;
         } catch (Exception e) {
+            Log.e(TAG, "fromFile: error=" + e.getMessage(), e);
             return null;
         }
     }
 
     public static ProjectConfig fromProjectDir(String path) {
-        return fromFile(configFileOfDir(path));
+        String configFile = configFileOfDir(path);
+        Log.d(TAG, "fromProjectDir: dir=" + path + ", configFile=" + configFile);
+        return fromFile(configFile);
     }
 
 

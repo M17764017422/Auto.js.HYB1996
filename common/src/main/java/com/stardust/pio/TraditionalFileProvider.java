@@ -1,5 +1,7 @@
 package com.stardust.pio;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -16,14 +18,18 @@ import java.util.List;
  */
 public class TraditionalFileProvider implements IFileProvider {
 
+    private static final String TAG = "TraditionalFileProvider";
+
     private String mWorkingDirectory;
 
     public TraditionalFileProvider() {
         mWorkingDirectory = "/";
+        Log.d(TAG, "Created: workingDir=/");
     }
 
     public TraditionalFileProvider(String workingDirectory) {
         mWorkingDirectory = workingDirectory;
+        Log.d(TAG, "Created: workingDir=" + workingDirectory);
     }
 
     @Override
@@ -138,10 +144,13 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public List<FileInfo> listFiles(String path) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "listFiles: path=" + path + ", resolved=" + resolvedPath);
         List<FileInfo> result = new ArrayList<>();
-        File dir = new File(resolvePath(path));
+        File dir = new File(resolvedPath);
         File[] files = dir.listFiles();
         if (files == null) {
+            Log.w(TAG, "listFiles: listFiles() returned null, path may not be a directory or no permission");
             return result;
         }
         
@@ -154,15 +163,20 @@ public class TraditionalFileProvider implements IFileProvider {
                     file.lastModified()
             ));
         }
+        Log.d(TAG, "listFiles: found " + result.size() + " items");
         return result;
     }
 
     @Override
     public String read(String path, String encoding) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "read: path=" + path + ", resolved=" + resolvedPath + ", encoding=" + encoding);
         try {
-            return PFiles.read(resolvePath(path), encoding);
+            String result = PFiles.read(resolvedPath, encoding);
+            Log.d(TAG, "read: success, length=" + (result != null ? result.length() : 0));
+            return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "read: error=" + e.getMessage(), e);
             return null;
         }
     }
@@ -174,31 +188,39 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public byte[] readBytes(String path) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "readBytes: path=" + path + ", resolved=" + resolvedPath);
         try {
-            File file = new File(resolvePath(path));
+            File file = new File(resolvedPath);
             try (FileInputStream fis = new FileInputStream(file)) {
                 byte[] data = new byte[(int) file.length()];
                 fis.read(data);
+                Log.d(TAG, "readBytes: success, size=" + data.length);
                 return data;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "readBytes: error=" + e.getMessage(), e);
             return null;
         }
     }
 
     @Override
     public InputStream openInputStream(String path) throws Exception {
-        return new BufferedInputStream(new FileInputStream(resolvePath(path)));
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "openInputStream: resolved=" + resolvedPath);
+        return new BufferedInputStream(new FileInputStream(resolvedPath));
     }
 
     @Override
     public boolean write(String path, String content, String encoding) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "write: path=" + path + ", resolved=" + resolvedPath + ", contentLen=" + content.length());
         try {
-            PFiles.write(resolvePath(path), content, encoding);
+            PFiles.write(resolvedPath, content, encoding);
+            Log.d(TAG, "write: success");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "write: error=" + e.getMessage(), e);
             return false;
         }
     }
@@ -210,22 +232,27 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public boolean append(String path, String content, String encoding) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "append: resolved=" + resolvedPath);
         try {
-            PFiles.append(resolvePath(path), content, encoding);
+            PFiles.append(resolvedPath, content, encoding);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "append: error=" + e.getMessage(), e);
             return false;
         }
     }
 
     @Override
     public boolean writeBytes(String path, byte[] bytes) {
-        try (FileOutputStream fos = new FileOutputStream(resolvePath(path))) {
+        String resolvedPath = resolvePath(path);
+        Log.d(TAG, "writeBytes: resolved=" + resolvedPath + ", size=" + bytes.length);
+        try (FileOutputStream fos = new FileOutputStream(resolvedPath)) {
             fos.write(bytes);
+            Log.d(TAG, "writeBytes: success");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "writeBytes: error=" + e.getMessage(), e);
             return false;
         }
     }
@@ -268,12 +295,18 @@ public class TraditionalFileProvider implements IFileProvider {
     @Override
     public boolean isAccessible(String path) {
         // 传统模式下，只要文件存在或父目录可写就认为可访问
-        File file = new File(resolvePath(path));
+        String resolvedPath = resolvePath(path);
+        File file = new File(resolvedPath);
+        boolean result;
         if (file.exists()) {
-            return file.canRead();
+            result = file.canRead();
+            Log.d(TAG, "isAccessible: path=" + resolvedPath + ", exists=true, canRead=" + result);
+        } else {
+            File parent = file.getParentFile();
+            result = parent != null && parent.canWrite();
+            Log.d(TAG, "isAccessible: path=" + resolvedPath + ", exists=false, parentWritable=" + result);
         }
-        File parent = file.getParentFile();
-        return parent != null && parent.canWrite();
+        return result;
     }
 
     @Override
@@ -283,6 +316,7 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public void setWorkingDirectory(String path) {
+        Log.d(TAG, "setWorkingDirectory: " + path);
         mWorkingDirectory = path;
     }
 
