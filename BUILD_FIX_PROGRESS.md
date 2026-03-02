@@ -1350,15 +1350,124 @@ FileProviderFactory.getProvider(path).write(path, s);
 
 ---
 
+## 第十七阶段: FileProviderFactory 架构重构 ✅
+
+### 问题背景
+原 `FileProviderFactory` 位于 `app` 模块，导致 `autojs` 模块无法直接访问，产生循环依赖。
+
+### 解决方案
+
+#### 架构调整
+
+**移动到 common 模块**:
+```
+common 模块 (新增)
+├── FileProviderConfig.java    # 配置接口
+├── FileProviderFactory.java   # 工厂类 (从 app 移动)
+├── SafFileProviderImpl.java   # SAF 实现 (从 app 移动)
+├── IFileProvider.java         # (已存在)
+└── TraditionalFileProvider.java # (已存在)
+
+app 模块
+└── AppFileProviderConfig.java # 配置实现
+```
+
+#### 解耦设计
+
+**FileProviderConfig 接口**:
+```java
+public interface FileProviderConfig {
+    String getSafDirectoryUri();
+    String getScriptDirPath();
+    Context getContext();
+    void updateProjectConfigProvider(IFileProvider provider);
+}
+```
+
+**AppFileProviderConfig 实现**:
+```java
+public class AppFileProviderConfig implements FileProviderConfig {
+    @Override
+    public String getSafDirectoryUri() {
+        return Pref.getSafDirectoryUri();
+    }
+    // ...
+}
+```
+
+### 修复范围
+
+| 模块 | 文件 | 改动内容 |
+|------|------|----------|
+| autojs | Files.java | 全面使用 FileProviderFactory |
+| autojs | ImageWrapper.java | 图片保存使用 FileProviderFactory |
+| app | EditorView.java | 备份逻辑使用 FileProviderFactory |
+| app | ProjectConfigActivity.java | 图标保存使用 FileProviderFactory |
+| app | ScriptOperations.java | 文件操作使用 FileProviderFactory |
+| app | DevPluginResponseHandler.java | 脚本保存使用 FileProviderFactory |
+| app | DownloadManager.java | 下载功能使用 FileProviderFactory |
+| app | AutoJs.java | 初始化 FileProviderConfig |
+
+### 隔离环境配置更新
+
+**gradle.properties**:
+```properties
+# 绝对隔离配置
+org.gradle.user.home=F:/AIDE/.gradle
+org.gradle.jvmargs=-Xmx4096m -Duser.home=F:/AIDE -Duser.dir=F:/AIDE
+```
+
+**ISOLATED_BUILD_GUIDE.md** 新增:
+- JDK 17 (JetBrains Runtime) 配置说明
+- 镜像加速配置（阿里云镜像）
+- 隔离环境验证步骤
+
+### 构建环境
+
+| 组件 | 配置 |
+|------|------|
+| JDK | F:\AIDE\jbr (OpenJDK 17.0.7) |
+| SDK | F:\AIDE\sdk |
+| Gradle Cache | F:\AIDE\.gradle |
+| 镜像 | 阿里云 Maven |
+
+### 构建结果
+
+- **状态**: BUILD SUCCESSFUL
+- **耗时**: 3m 51s
+- **变更**: 13 files changed, 1131 insertions(+), 72 deletions(-)
+
+### 提交记录
+
+| Commit | Tag | 说明 |
+|--------|-----|------|
+| `011dd954` | v1.8.4-saf-refactor | FileProviderFactory 重构到 common 模块 |
+
+---
+
+## 版本发布记录
+
+| 版本 | Tag | 状态 | 主要更新 |
+|------|-----|------|----------|
+| v4.1.1-alpha4 | `b60d8290` | ✅ | 签名验证修复 |
+| v4.1.1-alpha5 | `f4c477a4` | ✅ | SAF + WebDAV |
+| v4.1.1-alpha6 | `25ce8ff0` | ✅ | ProjectConfig SAF 支持 |
+| v4.1.1-alpha7 | `1abcdb4f` | ✅ | 文件操作调试日志 |
+| v4.1.1-alpha8 | `23e8cb77` | ✅ | 版本同步 + 脚本日志到 Logcat |
+| v4.1.1-alpha9 | `ac2f0bae` | ✅ | SAF 模式下应用私有目录支持 |
+| v1.8.4-saf-refactor | `011dd954` | ✅ | FileProviderFactory 架构重构 |
+
+---
+
 ## 当前待办事项
 
 ### 高优先级
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| SAF 模式测试 | ⏳ 等待构建 | 验证文件操作和控制台日志 |
-| PFiles.java 重构 | 待开始 | 154 处需改用 IFileProvider |
-| JS files API 适配 | 待开始 | 依赖 PFiles 重构 |
+| SAF 模式完整测试 | 待测试 | 验证所有文件操作场景 |
+| JS files API 适配 | 待开始 | 依赖 FileProviderFactory |
+| Release APK 测试 | 待测试 | 验证签名验证和运行稳定性 |
 
 ### 中优先级
 
@@ -1368,5 +1477,12 @@ FileProviderFactory.getProvider(path).write(path, s);
 | WorkManager 迁移 | 待处理 | 替代 android-job |
 | ApkBuilderPlugin | 待处理 | 恢复打包功能 |
 
+### 低优先级
+
+| 任务 | 状态 | 说明 |
+|------|------|------|
+| Rhino 1.8.1 升级评估 | 待评估 | 需要 JDK 11+ |
+| 代码规范化 | 待处理 | 统一代码风格 |
+
 ---
-更新时间: 2026-03-02 14:30
+更新时间: 2026-03-02 22:30
