@@ -1,21 +1,10 @@
 @echo off
+chcp 65001 >nul 2>&1
 REM Auto.js ADB Debug Tool for Windows CMD
-REM Usage: autojs-adb.bat <command> [options]
-REM
-REM Commands:
-REM   run <script|path>    - Run script (content or file path)
-REM   stop <id>            - Stop script by ID
-REM   stop-all             - Stop all running scripts
-REM   list                 - List running scripts
-REM   push <name> <code>   - Push script to device
-REM   delete <path>        - Delete script file
-REM   files [path]         - List script files
-REM   ping                 - Check if app is responding
+REM Usage: autojs-adb.bat ^<command^> [options]
 
 setlocal enabledelayedexpansion
 
-REM Package name - change this if using a different flavor
-REM Options: org.autojs.autojs (common), org.autojs.autojs.coolapk (coolapk), org.autojs.autojs.github (github)
 set PACKAGE_NAME=org.autojs.autojs.coolapk
 set RECEIVER_CLASS=%PACKAGE_NAME%/org.autojs.autojs.external.receiver.AdbDebugReceiver
 
@@ -24,7 +13,6 @@ if "%~1"=="help" goto :help
 if "%~1"=="-h" goto :help
 if "%~1"=="--help" goto :help
 
-REM Main command dispatcher
 if "%~1"=="run" goto :run
 if "%~1"=="stop" goto :stop
 if "%~1"=="stop-all" goto :stop_all
@@ -41,7 +29,6 @@ goto :help
 shift
 if "%~1"=="" (
     echo Error: Missing script content or file path
-    echo Usage: run ^<script^> OR run -f ^<path^>
     goto :eof
 )
 if "%~1"=="-f" (
@@ -60,10 +47,10 @@ if "%~1"=="-f" (
     )
 ) else (
     set "SCRIPT_ARG=%~1"
-    
-    REM Use Base64 encoding to avoid shell escaping issues with Chinese and special characters
-    for /f "delims=" %%i in ('powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('!SCRIPT_ARG!'))"') do set "B64_ARG=%%i"
-    
+    set "TEMP_FILE=%TEMP%\autojs_b64_%RANDOM%.txt"
+    <nul set /p="!SCRIPT_ARG!" > "!TEMP_FILE!"
+    for /f "usebackq delims=" %%i in (powershell -NoProfile -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([IO.File]::ReadAllText('!TEMP_FILE!')))") do set "B64_ARG=%%i"
+    del "!TEMP_FILE!" >nul 2>&1
     shift
     if "%~1"=="-d" (
         shift
@@ -78,7 +65,6 @@ goto :eof
 shift
 if "%~1"=="" (
     echo Error: Missing script ID
-    echo Usage: stop ^<id^>
     goto :eof
 )
 adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.STOP_SCRIPT --ei id %~1
@@ -96,20 +82,18 @@ goto :eof
 shift
 if "%~1"=="" (
     echo Error: Missing name
-    echo Usage: push ^<name^> ^<code^>
     goto :eof
 )
 if "%~2"=="" (
     echo Error: Missing content
-    echo Usage: push ^<name^> ^<code^>
     goto :eof
 )
-
-REM Use Base64 encoding for content
 set "PUSH_NAME=%~1"
 set "PUSH_CONTENT=%~2"
-for /f "delims=" %%i in ('powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('!PUSH_CONTENT!'))"') do set "B64_CONTENT=%%i"
-
+set "TEMP_FILE=%TEMP%\autojs_b64_%RANDOM%.txt"
+<nul set /p="!PUSH_CONTENT!" > "!TEMP_FILE!"
+for /f "usebackq delims=" %%i in (powershell -NoProfile -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([IO.File]::ReadAllText('!TEMP_FILE!')))") do set "B64_CONTENT=%%i"
+del "!TEMP_FILE!" >nul 2>&1
 adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.PUSH_SCRIPT --es name "!PUSH_NAME!" --es content "!B64_CONTENT!" --ez base64 true
 goto :eof
 
@@ -117,7 +101,6 @@ goto :eof
 shift
 if "%~1"=="" (
     echo Error: Missing file path
-    echo Usage: delete ^<path^>
     goto :eof
 )
 adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.DELETE_SCRIPT --es path "%~1"
@@ -138,35 +121,9 @@ goto :eof
 
 :help
 echo Auto.js ADB Debug Tool
-echo.
 echo Usage: autojs-adb.bat ^<command^> [options]
-echo.
-echo Note: Edit PACKAGE_NAME in script to match your app flavor:
-echo   - org.autojs.autojs (common)
-echo   - org.autojs.autojs.coolapk (coolapk)
-echo   - org.autojs.autojs.github (github)
-echo.
-echo Commands:
-echo   run ^<script^>          - Run script content (auto Base64 encoded)
-echo   run -f ^<path^>         - Run script from file path on device
-echo   run -f ^<path^> -d ^<ms^> - Run script with delay (milliseconds)
-echo   stop ^<id^>             - Stop script by ID
-echo   stop-all              - Stop all running scripts
-echo   list                  - List running scripts
-echo   push ^<name^> ^<code^>    - Push script to device (saved to /sdcard/脚本/)
-echo   delete ^<path^>         - Delete script file
-echo   files [path]          - List script files (default: /sdcard/脚本/)
-echo   ping                  - Check if app is responding
-echo.
-echo Examples:
-echo   autojs-adb.bat run "toast('Hello World')"
-echo   autojs-adb.bat run "toast('中文测试')"
-echo   autojs-adb.bat run -f "/sdcard/脚本/test.js"
-echo   autojs-adb.bat stop 12345
-echo   autojs-adb.bat list
-echo   autojs-adb.bat push myscript "toast('Hi')"
-echo   autojs-adb.bat files
-echo   autojs-adb.bat ping
+echo Note: Edit PACKAGE_NAME to match your app flavor.
+echo Commands: run, stop, stop-all, list, push, delete, files, ping
 goto :eof
 
 endlocal
