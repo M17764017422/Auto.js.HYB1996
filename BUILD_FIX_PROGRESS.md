@@ -2176,6 +2176,257 @@ private boolean isActivityContext(Context context) {
 
 ---
 
+## 第二十四阶段: 脚本接口架构分析 ✅
+
+### 架构概述
+
+Auto.js.HYB1996 的脚本接口采用 **双层架构**：
+- **Java 层**：核心 API 实现，通过 `@ScriptVariable` 注解暴露给 JavaScript
+- **JavaScript 层**：模块封装，提供友好的 API 接口
+
+### 模块对比分析
+
+| 模块 | HYB1996 | Auto.js (TonyJiangWJ) | 差异说明 |
+|------|---------|----------------------|----------|
+| 核心模块 (app, console, dialogs 等) | ✅ 34 个 | ✅ 39 个 | 基础功能相同 |
+| $ocr (PaddleOCR) | ❌ | ✅ | HYB1996 缺少 AI OCR |
+| $yolo (YOLO 检测) | ❌ | ✅ | HYB1996 缺少目标检测 |
+| $tts (语音合成) | ❌ | ✅ | HYB1996 缺少 TTS |
+| $shizuku (Shizuku) | ❌ | ✅ | HYB1996 缺少 Shizuku 支持 |
+| $mlKitOcr (ML Kit) | ❌ | ✅ | HYB1996 缺少 ML Kit OCR |
+
+### Java 层 API 实现
+
+#### ScriptRuntime.java 核心变量
+```java
+@ScriptVariable public final AppUtils app;
+@ScriptVariable public final Console console;
+@ScriptVariable public final SimpleActionAutomator automator;
+@ScriptVariable public final ActivityInfoProvider info;
+@ScriptVariable public final UI ui;
+@ScriptVariable public final Dialogs dialogs;
+@ScriptVariable public Events events;
+@ScriptVariable public final ScriptBridges bridges;
+@ScriptVariable public Loopers loopers;
+@ScriptVariable public Timers timers;
+@ScriptVariable public Device device;
+@ScriptVariable public final AccessibilityBridge accessibilityBridge;
+@ScriptVariable public final Engines engines;
+@ScriptVariable public Threads threads;
+@ScriptVariable public final Floaty floaty;
+@ScriptVariable public UiHandler uiHandler;
+@ScriptVariable public final Colors colors;
+@ScriptVariable public final Files files;
+@ScriptVariable public Sensors sensors;
+@ScriptVariable public final Media media;
+@ScriptVariable public final Plugins plugins;
+@ScriptVariable public Images images;
+```
+
+### JavaScript 层模块初始化
+
+**文件**: `init.js`
+
+```javascript
+// 1. 初始化运行时
+runtime.init();
+
+// 2. 重定向 importClass 支持字符串参数
+global.importClass = function(pack) {
+    if (typeof(pack) == "string") {
+        __importClass__(Packages[pack]);
+    } else {
+        __importClass__(pack);
+    }
+};
+
+// 3. 初始化基础模块
+global.timers = require('__timers__.js')(runtime, global);
+global.JSON = require('__json2__.js');
+global.util = require('__util__.js');
+global.device = runtime.device;
+global.Promise = require('promise.js');
+
+// 4. 设置 Java-JS 桥接
+runtime.bridges.setBridges(require('__bridges__.js'));
+
+// 5. 初始化全局函数
+require("__globals__")(runtime, global);
+
+// 6. 初始化一般模块
+var modules = ['app', 'automator', 'console', 'dialogs', 'io', 'selector', 
+               'shell', 'web', 'ui', "images", "threads", "events", "engines", 
+               "RootAutomator", "http", "storages", "floaty", "sensors", 
+               "media", "plugins", "continuation"];
+
+// 7. 导入 Android 类
+importClass(android.view.KeyEvent);
+importClass(com.stardust.autojs.core.util.Shell);
+importClass(android.graphics.Paint);
+Canvas = com.stardust.autojs.core.graphics.ScriptCanvas;
+Image = com.stardust.autojs.core.image.ImageWrapper;
+
+// 8. 重定向 require 支持相对路径
+Module = require("jvm-npm.js");
+require = Module.require;
+```
+
+### 全局函数实现
+
+**文件**: `__globals__.js`
+
+| 函数 | Java 实现 | 说明 |
+|------|----------|------|
+| `toast(text)` | `runtime.toast()` | 显示 Toast |
+| `toastLog(text)` | `runtime.toast()` + `log()` | 显示 Toast 并打印日志 |
+| `sleep(ms)` | `runtime.sleep()` | 阻塞延时 |
+| `exit()` | `runtime.exit()` | 退出脚本 |
+| `setClip(text)` | `runtime.setClip()` | 设置剪贴板 |
+| `getClip()` | `runtime.getClip()` | 获取剪贴板 |
+| `currentPackage()` | `runtime.info.getLatestPackage()` | 获取当前包名 |
+| `currentActivity()` | `runtime.info.getLatestActivity()` | 获取当前 Activity |
+| `waitForActivity()` | 循环检测 | 等待指定 Activity |
+| `waitForPackage()` | 循环检测 | 等待指定包名 |
+| `random(min, max)` | `Math.random()` | 生成随机数 |
+| `setScreenMetrics()` | `runtime.setScreenMetrics()` | 设置屏幕参数 |
+
+### 核心模块实现对比
+
+#### automator 模块
+**Java 层**: `SimpleActionAutomator.java`
+```java
+public void click(int x, int y);
+public void longClick(int x, int y);
+public void swipe(int x1, int y1, int x2, int y2, int duration);
+public void gesture(int duration, int[][] points);
+public void gestures(int[][][] points);
+```
+
+**JavaScript 层**: `__automator__.js`
+```javascript
+module.exports = function(runtime, global) {
+    return {
+        click: function(x, y) { return runtime.automator.click(x, y); },
+        swipe: function(x1, y1, x2, y2, duration) { ... },
+        // ...
+    };
+};
+```
+
+#### selector 模块 (UI 选择器)
+**Java 层**: `UiSelector.java`
+- 支持链式调用: `text("xxx").className("xxx").clickable(true)`
+- 返回 `UiObject` 或 `UiObjectCollection`
+
+**JavaScript 层**: `__selector__.js`
+- 封装选择器 API
+- 支持 `untilFind()`, `findOne()`, `exists()` 等方法
+
+#### images 模块
+**Java 层**: `Images.java`
+- OpenCV 图像处理
+- 截图、找图、找色功能
+- 模板匹配、SIFT 特征检测
+
+**JavaScript 层**: `__images__.js`
+```javascript
+module.exports = function(runtime, global) {
+    return {
+        read: function(path) { return runtime.images.read(path); },
+        captureScreen: function() { return runtime.images.captureScreen(); },
+        findImage: function(img, template, options) { ... },
+        findColor: function(img, color, options) { ... },
+        // ...
+    };
+};
+```
+
+### 与 Auto.js (TonyJiangWJ) 的主要差异
+
+#### 1. AI 功能缺失
+HYB1996 缺少以下 AI 模块：
+- **$ocr**: PaddleOCR 文字识别
+- **$yolo**: YOLO 目标检测
+- **$tts**: 文本转语音
+- **$mlKitOcr**: Google ML Kit OCR
+
+#### 2. Rhino 版本差异
+| 项目 | Rhino 版本 | ES6 支持 |
+|------|-----------|----------|
+| HYB1996 | 1.7.14 | 箭头函数、模板字符串、let/const、Promise |
+| Auto.js (TonyJiangWJ) | 1.7.14-jdk7 + 1.9.1 | 更完整的 ES6+ 支持 |
+
+#### 3. OpenCV 版本
+| 项目 | OpenCV 版本 |
+|------|-------------|
+| HYB1996 | 4.5.5 (推测) |
+| Auto.js (TonyJiangWJ) | 4.8.0 |
+
+### 架构图
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    JavaScript 运行环境                           │
+├─────────────────────────────────────────────────────────────────┤
+│  init.js                                                        │
+│  ├── runtime.init()                                             │
+│  ├── 全局函数 (toast, sleep, exit, etc.)                        │
+│  ├── 核心模块 (app, console, dialogs, etc.)                     │
+│  └── require() 模块加载系统                                      │
+├─────────────────────────────────────────────────────────────────┤
+│                    Java 层 API 实现                              │
+├─────────────────────────────────────────────────────────────────┤
+│  ScriptRuntime.java                                             │
+│  ├── @ScriptVariable 暴露的变量                                  │
+│  ├── 模块实现类 (AppUtils, Console, Files, etc.)                │
+│  └── AccessibilityBridge 无障碍桥接                              │
+├─────────────────────────────────────────────────────────────────┤
+│                    Android 系统服务                              │
+├─────────────────────────────────────────────────────────────────┤
+│  AccessibilityService │ MediaProjection │ SensorManager         │
+│  ClipboardManager │ Vibrator │ WindowManager                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 模块依赖关系
+
+```
+init.js
+  │
+  ├── __globals__.js ──→ runtime (Java)
+  │
+  ├── __timers__.js ──→ runtime.timers
+  │
+  ├── __app__.js ──→ runtime.app (AppUtils.java)
+  │
+  ├── __automator__.js ──→ runtime.automator (SimpleActionAutomator.java)
+  │                      └→ auto (无障碍服务配置)
+  │
+  ├── __console__.js ──→ runtime.console (Console.java)
+  │
+  ├── __dialogs__.js ──→ runtime.dialogs (Dialogs.java)
+  │
+  ├── __files__.js (io) ──→ runtime.files (Files.java)
+  │
+  ├── __images__.js ──→ runtime.images (Images.java)
+  │                    └→ OpenCV native library
+  │
+  ├── __selector__.js ──→ runtime.accessibilityBridge
+  │                      └→ UiSelector.java
+  │
+  ├── __threads__.js ──→ runtime.threads (Threads.java)
+  │
+  ├── __events__.js ──→ runtime.events (Events.java)
+  │
+  ├── __ui__.js ──→ runtime.ui (UI.java)
+  │               └→ XML 布局解析器
+  │
+  └── __floaty__.js ──→ runtime.floaty (Floaty.java)
+                       └→ 悬浮窗权限管理
+```
+
+---
+
 ## 版本发布记录
 
 | 版本 | Tag | 日期 | 主要更新 |
@@ -2185,4 +2436,4 @@ private boolean isActivityContext(Context context) {
 | v4.1.1-alpha13 | `v4.1.1-alpha13` | 2026-03-03 | 编辑器功能增强 |
 
 ---
-更新时间: 2026-03-03 17:15
+更新时间: 2026-03-03 17:30
