@@ -1,13 +1,22 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: 🔧 编辑器改进迁移中
+## 当前状态: ✅ 编辑器改进迁移第二阶段完成
 
 ### 最近完成
+- **第二十一阶段**: 编辑器功能增强 (第二阶段) ✅ (2026-03-03)
+  - 添加双指缩放字体大小功能 (`ScaleGestureDetector`)
+  - 添加 `toggleComment()` 代码注释切换
+  - 添加 `smoothScrollTo()` 平滑滚动
+  - 添加长按 '/' 符号触发注释功能
+  - 文件：`CodeEditor.java`, `EditorView.java`
+  - 版本：`v4.1.1-alpha13`
+
 - **第二十阶段**: 编辑器 Bug 修复 (第一阶段) ✅ (2026-03-03)
   - 修复 `super.onSelectionChanged()` 调用缺失
   - 添加长按删除异常捕获
   - 禁用水平滚动条
   - 文件：`CodeEditText.java`
+  - 版本：`v4.1.1-alpha12`
 
 - **第十九阶段**: 编辑器长按崩溃修复 ✅ (2026-03-03)
   - 问题：MIUI 设备编辑器长按选择文本时 100% 崩溃
@@ -15,15 +24,11 @@
   - 修复：参考 AutoX 项目注释掉 `menu.add()` 代码
   - 文件：`EditActivity.java` 第 163-164 行
 
-- **第十八阶段**: Files API SAF 适配 ✅ (2026-03-03)
-  - `files.open()` 支持 r/w/a 三种模式
-  - PReadableTextFile/PWritableTextFile 添加流式构造函数
-  - SafFileProviderImpl 实现追加模式
-
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
-| v4.1.1-alpha12 | 🚧 进行中 | 编辑器改进迁移 |
+| v4.1.1-alpha13 | ✅ 已发布 | 编辑器功能增强 (第二阶段) |
+| v4.1.1-alpha12 | ✅ 已发布 | 编辑器 Bug 修复 (第一阶段) |
 
 ---
 
@@ -36,13 +41,13 @@
 | 1.2 | 长按删除异常捕获 | `CodeEditText.java` | ✅ |
 | 1.3 | 禁用水平滚动条 | `CodeEditText.java` | ✅ |
 
-### 第二阶段：功能增强 (待执行)
-| 序号 | 改进项 | 文件 | 复杂度 |
-|------|--------|------|--------|
-| 2.1 | 代码注释切换 `toggleComment()` | `CodeEditor.java` | 中 |
-| 2.2 | 长按 "/" 符号触发注释 | `EditorView.java` | 中 |
-| 2.3 | 平滑滚动 `smoothScrollTo()` | `CodeEditor.java` | 低 |
-| 2.4 | 双指缩放字体大小 | `CodeEditor.java` | 中 |
+### 第二阶段：功能增强 ✅
+| 序号 | 改进项 | 文件 | 状态 |
+|------|--------|------|------|
+| 2.1 | 代码注释切换 `toggleComment()` | `CodeEditor.java` | ✅ |
+| 2.2 | 长按 "/" 符号触发注释 | `EditorView.java` | ✅ |
+| 2.3 | 平滑滚动 `smoothScrollTo()` | `CodeEditor.java` | ✅ |
+| 2.4 | 双指缩放字体大小 | `CodeEditor.java` | ✅ |
 
 ### 第三阶段：UI/UX 改进 (待执行)
 | 序号 | 改进项 | 文件 | 复杂度 |
@@ -2034,4 +2039,4 @@ ui.webView.evaluateJavascript("document.title", function(result) {
 ```
 
 ---
-更新时间: 2026-03-03 01:20
+更新时间: 2026-03-03 14:30
