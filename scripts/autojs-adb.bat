@@ -60,12 +60,16 @@ if "%~1"=="-f" (
     )
 ) else (
     set "SCRIPT_ARG=%~1"
+    
+    REM Use Base64 encoding to avoid shell escaping issues with Chinese and special characters
+    for /f "delims=" %%i in ('powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('!SCRIPT_ARG!'))"') do set "B64_ARG=%%i"
+    
     shift
     if "%~1"=="-d" (
         shift
-        adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.RUN_SCRIPT --es script "!SCRIPT_ARG!" --ei delay %~1
+        adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.RUN_SCRIPT --es script "!B64_ARG!" --ez base64 true --ei delay %~1
     ) else (
-        adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.RUN_SCRIPT --es script "!SCRIPT_ARG!"
+        adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.RUN_SCRIPT --es script "!B64_ARG!" --ez base64 true
     )
 )
 goto :eof
@@ -100,7 +104,13 @@ if "%~2"=="" (
     echo Usage: push ^<name^> ^<code^>
     goto :eof
 )
-adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.PUSH_SCRIPT --es name "%~1" --es content "%~2"
+
+REM Use Base64 encoding for content
+set "PUSH_NAME=%~1"
+set "PUSH_CONTENT=%~2"
+for /f "delims=" %%i in ('powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('!PUSH_CONTENT!'))"') do set "B64_CONTENT=%%i"
+
+adb shell am broadcast -n %RECEIVER_CLASS% -a %PACKAGE_NAME%.adb.PUSH_SCRIPT --es name "!PUSH_NAME!" --es content "!B64_CONTENT!" --ez base64 true
 goto :eof
 
 :delete
@@ -137,7 +147,7 @@ echo   - org.autojs.autojs.coolapk (coolapk)
 echo   - org.autojs.autojs.github (github)
 echo.
 echo Commands:
-echo   run ^<script^>          - Run script content
+echo   run ^<script^>          - Run script content (auto Base64 encoded)
 echo   run -f ^<path^>         - Run script from file path on device
 echo   run -f ^<path^> -d ^<ms^> - Run script with delay (milliseconds)
 echo   stop ^<id^>             - Stop script by ID
@@ -150,6 +160,7 @@ echo   ping                  - Check if app is responding
 echo.
 echo Examples:
 echo   autojs-adb.bat run "toast('Hello World')"
+echo   autojs-adb.bat run "toast('中文测试')"
 echo   autojs-adb.bat run -f "/sdcard/脚本/test.js"
 echo   autojs-adb.bat stop 12345
 echo   autojs-adb.bat list

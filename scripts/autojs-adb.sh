@@ -29,7 +29,7 @@ Note: Edit PACKAGE_NAME in script to match your app flavor:
   - org.autojs.autojs.github (github)
 
 Commands:
-  run <script>          - Run script content
+  run <script>          - Run script content (auto Base64 encoded)
   run -f <path>         - Run script from file path on device
   run -f <path> -d <ms> - Run script with delay (milliseconds)
   stop <id>             - Stop script by ID
@@ -42,6 +42,7 @@ Commands:
 
 Examples:
   ./autojs-adb.sh run "toast('Hello World')"
+  ./autojs-adb.sh run "toast('中文测试')"
   ./autojs-adb.sh run -f "/sdcard/脚本/test.js"
   ./autojs-adb.sh stop 12345
   ./autojs-adb.sh list
@@ -52,6 +53,11 @@ Examples:
 EOF
 }
 
+# Base64 encode function for UTF-8 content
+base64_encode() {
+    echo -n "$1" | base64
+}
+
 adb_broadcast() {
     local action="$1"
     shift
@@ -59,8 +65,19 @@ adb_broadcast() {
     local cmd_args="shell am broadcast -n ${RECEIVER_CLASS} -a ${PACKAGE_NAME}.${action}"
     
     while [[ $# -gt 0 ]]; do
-        cmd_args="$cmd_args --es $1 \"$2\""
-        shift 2
+        if [[ "$1" == "--ez" ]]; then
+            # Boolean extra: --ez key value
+            cmd_args="$cmd_args --ez $2 $3"
+            shift 3
+        elif [[ "$1" == "--ei" ]]; then
+            # Integer extra: --ei key value
+            cmd_args="$cmd_args --ei $2 $3"
+            shift 3
+        else
+            # String extra: key value
+            cmd_args="$cmd_args --es $1 \"$2\""
+            shift 2
+        fi
     done
     
     eval adb $cmd_args
@@ -92,15 +109,17 @@ run_script() {
     
     if [[ -n "$path" ]]; then
         if [[ $delay -gt 0 ]]; then
-            adb_broadcast "adb.RUN_SCRIPT" "path" "$path" "delay" "$delay"
+            adb_broadcast "adb.RUN_SCRIPT" "path" "$path" "--ei" "delay" "$delay"
         else
             adb_broadcast "adb.RUN_SCRIPT" "path" "$path"
         fi
     elif [[ -n "$script" ]]; then
+        # Use Base64 encoding to avoid shell escaping issues
+        local b64_script=$(base64_encode "$script")
         if [[ $delay -gt 0 ]]; then
-            adb_broadcast "adb.RUN_SCRIPT" "script" "$script" "delay" "$delay"
+            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--ez" "base64" "true" "--ei" "delay" "$delay"
         else
-            adb_broadcast "adb.RUN_SCRIPT" "script" "$script"
+            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--ez" "base64" "true"
         fi
     else
         echo "Error: Missing script content or file path"
@@ -115,7 +134,7 @@ stop_script() {
         echo "Usage: stop <id>"
         return
     fi
-    adb_broadcast "adb.STOP_SCRIPT" "id" "$id"
+    adb_broadcast "adb.STOP_SCRIPT" "--ei" "id" "$id"
 }
 
 stop_all_scripts() {
@@ -134,7 +153,9 @@ push_script() {
         echo "Usage: push <name> <code>"
         return
     fi
-    adb_broadcast "adb.PUSH_SCRIPT" "name" "$name" "content" "$content"
+    # Use Base64 encoding for content
+    local b64_content=$(base64_encode "$content")
+    adb_broadcast "adb.PUSH_SCRIPT" "name" "$name" "content" "$b64_content" "--ez" "base64" "true"
 }
 
 delete_script() {
