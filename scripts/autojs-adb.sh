@@ -65,9 +65,9 @@ adb_broadcast() {
     local cmd_args="shell am broadcast -n ${RECEIVER_CLASS} -a ${PACKAGE_NAME}.${action}"
     
     while [[ $# -gt 0 ]]; do
-        if [[ "$1" == "--ez" ]]; then
-            # Boolean extra: --ez key value
-            cmd_args="$cmd_args --ez $2 $3"
+        if [[ "$1" == "--es" ]]; then
+            # String extra: --es key value
+            cmd_args="$cmd_args --es $2 \"$3\""
             shift 3
         elif [[ "$1" == "--ei" ]]; then
             # Integer extra: --ei key value
@@ -117,9 +117,9 @@ run_script() {
         # Use Base64 encoding to avoid shell escaping issues
         local b64_script=$(base64_encode "$script")
         if [[ $delay -gt 0 ]]; then
-            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--ez" "base64" "true" "--ei" "delay" "$delay"
+            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--es" "base64" "true" "--ei" "delay" "$delay"
         else
-            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--ez" "base64" "true"
+            adb_broadcast "adb.RUN_SCRIPT" "script" "$b64_script" "--es" "base64" "true"
         fi
     else
         echo "Error: Missing script content or file path"
@@ -155,7 +155,7 @@ push_script() {
     fi
     # Use Base64 encoding for content
     local b64_content=$(base64_encode "$content")
-    adb_broadcast "adb.PUSH_SCRIPT" "name" "$name" "content" "$b64_content" "--ez" "base64" "true"
+    adb_broadcast "adb.PUSH_SCRIPT" "name" "$name" "content" "$b64_content" "--es" "base64" "true"
 }
 
 delete_script() {

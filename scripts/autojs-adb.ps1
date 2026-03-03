@@ -72,8 +72,8 @@ function Invoke-AdbBroadcast {
     foreach ($key in $Extras.Keys) {
         $value = $Extras[$key]
         if ($key -eq "base64") {
-            # Boolean value
-            $cmdArgs += "--ez"
+            # String value for better compatibility
+            $cmdArgs += "--es"
             $cmdArgs += $key
             $cmdArgs += $value
         } elseif ($key -eq "delay" -or $key -eq "id") {

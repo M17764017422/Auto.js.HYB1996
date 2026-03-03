@@ -128,7 +128,12 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         String path = intent.getStringExtra(EXTRA_PATH);
         String workingDir = intent.getStringExtra(EXTRA_WORKING_DIRECTORY);
         long delay = intent.getLongExtra(EXTRA_DELAY, 0);
+        // Support both boolean and string type for base64 parameter
         boolean isBase64 = intent.getBooleanExtra(EXTRA_BASE64, false);
+        if (!isBase64) {
+            String base64Str = intent.getStringExtra(EXTRA_BASE64);
+            isBase64 = "true".equalsIgnoreCase(base64Str);
+        }
 
         if (TextUtils.isEmpty(scriptContent) && TextUtils.isEmpty(path)) {
             return "ERROR: Missing 'script' or 'path' parameter";
@@ -274,7 +279,12 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         String name = intent.getStringExtra(EXTRA_NAME);
         String content = intent.getStringExtra(EXTRA_CONTENT);
         String path = intent.getStringExtra(EXTRA_PATH);
+        // Support both boolean and string type for base64 parameter
         boolean isBase64 = intent.getBooleanExtra(EXTRA_BASE64, false);
+        if (!isBase64) {
+            String base64Str = intent.getStringExtra(EXTRA_BASE64);
+            isBase64 = "true".equalsIgnoreCase(base64Str);
+        }
 
         if (TextUtils.isEmpty(name) && TextUtils.isEmpty(path)) {
             return "ERROR: Missing 'name' or 'path' parameter";
