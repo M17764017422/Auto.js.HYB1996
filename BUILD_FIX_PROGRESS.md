@@ -1,8 +1,18 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: ✅ v0.80.1 正式发布
+## 当前状态: 🔄 v0.80.2-beta.1 测试中
 
 ### 最近完成
+- **第二十四阶段**: ADB 调试接口 ✅ (2026-03-03)
+  - 新增 `AdbDebugReceiver.java` 支持 8 个 ADB 命令
+  - 命令：RUN_SCRIPT, STOP_SCRIPT, STOP_ALL, LIST_SCRIPTS, PUSH_SCRIPT, DELETE_SCRIPT, LIST_FILES, PING
+  - Base64 编码传输解决中文和特殊字符问题
+  - SAF (Storage Access Framework) 兼容
+  - 显式 Intent 支持 Android 8+
+  - 脚本工具：`autojs-adb.ps1`, `autojs-adb.bat`, `autojs-adb.sh`
+  - 文档：`scripts/README.md`
+  - 版本：`v0.80.2`
+
 - **第二十三阶段**: WindowLeaked 对话框泄漏修复 ✅ (2026-03-03)
   - 问题：Activity 销毁后对话框仍尝试显示导致 WindowLeaked
   - 修复：`BlockedMaterialDialog.isActivityContext()` 增加 `isDestroyed()` 检查
@@ -29,9 +39,8 @@
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
+| v0.80.2-beta.1 | 🔄 测试中 | ADB 调试接口 |
 | v0.80.1 | ✅ 正式发布 | 首个正式发布版本 |
-| v4.1.1-alpha2 | ✅ 已发布 | AGP 7.4.2 + 多包名 flavor |
-| v4.1.1-alpha13 | ✅ 已发布 | 编辑器功能增强 (第二阶段) |
 
 ---
 
