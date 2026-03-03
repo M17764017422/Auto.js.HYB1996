@@ -1,8 +1,23 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: ✅ 编辑器改进迁移第二阶段完成
+## 当前状态: ✅ v0.80.1 正式发布
 
 ### 最近完成
+- **第二十三阶段**: WindowLeaked 对话框泄漏修复 ✅ (2026-03-03)
+  - 问题：Activity 销毁后对话框仍尝试显示导致 WindowLeaked
+  - 修复：`BlockedMaterialDialog.isActivityContext()` 增加 `isDestroyed()` 检查
+  - 修复：`DialogUtils.isActivityContext()` 增加 `isFinishing()`/`isDestroyed()` 检查
+  - 文件：`BlockedMaterialDialog.java`, `DialogUtils.java`
+  - 版本：`v0.80.1`
+
+- **第二十二阶段**: AGP 7.4.2 升级 + 多包名 flavor 支持 ✅ (2026-03-03)
+  - AGP 4.2.2 → 7.4.2 升级
+  - 多包名 flavor 支持 (common/coolapk/github)
+  - KAPT `resourcePackageName` 配置解决 R 类查找问题
+  - manifestPlaceholders 动态配置
+  - 文件：`app/build.gradle`, `build.gradle`, `AndroidManifest.xml`
+  - 版本：`v4.1.1-alpha2`
+
 - **第二十一阶段**: 编辑器功能增强 (第二阶段) ✅ (2026-03-03)
   - 添加双指缩放字体大小功能 (`ScaleGestureDetector`)
   - 添加 `toggleComment()` 代码注释切换
@@ -11,24 +26,12 @@
   - 文件：`CodeEditor.java`, `EditorView.java`
   - 版本：`v4.1.1-alpha13`
 
-- **第二十阶段**: 编辑器 Bug 修复 (第一阶段) ✅ (2026-03-03)
-  - 修复 `super.onSelectionChanged()` 调用缺失
-  - 添加长按删除异常捕获
-  - 禁用水平滚动条
-  - 文件：`CodeEditText.java`
-  - 版本：`v4.1.1-alpha12`
-
-- **第十九阶段**: 编辑器长按崩溃修复 ✅ (2026-03-03)
-  - 问题：MIUI 设备编辑器长按选择文本时 100% 崩溃
-  - 原因：`miuix.toolbar.internal.menu.MenuBuilder` 处理资源 ID 异常
-  - 修复：参考 AutoX 项目注释掉 `menu.add()` 代码
-  - 文件：`EditActivity.java` 第 163-164 行
-
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
+| v0.80.1 | ✅ 正式发布 | 首个正式发布版本 |
+| v4.1.1-alpha2 | ✅ 已发布 | AGP 7.4.2 + 多包名 flavor |
 | v4.1.1-alpha13 | ✅ 已发布 | 编辑器功能增强 (第二阶段) |
-| v4.1.1-alpha12 | ✅ 已发布 | 编辑器 Bug 修复 (第一阶段) |
 
 ---
 
@@ -2039,4 +2042,147 @@ ui.webView.evaluateJavascript("document.title", function(result) {
 ```
 
 ---
-更新时间: 2026-03-03 14:30
+
+## 第二十二阶段: AGP 7.4.2 升级 + 多包名 flavor 支持 ✅
+
+### 问题背景
+- 原 AGP 4.2.2 不支持 Gradle 7.5 + JDK 17
+- 需要支持多个包名同时安装在同一设备上
+
+### 解决方案
+
+#### AGP 升级
+**文件**: `build.gradle`
+```groovy
+classpath 'com.android.tools.build:gradle:7.4.2'
+```
+
+#### 多包名 Flavor 配置
+**文件**: `app/build.gradle`
+```groovy
+android {
+    namespace 'org.autojs.autojs'
+    
+    defaultConfig {
+        applicationId "org.autojs.autojs"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    "resourcePackageName": "org.autojs.autojs"
+                ]
+            }
+        }
+    }
+    
+    productFlavors {
+        common {
+            applicationId "org.autojs.autojs"
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.fileprovider",
+                appName: "@string/app_name"
+            ]
+        }
+        coolapk {
+            applicationId "org.autojs.autojs.coolapk"
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.coolapk.fileprovider",
+                appName: "Auto.js (酷安)"
+            ]
+        }
+        github {
+            applicationId "org.autojs.autojs.github"
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.github.fileprovider",
+                appName: "Auto.js (GitHub)"
+            ]
+        }
+    }
+}
+```
+
+#### KAPT R 类问题修复
+**问题**: productFlavors 使用不同 applicationId 导致 KAPT 无法找到 R 类
+
+**解决**: 添加 `resourcePackageName` 配置
+```groovy
+javaCompileOptions {
+    annotationProcessorOptions {
+        arguments = ["resourcePackageName": "org.autojs.autojs"]
+    }
+}
+```
+
+#### 构建兼容性修复
+| 问题 | 修复 |
+|------|------|
+| Widget.AppCompat.TextView not found | 添加 style 定义 |
+| drawableLeftCompat not found | 添加兼容属性 |
+| @+android:id 语法错误 | 改为 @+id |
+| minSdkVersion 17 不兼容 | 升级到 19 |
+
+### 构建结果
+- ✅ commonDebug / commonRelease
+- ✅ coolapkDebug / coolapkRelease
+- ✅ githubDebug / githubRelease
+
+---
+
+## 第二十三阶段: WindowLeaked 对话框泄漏修复 ✅
+
+### 问题发现
+测试时发现日志中有 WindowLeaked 错误：
+```
+Activity org.autojs.autojs.execution.ScriptExecuteActivity has leaked window
+com.android.internal.policy.PhoneWindow$DecorView that was originally added here
+at android.view.ViewRootImpl.<init>(ViewRootImpl.java:602)
+at android.view.WindowManagerGlobal.addView(WindowManagerGlobal.java:388)
+at android.view.WindowManagerImpl.addView(WindowManagerImpl.java:99)
+at android.app.Dialog.show(Dialog.java:329)
+at com.stardust.autojs.core.ui.dialog.BlockedMaterialDialog.show(BlockedMaterialDialog.java:45)
+```
+
+### 问题分析
+1. `BlockedMaterialDialog.show()` 在 Activity 已经销毁时仍尝试显示对话框
+2. `isActivityContext()` 只检查 context 是否为 Activity 实例
+3. 没有检查 Activity 是否已 `finishing` 或 `destroyed`
+
+### 解决方案
+
+**文件**: `BlockedMaterialDialog.java`
+```java
+private boolean isActivityContext(Context context) {
+    if (context == null)
+        return false;
+    if (context instanceof Activity) {
+        Activity activity = (Activity) context;
+        // 检查 Activity 是否已销毁或正在销毁
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return !activity.isFinishing() && !activity.isDestroyed();
+        }
+        return !activity.isFinishing();
+    }
+    if (context instanceof ContextWrapper) {
+        return isActivityContext(((ContextWrapper) context).getBaseContext());
+    }
+    return false;
+}
+```
+
+**文件**: `DialogUtils.java` (同样修复)
+
+### 修复效果
+- Activity 销毁后对话框自动使用 `TYPE_APPLICATION_OVERLAY` 悬浮窗类型
+- 避免 WindowLeaked 异常
+
+---
+
+## 版本发布记录
+
+| 版本 | Tag | 日期 | 主要更新 |
+|------|-----|------|----------|
+| v0.80.1 | `v0.80.1` | 2026-03-03 | 首个正式发布版本 |
+| v4.1.1-alpha2 | `v4.1.1-alpha2` | 2026-03-03 | AGP 7.4.2 + 多包名 flavor |
+| v4.1.1-alpha13 | `v4.1.1-alpha13` | 2026-03-03 | 编辑器功能增强 |
+
+---
+更新时间: 2026-03-03 17:15
