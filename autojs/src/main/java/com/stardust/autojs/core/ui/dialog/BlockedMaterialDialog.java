@@ -49,7 +49,12 @@ public class BlockedMaterialDialog extends MaterialDialog {
         if (context == null)
             return false;
         if (context instanceof Activity) {
-            return !((Activity) context).isFinishing();
+            Activity activity = (Activity) context;
+            // 检查 Activity 是否已销毁或正在销毁
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                return !activity.isFinishing() && !activity.isDestroyed();
+            }
+            return !activity.isFinishing();
         }
         if (context instanceof ContextWrapper) {
             return isActivityContext(((ContextWrapper) context).getBaseContext());

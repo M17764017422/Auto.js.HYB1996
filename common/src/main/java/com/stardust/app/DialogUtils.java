@@ -44,8 +44,14 @@ public class DialogUtils {
 
 
     public static boolean isActivityContext(Context context) {
-        if (context instanceof Activity)
-            return true;
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            // 检查 Activity 是否已销毁或正在销毁
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                return !activity.isFinishing() && !activity.isDestroyed();
+            }
+            return !activity.isFinishing();
+        }
         if (context instanceof ContextWrapper) {
             return isActivityContext(((ContextWrapper) context).getBaseContext());
         }
