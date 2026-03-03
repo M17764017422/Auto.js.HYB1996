@@ -1,5 +1,7 @@
 <resources>
 
+    <!-- Compatibility style for AGP 7.x -->
+    <style name="Widget.AppCompat.TextView" parent="android:Widget.TextView"/>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>

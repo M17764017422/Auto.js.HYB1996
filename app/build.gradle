@@ -20,6 +20,7 @@ configurations.all {
 }
 
 android {
+    namespace 'org.autojs.autojs'
     compileSdkVersion versions.compile
     buildToolsVersion versions.buildTool
     
@@ -66,6 +67,14 @@ android {
         versionName versions.appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        // 固定 resourcePackageName 为 namespace，解决 KAPT R 类问题
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    "resourcePackageName": "org.autojs.autojs"
+                ]
+            }
+        }
     }
     buildTypes {
         debug {
@@ -134,10 +143,28 @@ android {
     }
     productFlavors {
         common {
+            applicationId "org.autojs.autojs"
             buildConfigField "String", "CHANNEL", '"common"'
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.fileprovider",
+                appName: "@string/app_name"
+            ]
         }
         coolapk {
+            applicationId "org.autojs.autojs.coolapk"
             buildConfigField "String", "CHANNEL", '"coolapk"'
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.coolapk.fileprovider",
+                appName: "Auto.js (酷安)"
+            ]
+        }
+        github {
+            applicationId "org.autojs.autojs.github"
+            buildConfigField "String", "CHANNEL", '"github"'
+            manifestPlaceholders = [
+                authorities: "org.autojs.autojs.github.fileprovider",
+                appName: "Auto.js (GitHub)"
+            ]
         }
     }
 

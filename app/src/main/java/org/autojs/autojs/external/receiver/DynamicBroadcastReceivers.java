@@ -7,6 +7,7 @@ import android.os.Build;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
+import org.autojs.autojs.BuildConfig;
 import org.autojs.autojs.timing.IntentTask;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.Set;
 
 public class DynamicBroadcastReceivers {
 
-    public static final String ACTION_STARTUP = "org.autojs.autojs.action.startup";
+    public static final String ACTION_STARTUP = BuildConfig.APPLICATION_ID + ".action.startup";
 
     private static final String LOG_TAG = "DynBroadcastReceivers";
 

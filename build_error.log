@@ -1,0 +1,244 @@
+﻿To honour the JVM settings for this build a single-use Daemon process will be forked. See https://docs.gradle.org/7.5/userguide/gradle_daemon.html#sec:disabling_the_daemon.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+
+> Configure project :app
+=== Signing Configuration ===
+KEYSTORE_FILE env: 
+Resolved keystore: null
+KEYSTORE_PASSWORD set: NO
+KEY_ALIAS: autojs
+Use release signing: false
+==============================
+WARNING: Using debug signing for release build!
+WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :autojs
+WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :automator
+WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :inrt
+WARNING:: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :automator:preBuild UP-TO-DATE
+> Task :autojs:preBuild UP-TO-DATE
+> Task :common:preBuild UP-TO-DATE
+> Task :apkbuilder:preBuild UP-TO-DATE
+> Task :apkbuilder:preDebugBuild UP-TO-DATE
+> Task :autojs:preDebugBuild UP-TO-DATE
+> Task :automator:preDebugBuild UP-TO-DATE
+> Task :common:preDebugBuild UP-TO-DATE
+> Task :common:compileDebugAidl NO-SOURCE
+> Task :autojs:packageDebugRenderscript NO-SOURCE
+> Task :apkbuilder:compileDebugAidl NO-SOURCE
+> Task :automator:packageDebugRenderscript NO-SOURCE
+> Task :common:packageDebugRenderscript NO-SOURCE
+> Task :apkbuilder:compileDebugRenderscript NO-SOURCE
+> Task :automator:compileDebugAidl NO-SOURCE
+> Task :autojs:writeDebugAarMetadata UP-TO-DATE
+> Task :automator:writeDebugAarMetadata UP-TO-DATE
+> Task :common:writeDebugAarMetadata UP-TO-DATE
+> Task :apkbuilder:generateDebugBuildConfig UP-TO-DATE
+> Task :apkbuilder:generateDebugResValues UP-TO-DATE
+> Task :apkbuilder:generateDebugResources UP-TO-DATE
+> Task :autojs:compileDebugAidl NO-SOURCE
+> Task :common:compileDebugRenderscript NO-SOURCE
+> Task :automator:compileDebugRenderscript NO-SOURCE
+> Task :common:generateDebugResValues UP-TO-DATE
+> Task :common:generateDebugResources UP-TO-DATE
+> Task :automator:generateDebugResValues UP-TO-DATE
+> Task :automator:generateDebugResources UP-TO-DATE
+> Task :autojs:compileDebugRenderscript NO-SOURCE
+> Task :autojs:generateDebugResValues UP-TO-DATE
+> Task :autojs:generateDebugResources UP-TO-DATE
+> Task :automator:packageDebugResources UP-TO-DATE
+> Task :apkbuilder:packageDebugResources UP-TO-DATE
+> Task :common:packageDebugResources UP-TO-DATE
+> Task :automator:extractDeepLinksDebug UP-TO-DATE
+> Task :common:extractDeepLinksDebug UP-TO-DATE
+> Task :apkbuilder:parseDebugLocalResources UP-TO-DATE
+> Task :apkbuilder:processDebugManifest UP-TO-DATE
+> Task :automator:processDebugManifest UP-TO-DATE
+> Task :common:processDebugManifest UP-TO-DATE
+> Task :common:parseDebugLocalResources UP-TO-DATE
+> Task :automator:parseDebugLocalResources UP-TO-DATE
+> Task :automator:compileDebugLibraryResources UP-TO-DATE
+> Task :autojs:packageDebugResources UP-TO-DATE
+> Task :autojs:extractDeepLinksDebug UP-TO-DATE
+> Task :autojs:processDebugManifest UP-TO-DATE
+> Task :autojs:compileDebugLibraryResources UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :automator:generateDebugBuildConfig UP-TO-DATE
+> Task :app:preCoolapkDebugBuild UP-TO-DATE
+> Task :automator:mergeDebugShaders UP-TO-DATE
+> Task :app:compileCoolapkDebugAidl NO-SOURCE
+> Task :automator:compileDebugShaders NO-SOURCE
+> Task :automator:generateDebugAssets UP-TO-DATE
+> Task :autojs:parseDebugLocalResources UP-TO-DATE
+> Task :autojs:generateDebugBuildConfig UP-TO-DATE
+> Task :automator:packageDebugAssets UP-TO-DATE
+> Task :autojs:mergeDebugShaders UP-TO-DATE
+> Task :autojs:compileDebugShaders NO-SOURCE
+> Task :autojs:generateDebugAssets UP-TO-DATE
+> Task :automator:processDebugJavaRes NO-SOURCE
+> Task :app:generateCoolapkDebugBuildConfig UP-TO-DATE
+> Task :app:generateCoolapkDebugResValues UP-TO-DATE
+> Task :app:createCoolapkDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksCoolapkDebug UP-TO-DATE
+> Task :app:mergeCoolapkDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeCoolapkDebugShaders UP-TO-DATE
+> Task :app:compileCoolapkDebugShaders NO-SOURCE
+> Task :app:generateCoolapkDebugAssets UP-TO-DATE
+> Task :app:processCoolapkDebugJavaRes NO-SOURCE
+> Task :apkbuilder:generateDebugRFile UP-TO-DATE
+> Task :automator:mergeDebugJniLibFolders UP-TO-DATE
+> Task :automator:mergeDebugNativeLibs NO-SOURCE
+> Task :automator:stripDebugDebugSymbols NO-SOURCE
+> Task :automator:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :autojs:packageDebugAssets UP-TO-DATE
+> Task :autojs:processDebugJavaRes NO-SOURCE
+> Task :autojs:mergeDebugJniLibFolders UP-TO-DATE
+> Task :autojs:mergeDebugNativeLibs NO-SOURCE
+> Task :autojs:stripDebugDebugSymbols NO-SOURCE
+> Task :autojs:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :common:generateDebugRFile UP-TO-DATE
+> Task :common:compileDebugLibraryResources UP-TO-DATE
+> Task :common:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkCoolapkDebugDuplicateClasses UP-TO-DATE
+> Task :automator:generateDebugRFile UP-TO-DATE
+> Task :app:desugarCoolapkDebugFileDependencies UP-TO-DATE
+> Task :app:mergeCoolapkDebugJniLibFolders UP-TO-DATE
+> Task :app:validateSigningCoolapkDebug UP-TO-DATE
+> Task :app:writeCoolapkDebugAppMetadata UP-TO-DATE
+> Task :app:writeCoolapkDebugSigningConfigVersions UP-TO-DATE
+> Task :autojs:generateDebugRFile UP-TO-DATE
+> Task :common:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :apkbuilder:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :common:kaptDebugKotlin UP-TO-DATE
+> Task :apkbuilder:kaptDebugKotlin UP-TO-DATE
+> Task :apkbuilder:compileDebugKotlin UP-TO-DATE
+> Task :common:compileDebugKotlin UP-TO-DATE
+> Task :apkbuilder:compileDebugJavaWithJavac UP-TO-DATE
+> Task :common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :apkbuilder:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :apkbuilder:packageDebugRenderscript NO-SOURCE
+> Task :apkbuilder:compileDebugLibraryResources UP-TO-DATE
+> Task :common:mergeDebugShaders UP-TO-DATE
+> Task :apkbuilder:writeDebugAarMetadata UP-TO-DATE
+> Task :common:compileDebugShaders NO-SOURCE
+> Task :common:generateDebugAssets UP-TO-DATE
+> Task :app:compileCoolapkDebugRenderscript NO-SOURCE
+> Task :apkbuilder:extractDeepLinksDebug UP-TO-DATE
+> Task :apkbuilder:mergeDebugShaders UP-TO-DATE
+> Task :apkbuilder:compileDebugShaders NO-SOURCE
+> Task :common:packageDebugAssets UP-TO-DATE
+> Task :apkbuilder:generateDebugAssets UP-TO-DATE
+> Task :apkbuilder:packageDebugAssets UP-TO-DATE
+> Task :common:processDebugJavaRes NO-SOURCE
+> Task :apkbuilder:processDebugJavaRes NO-SOURCE
+> Task :common:bundleLibResDebug UP-TO-DATE
+> Task :common:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :apkbuilder:bundleLibResDebug UP-TO-DATE
+> Task :common:mergeDebugJniLibFolders UP-TO-DATE
+> Task :apkbuilder:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :common:mergeDebugNativeLibs NO-SOURCE
+> Task :common:stripDebugDebugSymbols NO-SOURCE
+> Task :apkbuilder:mergeDebugJniLibFolders UP-TO-DATE
+> Task :common:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :apkbuilder:mergeDebugNativeLibs NO-SOURCE
+> Task :apkbuilder:stripDebugDebugSymbols NO-SOURCE
+> Task :app:checkCoolapkDebugAarMetadata UP-TO-DATE
+> Task :app:generateCoolapkDebugResources UP-TO-DATE
+> Task :apkbuilder:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :automator:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :automator:kaptDebugKotlin UP-TO-DATE
+> Task :automator:compileDebugKotlin UP-TO-DATE
+> Task :app:mergeCoolapkDebugResources UP-TO-DATE
+> Task :automator:compileDebugJavaWithJavac UP-TO-DATE
+> Task :automator:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :automator:bundleLibResDebug UP-TO-DATE
+> Task :automator:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :app:processCoolapkDebugMainManifest UP-TO-DATE
+> Task :app:processCoolapkDebugManifest UP-TO-DATE
+> Task :app:processCoolapkDebugManifestForPackage UP-TO-DATE
+> Task :app:processCoolapkDebugResources UP-TO-DATE
+> Task :app:generateCoolapkDebugR2 UP-TO-DATE
+> Task :autojs:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :app:mergeCoolapkDebugAssets UP-TO-DATE
+> Task :app:compressCoolapkDebugAssets UP-TO-DATE
+> Task :autojs:kaptDebugKotlin UP-TO-DATE
+> Task :autojs:compileDebugKotlin UP-TO-DATE
+
+> Task :autojs:compileDebugJavaWithJavac
+.\gradlew.bat : K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:82: ����: TraditionalFileProvider���ǳ�
+���, ����δ����IFileProvider�еĳ��󷽷�resolvePath(String)
+At line:1 char:273
++ ... js.HYB1996; .\gradlew.bat assembleCoolapkDebug --no-daemon 2>&1 | Out ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (K:\msys64\home\...lvePath(String):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    private static class TraditionalFileProvider implements IFileProvider {
+                   ^
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:111: ����: TraditionalFileProvider�е�writeBytes(String
+,byte[])�޷�ʵ��IFileProvider�е�writeBytes(String,byte[])
+        @Override public void writeBytes(String path, byte[] bytes) { PFiles.writeBytes(path, bytes); }
+                              ^
+  ��������void��boolean������
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:109: ����: TraditionalFileProvider�е�write(String,Stri
+ng)�޷�ʵ��IFileProvider�е�write(String,String)
+        @Override public void write(String path, String content) { PFiles.write(path, content); }
+                              ^
+  ��������void��boolean������
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:110: ����: TraditionalFileProvider�е�write(String,Stri
+ng,String)�޷�ʵ��IFileProvider�е�write(String,String,String)
+        @Override public void write(String path, String content, String encoding) { PFiles.write(path, content, encoding); }
+                              ^
+  ��������void��boolean������
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:102: ����: �������Ḳ�ǻ�ʵ�ֳ����͵ķ���
+        @Override public String[] list(String path) { return new File(path).list(); }
+        ^
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:109: ����: �������Ḳ�ǻ�ʵ�ֳ����͵ķ���
+        @Override public void write(String path, String content) { PFiles.write(path, content); }
+        ^
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:110: ����: �������Ḳ�ǻ�ʵ�ֳ����͵ķ���
+        @Override public void write(String path, String content, String encoding) { PFiles.write(path, content, encoding); }
+        ^
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:111: ����: �������Ḳ�ǻ�ʵ�ֳ����͵ķ���
+        @Override public void writeBytes(String path, byte[] bytes) { PFiles.writeBytes(path, bytes); }
+        ^
+K:\msys64\home\ms900\Auto.js.HYB1996\autojs\src\main\java\com\stardust\autojs\project\ProjectConfig.java:113: ����: �������Ḳ�ǻ�ʵ�ֳ����͵ķ���
+        @Override public boolean renameTo(String path, String newPath) { return new File(path).renameTo(new File(newPath)); }
+        ^
+ע: ĳЩ�����ļ�ʹ�û򸲸����ѹ�ʱ�� API��
+ע: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+ע: ĳЩ�����ļ�ʹ����δ�����򲻰�ȫ�Ĳ�����
+ע: �й���ϸ��Ϣ, ��ʹ�� -Xlint:unchecked ���±��롣
+9 ������
+
+> Task :autojs:compileDebugJavaWithJavac FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':autojs:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.5/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD FAILED in 1m 29s
+97 actionable tasks: 1 executed, 96 up-to-date

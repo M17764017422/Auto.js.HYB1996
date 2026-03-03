@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- AppCompat compatibility attributes for AGP 7.x -->
+    <declare-styleable name="AppCompatTextView">
+        <attr name="drawableLeftCompat" format="reference"/>
+        <attr name="drawableTopCompat" format="reference"/>
+        <attr name="drawableRightCompat" format="reference"/>
+        <attr name="drawableBottomCompat" format="reference"/>
+        <attr name="drawableStartCompat" format="reference"/>
+        <attr name="drawableEndCompat" format="reference"/>
+    </declare-styleable>
+
     <attr name="title" format="string|reference"/>
     <attr name="icon" format="reference"/>
     <attr name="drawer_item_text_color" format="color|reference"/>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="org.autojs.autojs">
+          xmlns:tools="http://schemas.android.com/tools">
 
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -79,7 +78,7 @@
 
         <provider
             android:name=".external.fileprovider.AppFileProvider"
-            android:authorities="org.autojs.autojs.fileprovider"
+            android:authorities="${authorities}"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -311,9 +310,10 @@
                 android:resource="@xml/script_widget_config"/>
         </receiver>
 
-        <receiver android:name=".timing.TaskReceiver" android:exported="true">
+        <receiver android:name=".timing.TaskReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.stardust.autojs.action.task"/>
+                <action android:name="${applicationId}.action.task"/>
             </intent-filter>
         </receiver>
 
