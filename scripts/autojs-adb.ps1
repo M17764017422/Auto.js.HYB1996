@@ -36,7 +36,7 @@ Note: Edit `$PackageName in script to match your app flavor:
   - org.autojs.autojs.github (github)
 
 Commands:
-  run <script>          - Run script content
+  run <script>          - Run script content (auto Base64 encoded)
   run -f <path>         - Run script from file path on device
   run -f <path> -d <ms> - Run script with delay (milliseconds)
   stop <id>             - Stop script by ID
@@ -49,6 +49,7 @@ Commands:
 
 Examples:
   .\autojs-adb.ps1 run "toast('Hello World')"
+  .\autojs-adb.ps1 run "toast('中文测试')"
   .\autojs-adb.ps1 run -f "/sdcard/脚本/test.js"
   .\autojs-adb.ps1 stop 12345
   .\autojs-adb.ps1 list
