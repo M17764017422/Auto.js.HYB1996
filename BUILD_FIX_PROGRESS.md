@@ -2039,4 +2039,83 @@ ui.webView.evaluateJavascript("document.title", function(result) {
 ```
 
 ---
-更新时间: 2026-03-03 14:30
+
+## 第十五阶段: SAF 文件操作 API 完善 🔄 进行中
+
+### 问题背景
+SAF (Storage Access Framework) 模式下的文件操作 API 不完整，导致脚本无法正常操作文件。
+
+### 已修复问题
+
+#### 1. 路径规范化 ✅
+- **问题**: SAF URI 与文件路径格式不匹配
+- **修复**: `SafFileProviderImpl.getRelativePath()` 处理 `/storage/emulated/0` 前缀
+
+#### 2. 目录创建 ✅
+- **问题**: `PFiles.createWithDirs()` 在 SAF 模式下创建文件而非目录
+- **修复**: 根据路径结尾判断创建目录还是文件
+- **新增 API**: `files.mkdir()`, `files.mkdirs()`
+
+#### 3. 写入返回值 ✅
+- **问题**: `files.write()`, `files.append()`, `files.writeBytes()` 返回 void
+- **修复**: 改为返回 boolean 表示操作结果
+
+#### 4. 目录判断 ✅
+- **问题**: 缺少 `files.isDirectory()` 方法
+- **修复**: 添加 `isDirectory()` 作为 `isDir()` 的别名
+
+#### 5. 获取父路径 ✅
+- **问题**: 缺少 `files.getParent()` 方法
+- **修复**: 添加 `getParent()` 方法
+
+#### 6. 文件重命名 ✅
+- **问题**: `SafFileProviderImpl.rename()` 返回 false 未实现
+- **修复**: 使用 `DocumentsContract.renameDocument()` 实现
+
+#### 7. 文件移动 ✅
+- **问题**: `SafFileProviderImpl.move()` 返回 false 未实现
+- **修复**: 使用 copy + delete 组合实现
+
+#### 8. 二进制写入 ✅
+- **问题**: `writeBytes()` 不支持 JavaScript Uint8Array
+- **修复**: 添加 `writeBytes(String, Object)` 重载方法处理 JS 数组
+
+### 测试结果 (saf_test_comprehensive.js)
+
+| 分类 | 测试项 | 状态 |
+|------|--------|------|
+| 目录操作 | mkdirs, exists, isDirectory, isFile, listDir | ✅ |
+| 文件写入 | write, append | ✅ |
+| 文件读取 | read | ✅ |
+| 文件复制 | copy | ✅ |
+| 文件删除 | remove | ✅ |
+| 文件移动 | move | 🔄 待测试 |
+| 文件重命名 | rename | 🔄 待测试 |
+| 二进制文件 | writeBytes, readBytes | 🔄 待测试 |
+| 特殊文件名 | 中文文件名, 空格文件名 | 🔄 待测试 |
+| 目录删除 | removeDir | 🔄 待测试 |
+
+### 修改文件
+
+| 文件 | 修改内容 |
+|------|----------|
+| `SafFileProviderImpl.java` | 路径规范化、rename、move 实现 |
+| `Files.java` | mkdir, mkdirs, isDirectory, getParent, writeBytes(Object) |
+| `PFiles.java` | createWithDirs 区分目录/文件 |
+
+### 提交记录
+
+| Commit | Tag | 说明 |
+|--------|-----|------|
+| `58b1e79a` | - | fix(SAF): 修复SAF模式下的文件操作问题 |
+| `afa39ead` | `v0.80.2-debug` | feat(SAF): 添加更多文件操作API支持 |
+
+### 待完成
+
+- [ ] 完成综合测试验证所有 API
+- [ ] 测试 rename 和 move 功能
+- [ ] 测试二进制文件读写
+- [ ] 测试特殊文件名处理
+
+---
+更新时间: 2026-03-05 01:40
