@@ -2,11 +2,11 @@ package org.autojs.autojs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.runtime.accessibility.AccessibilityConfig;
-import com.stardust.pio.PFiles;
 import com.stardust.theme.ThemeColorManager;
 
 import org.autojs.autojs.autojs.key.GlobalKeyObserver;
@@ -166,7 +166,7 @@ public class Pref {
     public static String getScriptDirPath() {
         String dir = def().getString(getString(R.string.key_script_dir_path),
                 getString(R.string.default_value_script_dir_path));
-        return PFiles.getSdcardPath() + "/" + dir;
+        return new File(Environment.getExternalStorageDirectory(), dir).getPath();
     }
 
     public static boolean isForegroundServiceEnabled() {

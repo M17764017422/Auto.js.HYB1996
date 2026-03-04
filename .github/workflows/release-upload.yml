@@ -1,0 +1,44 @@
+name: Upload Release Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v0.80.1, v0.80.2-debug)'
+        required: true
+        type: string
+      run_id:
+        description: 'GitHub Actions run ID to download artifacts from'
+        required: true
+        type: string
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts
+
+      - name: List downloaded files
+        run: |
+          echo "Downloaded files:"
+          find artifacts -type f -name "*.apk" -ls
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find artifacts -type f -name "*.apk" -exec cp {} release-files/ \;
+          ls -la release-files/
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          files: release-files/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

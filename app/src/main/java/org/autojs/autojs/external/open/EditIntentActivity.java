@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 
 import androidx.annotation.Nullable;
 
@@ -15,6 +16,8 @@ import com.stardust.pio.PFiles;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.edit.EditActivity;
 import org.autojs.autojs.R;
+
+import java.io.File;
 
 /**
  * Created by Stardust on 2017/2/2.
@@ -47,8 +50,7 @@ public class EditIntentActivity extends BaseActivity {
             if (i >= 0) {
                 path = uri.getPath().substring(i + EXTERNAL_FILES.length());
                 if (!PFiles.exists(path)) {
-                    // 使用 PFiles.getSdcardPath() 代替 Environment.getExternalStorageDirectory()
-                    path = PFiles.getSdcardPath() + path;
+                    path = new File(Environment.getExternalStorageDirectory(), path).getPath();
                     if (!PFiles.exists(path)) {
                         path = null;
                     }

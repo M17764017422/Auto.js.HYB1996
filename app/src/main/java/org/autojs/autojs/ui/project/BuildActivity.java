@@ -18,9 +18,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.textfield.TextInputLayout;
 import com.stardust.autojs.project.ProjectConfig;
-import com.stardust.pio.FileProviderFactory;
-import com.stardust.pio.IFileProvider;
-import com.stardust.pio.PFiles;
 import com.stardust.util.IntentUtil;
 
 import org.androidannotations.annotations.AfterViews;
@@ -166,7 +163,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         String initialDir = new File(mSourcePath.getText().toString()).getParent();
         new FileChooserDialogBuilder(this)
                 .title(R.string.text_source_file_path)
-                .dir(PFiles.getSdcardPath(),
+                .dir(Environment.getExternalStorageDirectory().getPath(),
                         initialDir == null ? Pref.getScriptDirPath() : initialDir)
                 .singleChoice(this::setSource)
                 .show();
@@ -188,11 +185,8 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
 
     @Click(R.id.select_output)
     void selectOutputDirPath() {
-        String outputPath = mOutputPath.getText().toString();
-        // 使用 IFileProvider 检查目录是否存在（支持 SAF 模式）
-        IFileProvider provider = FileProviderFactory.getProvider(outputPath);
-        String initialDir = provider.exists(outputPath) ?
-                outputPath : Pref.getScriptDirPath();
+        String initialDir = new File(mOutputPath.getText().toString()).exists() ?
+                mOutputPath.getText().toString() : Pref.getScriptDirPath();
         new FileChooserDialogBuilder(this)
                 .title(R.string.text_output_apk_path)
                 .dir(initialDir)

@@ -317,23 +317,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- ADB Debug Receiver for script management via ADB -->
-        <receiver
-            android:name=".external.receiver.AdbDebugReceiver"
-            android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="${applicationId}.adb.RUN_SCRIPT"/>
-                <action android:name="${applicationId}.adb.STOP_SCRIPT"/>
-                <action android:name="${applicationId}.adb.STOP_ALL"/>
-                <action android:name="${applicationId}.adb.LIST_SCRIPTS"/>
-                <action android:name="${applicationId}.adb.PUSH_SCRIPT"/>
-                <action android:name="${applicationId}.adb.DELETE_SCRIPT"/>
-                <action android:name="${applicationId}.adb.LIST_FILES"/>
-                <action android:name="${applicationId}.adb.PING"/>
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>

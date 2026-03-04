@@ -64,7 +64,7 @@ android {
         minSdkVersion versions.mini
         targetSdkVersion versions.target
         versionCode versions.appVersionCode
-        versionName versions.baseVersionName
+        versionName versions.appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         // 固定 resourcePackageName 为 namespace，解决 KAPT R 类问题
@@ -82,14 +82,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
-            versionNameSuffix '-debug'
-        }
-        beta {
-            shrinkResources false
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
-            versionNameSuffix '-beta'
         }
         release {
             shrinkResources false

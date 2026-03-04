@@ -1,6 +1,6 @@
-// SAF说明: 使用 files.getSdcardPath() 获取存储路径，兼容 Android 11+ 的存储访问框架
-var sdcard = files.getSdcardPath();
-convert(sdcard + "/1.txt", "utf-8", sdcard + "/2.txt", "gbk");
+
+
+convert("/sdcard/1.txt", "utf-8", "/sdcard/2.txt", "gbk");
 
 /**
  * fromFile: 源文件路径

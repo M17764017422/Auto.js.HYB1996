@@ -169,10 +169,7 @@ public class ScriptOperations {
             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
             return;
         }
-        // 使用 IFileProvider 检查文件是否存在（支持 SAF 模式）
-        String fullPath = getCurrentDirectoryPath() + (extension == null ? input.toString() : input.toString() + extension);
-        IFileProvider provider = FileProviderFactory.getProvider(fullPath);
-        if (provider.exists(fullPath)) {
+        if (new File(getCurrentDirectory(), extension == null ? input.toString() : input.toString() + extension).exists()) {
             errorResId = R.string.text_file_exists;
         }
         if (errorResId == 0) {
@@ -222,11 +219,10 @@ public class ScriptOperations {
     public void newDirectory() {
         showNameInputDialog("", new InputCallback())
                 .subscribe(path -> {
-                    String newDirPath = getCurrentDirectoryPath() + path;
-                    IFileProvider provider = FileProviderFactory.getProvider(newDirPath);
-                    if (provider.mkdirs(newDirPath)) {
+                    ScriptFile newDir = new ScriptFile(getCurrentDirectory(), path);
+                    if (newDir.mkdirs()) {
                         showMessage(R.string.text_already_create);
-                        notifyFileCreated(mCurrentDirectory, new ScriptFile(newDirPath));
+                        notifyFileCreated(mCurrentDirectory, new ScriptFile(newDir));
                     } else {
                         showMessage(R.string.text_create_fail);
                     }
@@ -348,18 +344,15 @@ public class ScriptOperations {
                 .dir(Pref.getScriptDirPath())
                 .chooseDir()
                 .singleChoice()
-                .map(saveDir -> saveDir + "/" + fileName)
+                .map(saveDir -> new File(saveDir, fileName).getPath())
                 .flatMap(savePath -> {
-                    // 使用 IFileProvider 检查文件是否存在（支持 SAF 模式）
-                    IFileProvider provider = FileProviderFactory.getProvider(savePath);
-                    if (!provider.exists(savePath)) {
+                    if (!new File(savePath).exists()) {
                         return Observable.just(savePath);
                     }
                     return RxDialogs.confirm(mContext, R.string.confirm_overwrite_file)
                             .flatMap(yes -> {
                                 if (yes) {
-                                    // 使用 IFileProvider 删除文件（支持 SAF 模式）
-                                    provider.delete(savePath);
+                                    new File(savePath).delete();
                                     return Observable.just(savePath);
                                 } else {
                                     return Observable.empty();
@@ -379,7 +372,7 @@ public class ScriptOperations {
 
     public void importFile() {
         new FileChooserDialogBuilder(mContext)
-                .dir(PFiles.getSdcardPath())
+                .dir(Environment.getExternalStorageDirectory().getPath())
                 .justScriptFile()
                 .singleChoice(file -> importFile(file.getPath()).subscribe())
                 .title(R.string.text_select_file_to_import)

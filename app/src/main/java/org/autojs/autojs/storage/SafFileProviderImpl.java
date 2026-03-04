@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.stardust.pio.IFileProvider;
@@ -131,62 +130,15 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public boolean rename(String path, String newName) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.w(TAG, "rename: API level < 21");
-            return false;
-        }
-        
-        Uri documentUri = getDocumentUri(path);
-        if (documentUri == null) {
-            Log.w(TAG, "rename: documentUri is null for path=" + path);
-            return false;
-        }
-        
-        try {
-            // Android N (API 24) 及以上使用 DocumentsContract.renameDocument
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri newUri = DocumentsContract.renameDocument(
-                    mContext.getContentResolver(), documentUri, newName);
-                boolean success = newUri != null;
-                Log.d(TAG, "rename: path=" + path + ", newName=" + newName + ", success=" + success);
-                return success;
-            } else {
-                // 低版本使用复制+删除方式
-                String parentPath = getParent(path);
-                String newPath = parentPath + "/" + newName;
-                boolean success = copy(path, newPath);
-                if (success) {
-                    success = delete(path);
-                }
-                Log.d(TAG, "rename (fallback): path=" + path + ", newName=" + newName + ", success=" + success);
-                return success;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "rename failed: " + e.getMessage(), e);
-            return false;
-        }
+        // SAF 不直接支持重命名，需要复制+删除
+        // 这里暂时返回 false，后续可以实现
+        return false;
     }
 
     @Override
     public boolean move(String fromPath, String toPath) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.w(TAG, "move: API level < 21");
-            return false;
-        }
-        
-        // 确保目标目录存在
-        String parentPath = getParent(toPath);
-        if (!TextUtils.isEmpty(parentPath) && !exists(parentPath)) {
-            mkdirs(parentPath);
-        }
-        
-        // 使用复制+删除方式实现移动
-        boolean success = copy(fromPath, toPath);
-        if (success) {
-            success = delete(fromPath);
-        }
-        Log.d(TAG, "move: from=" + fromPath + ", to=" + toPath + ", success=" + success);
-        return success;
+        // SAF 不直接支持移动
+        return false;
     }
 
     @Override

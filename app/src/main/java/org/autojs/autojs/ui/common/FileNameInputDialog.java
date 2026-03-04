@@ -7,8 +7,6 @@ import android.widget.EditText;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.stardust.pio.FileProviderFactory;
-import com.stardust.pio.IFileProvider;
 
 import org.autojs.autojs.R;
 
@@ -32,10 +30,7 @@ public class FileNameInputDialog implements MaterialDialog.InputCallback {
             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
             return;
         }
-        // 使用 IFileProvider 检查文件是否存在（支持 SAF 模式）
-        String fullPath = mDir.getAbsolutePath() + "/" + (extension == null ? input.toString() : input.toString() + extension);
-        IFileProvider provider = FileProviderFactory.getProvider(fullPath);
-        if (provider.exists(fullPath)) {
+        if (new File(mDir, extension == null ? input.toString() : input.toString() + extension).exists()) {
             errorResId = R.string.text_file_exists;
         }
         if (errorResId == 0) {

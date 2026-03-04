@@ -11,7 +11,7 @@ android {
         minSdkVersion versions.mini
         targetSdkVersion versions.target
         versionCode versions.appVersionCode - 200
-        versionName versions.baseVersionName
+        versionName versions.appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -47,10 +47,6 @@ android {
     }
     buildTypes {
         debug {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        beta {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

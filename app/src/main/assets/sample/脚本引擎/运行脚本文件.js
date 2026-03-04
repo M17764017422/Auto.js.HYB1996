@@ -1,8 +1,7 @@
-// SAF说明: 使用 files.getSdcardPath() 获取存储路径，兼容 Android 11+ 的存储访问框架
-var sdcard = files.getSdcardPath();
-var scriptsPath = sdcard + "/脚本/";
+
+var scriptsPath = "/sdcard/脚本/";
 if(!files.exists(scriptsPath)){
-    scriptsPath = sdcard + "/Scripts/";
+    scriptsPath = "/sdcard/Scripts/";
 }
 var scriptFiles = files.listDir(scriptsPath, function(name){
     return name.endsWith(".js");
