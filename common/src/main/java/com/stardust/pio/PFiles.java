@@ -146,6 +146,31 @@ public class PFiles {
     }
 
     public static boolean createWithDirs(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式：创建目录（路径以 / 结尾判断）
+            if (path.endsWith(File.separator) || path.endsWith("/")) {
+                // 创建目录
+                return provider.mkdirs(path);
+            } else {
+                // 创建文件（包含父目录）
+                String parent = provider.getParent(path);
+                if (parent != null && !provider.exists(parent)) {
+                    provider.mkdirs(parent);
+                }
+                try {
+                    OutputStream os = provider.openOutputStream(path);
+                    if (os != null) {
+                        os.close();
+                        return true;
+                    }
+                    return false;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+        // 传统模式
         return createIfNotExists(path);
     }
 

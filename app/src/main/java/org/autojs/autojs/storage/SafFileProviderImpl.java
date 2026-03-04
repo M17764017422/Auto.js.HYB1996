@@ -412,9 +412,21 @@ public class SafFileProviderImpl implements IFileProvider {
         }
         
         String resolvedPath = resolvePath(path);
-        boolean result = resolvedPath.startsWith(mRootPath);
+        String normalizedPath = normalizePath(resolvedPath);
+        String normalizedRoot = normalizePath(mRootPath);
+        
+        boolean result = normalizedPath.startsWith(normalizedRoot);
+        
+        // 也检查替代路径格式
+        if (!result) {
+            String alternativePath = convertToAlternativePath(normalizedPath);
+            if (alternativePath != null) {
+                result = alternativePath.startsWith(normalizedRoot);
+            }
+        }
+        
         Log.d(TAG, "isAccessible: path=" + path + ", resolved=" + resolvedPath 
-                + ", root=" + mRootPath + ", result=" + result);
+                + ", normalized=" + normalizedPath + ", root=" + normalizedRoot + ", result=" + result);
         return result;
     }
 
@@ -631,10 +643,70 @@ public class SafFileProviderImpl implements IFileProvider {
 
     private String getRelativePath(String path) {
         String resolvedPath = resolvePath(path);
-        if (resolvedPath.startsWith(mRootPath)) {
-            String relative = resolvedPath.substring(mRootPath.length());
+        String normalizedPath = normalizePath(resolvedPath);
+        String normalizedRoot = normalizePath(mRootPath);
+        
+        Log.v(TAG, "getRelativePath: resolvedPath=" + resolvedPath 
+                + ", normalizedPath=" + normalizedPath 
+                + ", normalizedRoot=" + normalizedRoot);
+        
+        if (normalizedPath.startsWith(normalizedRoot)) {
+            String relative = normalizedPath.substring(normalizedRoot.length());
             return relative.startsWith("/") ? relative.substring(1) : relative;
         }
+        
+        // 如果规范化后仍不匹配，检查是否为等价路径
+        // 例如: /sdcard/脚本 和 /storage/emulated/0/脚本
+        String alternativePath = convertToAlternativePath(normalizedPath);
+        if (alternativePath != null && alternativePath.startsWith(normalizedRoot)) {
+            String relative = alternativePath.substring(normalizedRoot.length());
+            return relative.startsWith("/") ? relative.substring(1) : relative;
+        }
+        
+        Log.w(TAG, "getRelativePath: path not under root, returning full path");
         return resolvedPath;
+    }
+    
+    /**
+     * 规范化路径，移除多余的斜杠，处理 /sdcard 和 /storage/emulated/0 的等价性
+     */
+    private String normalizePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "/";
+        }
+        
+        // 统一使用 /storage/emulated/0 格式
+        if (path.startsWith("/sdcard/")) {
+            path = "/storage/emulated/0/" + path.substring(8);
+        } else if (path.startsWith("/sdcard")) {
+            path = "/storage/emulated/0" + path.substring(7);
+        } else if (path.startsWith("/mnt/sdcard/")) {
+            path = "/storage/emulated/0/" + path.substring(12);
+        } else if (path.startsWith("/mnt/sdcard")) {
+            path = "/storage/emulated/0" + path.substring(11);
+        }
+        
+        // 移除末尾斜杠（除非是根目录）
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        
+        return path;
+    }
+    
+    /**
+     * 转换为替代路径格式
+     * /storage/emulated/0/xxx -> /sdcard/xxx
+     */
+    private String convertToAlternativePath(String path) {
+        if (path == null) return null;
+        
+        if (path.startsWith("/storage/emulated/0/")) {
+            return "/sdcard/" + path.substring(20);
+        } else if (path.startsWith("/storage/emulated/0")) {
+            return "/sdcard" + path.substring(19);
+        }
+        
+        return null;
     }
 }

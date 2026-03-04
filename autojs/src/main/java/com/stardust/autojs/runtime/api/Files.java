@@ -97,6 +97,22 @@ public class Files {
         return result;
     }
 
+    public boolean mkdir(String path) {
+        String resolvedPath = path(path);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        boolean result = provider.mkdir(resolvedPath);
+        Log.d(TAG + ".mkdir", "path=" + resolvedPath + ", result=" + result);
+        return result;
+    }
+
+    public boolean mkdirs(String path) {
+        String resolvedPath = path(path);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        boolean result = provider.mkdirs(resolvedPath);
+        Log.d(TAG + ".mkdirs", "path=" + resolvedPath + ", result=" + result);
+        return result;
+    }
+
     public boolean exists(String path) {
         String resolvedPath = path(path);
         boolean result = PFiles.exists(resolvedPath);
@@ -148,39 +164,39 @@ public class Files {
         return result;
     }
 
-    public void write(String path, String text) {
+    public boolean write(String path, String text) {
         String resolvedPath = path(path);
         Log.d(TAG + ".write", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0));
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        provider.write(resolvedPath, text);
+        return provider.write(resolvedPath, text);
     }
 
-    public void write(String path, String text, String encoding) {
+    public boolean write(String path, String text, String encoding) {
         String resolvedPath = path(path);
         Log.d(TAG + ".write", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0) + ", encoding=" + encoding);
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        provider.write(resolvedPath, text, encoding);
+        return provider.write(resolvedPath, text, encoding);
     }
 
-    public void append(String path, String text) {
+    public boolean append(String path, String text) {
         String resolvedPath = path(path);
         Log.d(TAG + ".append", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0));
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        provider.append(resolvedPath, text, "UTF-8");
+        return provider.append(resolvedPath, text, "UTF-8");
     }
 
-    public void append(String path, String text, String encoding) {
+    public boolean append(String path, String text, String encoding) {
         String resolvedPath = path(path);
         Log.d(TAG + ".append", "path=" + resolvedPath + ", length=" + (text != null ? text.length() : 0) + ", encoding=" + encoding);
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        provider.append(resolvedPath, text, encoding);
+        return provider.append(resolvedPath, text, encoding);
     }
 
-    public void writeBytes(String path, byte[] bytes) {
+    public boolean writeBytes(String path, byte[] bytes) {
         String resolvedPath = path(path);
         Log.d(TAG + ".writeBytes", "path=" + resolvedPath + ", size=" + (bytes != null ? bytes.length : 0));
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        provider.writeBytes(resolvedPath, bytes);
+        return provider.writeBytes(resolvedPath, bytes);
     }
 
     public boolean copy(String pathFrom, String pathTo) {
