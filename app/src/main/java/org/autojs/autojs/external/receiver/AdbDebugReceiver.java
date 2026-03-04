@@ -36,6 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * - ACTION_PUSH_SCRIPT: 推送脚本到设备 (name, content 参数)
  * - ACTION_DELETE_SCRIPT: 删除脚本文件 (path 参数)
  * - ACTION_LIST_FILES: 列出脚本目录文件
+ * - ACTION_READ_FILE: 读取文件内容 (path 参数)
+ * - ACTION_MKDIR: 创建目录 (path 参数)
+ * - ACTION_RENAME_FILE: 重命名/移动文件 (oldpath, newpath 参数)
+ * - ACTION_GET_SCRIPT_OUTPUT: 获取脚本控制台输出 (id 参数, 可选 lines 参数)
  * - ACTION_PING: 检查应用状态
  * 
  * 使用方法:
@@ -56,11 +60,17 @@ public class AdbDebugReceiver extends BroadcastReceiver {
     public static final String ACTION_PUSH_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.PUSH_SCRIPT";
     public static final String ACTION_DELETE_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.DELETE_SCRIPT";
     public static final String ACTION_LIST_FILES = BuildConfig.APPLICATION_ID + ".adb.LIST_FILES";
+    public static final String ACTION_READ_FILE = BuildConfig.APPLICATION_ID + ".adb.READ_FILE";
+    public static final String ACTION_MKDIR = BuildConfig.APPLICATION_ID + ".adb.MKDIR";
+    public static final String ACTION_RENAME_FILE = BuildConfig.APPLICATION_ID + ".adb.RENAME_FILE";
+    public static final String ACTION_GET_SCRIPT_OUTPUT = BuildConfig.APPLICATION_ID + ".adb.GET_SCRIPT_OUTPUT";
     public static final String ACTION_PING = BuildConfig.APPLICATION_ID + ".adb.PING";
 
     // Extras
     public static final String EXTRA_SCRIPT = "script";
     public static final String EXTRA_PATH = "path";
+    public static final String EXTRA_OLD_PATH = "oldpath";
+    public static final String EXTRA_NEW_PATH = "newpath";
     public static final String EXTRA_NAME = "name";
     public static final String EXTRA_CONTENT = "content";
     public static final String EXTRA_ID = "id";
@@ -68,6 +78,8 @@ public class AdbDebugReceiver extends BroadcastReceiver {
     public static final String EXTRA_DELAY = "delay";
     public static final String EXTRA_RESULT = "result";
     public static final String EXTRA_BASE64 = "base64";  // 脚本内容是否为 base64 编码
+    public static final String EXTRA_LINES = "lines";    // 读取的行数
+    public static final String EXTRA_ENCODING = "encoding"; // 文件编码
 
     // 存储运行中的脚本
     private static final ConcurrentHashMap<Integer, ScriptExecution> sRunningExecutions = new ConcurrentHashMap<>();
@@ -93,6 +105,14 @@ public class AdbDebugReceiver extends BroadcastReceiver {
                 result = handleDeleteScript(intent);
             } else if (ACTION_LIST_FILES.equals(action)) {
                 result = handleListFiles(intent);
+            } else if (ACTION_READ_FILE.equals(action)) {
+                result = handleReadFile(intent);
+            } else if (ACTION_MKDIR.equals(action)) {
+                result = handleMkdir(intent);
+            } else if (ACTION_RENAME_FILE.equals(action)) {
+                result = handleRenameFile(intent);
+            } else if (ACTION_GET_SCRIPT_OUTPUT.equals(action)) {
+                result = handleGetScriptOutput(intent);
             } else if (ACTION_PING.equals(action)) {
                 String modeStr = FileProviderFactory.getModeDescription();
                 result = "PONG: " + BuildConfig.APPLICATION_ID + " v" + BuildConfig.VERSION_NAME + " (mode: " + modeStr + ")";
@@ -427,6 +447,232 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         if (bytes < 1024) return bytes + "B";
         if (bytes < 1024 * 1024) return String.format("%.1fKB", bytes / 1024.0);
         return String.format("%.1fMB", bytes / (1024.0 * 1024));
+    }
+
+    /**
+     * 读取文件内容
+     * 支持 base64 编码返回（用于二进制文件）
+     * 兼容 SAF 模式
+     */
+    private String handleReadFile(Intent intent) {
+        String path = intent.getStringExtra(EXTRA_PATH);
+        boolean returnBase64 = intent.getBooleanExtra(EXTRA_BASE64, false);
+        if (!returnBase64) {
+            String base64Str = intent.getStringExtra(EXTRA_BASE64);
+            returnBase64 = "true".equalsIgnoreCase(base64Str);
+        }
+        
+        if (TextUtils.isEmpty(path)) {
+            return "ERROR: Missing 'path' parameter";
+        }
+
+        IFileProvider provider = getFileProvider();
+        
+        if (!provider.exists(path)) {
+            return "ERROR: File not found: " + path;
+        }
+        
+        if (provider.isDirectory(path)) {
+            return "ERROR: Path is a directory: " + path;
+        }
+
+        try {
+            if (returnBase64) {
+                // 返回 base64 编码内容
+                byte[] bytes = provider.readBytes(path);
+                if (bytes == null) {
+                    return "ERROR: Failed to read file: " + path;
+                }
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                return "OK: " + base64;
+            } else {
+                // 返回文本内容
+                String content = provider.read(path);
+                if (content == null) {
+                    return "ERROR: Failed to read file: " + path;
+                }
+                return "OK: " + content;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading file: " + path, e);
+            return "ERROR: Failed to read file: " + e.getMessage();
+        }
+    }
+
+    /**
+     * 创建目录
+     * 支持递归创建（类似 mkdir -p）
+     * 兼容 SAF 模式
+     */
+    private String handleMkdir(Intent intent) {
+        String path = intent.getStringExtra(EXTRA_PATH);
+        
+        if (TextUtils.isEmpty(path)) {
+            return "ERROR: Missing 'path' parameter";
+        }
+
+        IFileProvider provider = getFileProvider();
+        
+        // 检查是否已存在
+        if (provider.exists(path)) {
+            if (provider.isDirectory(path)) {
+                return "OK: Directory already exists: " + path;
+            } else {
+                return "ERROR: Path exists but is a file: " + path;
+            }
+        }
+
+        try {
+            boolean success = provider.mkdirs(path);
+            if (success) {
+                return "OK: Directory created: " + path;
+            } else {
+                return "ERROR: Failed to create directory: " + path;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating directory: " + path, e);
+            return "ERROR: Failed to create directory: " + e.getMessage();
+        }
+    }
+
+    /**
+     * 重命名/移动文件或目录
+     * 兼容 SAF 模式
+     */
+    private String handleRenameFile(Intent intent) {
+        String oldPath = intent.getStringExtra(EXTRA_OLD_PATH);
+        String newPath = intent.getStringExtra(EXTRA_NEW_PATH);
+        
+        if (TextUtils.isEmpty(oldPath)) {
+            return "ERROR: Missing 'oldpath' parameter";
+        }
+        if (TextUtils.isEmpty(newPath)) {
+            return "ERROR: Missing 'newpath' parameter";
+        }
+
+        IFileProvider provider = getFileProvider();
+        
+        if (!provider.exists(oldPath)) {
+            return "ERROR: Source not found: " + oldPath;
+        }
+        
+        // 检查目标是否已存在
+        if (provider.exists(newPath)) {
+            return "ERROR: Destination already exists: " + newPath;
+        }
+        
+        // 确保目标父目录存在
+        String parentDir = provider.getParent(newPath);
+        if (!TextUtils.isEmpty(parentDir) && !provider.exists(parentDir)) {
+            provider.mkdirs(parentDir);
+        }
+
+        try {
+            // 获取新旧路径的父目录
+            String oldParent = provider.getParent(oldPath);
+            String newParent = provider.getParent(newPath);
+            String newName = provider.getName(newPath);
+            
+            boolean success;
+            if (oldParent != null && oldParent.equals(newParent)) {
+                // 同目录重命名，使用 rename 方法
+                success = provider.rename(oldPath, newName);
+            } else {
+                // 跨目录移动，使用 move 方法
+                success = provider.move(oldPath, newPath);
+            }
+            
+            if (success) {
+                return "OK: Renamed " + oldPath + " -> " + newPath;
+            } else {
+                return "ERROR: Failed to rename file";
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error renaming file: " + oldPath + " -> " + newPath, e);
+            return "ERROR: Failed to rename file: " + e.getMessage();
+        }
+    }
+
+    /**
+     * 获取脚本的控制台输出日志
+     * 从 Logcat 读取指定脚本的输出
+     */
+    private String handleGetScriptOutput(Intent intent) {
+        int id = intent.getIntExtra(EXTRA_ID, -1);
+        int lines = intent.getIntExtra(EXTRA_LINES, 50);
+        if (lines <= 0) lines = 50;
+        if (lines > 500) lines = 500; // 限制最大行数
+
+        // 首先检查脚本是否正在运行
+        Set<com.stardust.autojs.engine.ScriptEngine> engines = null;
+        try {
+            engines = AutoJs.getInstance().getScriptEngineService().getEngines();
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting engines", e);
+        }
+        
+        boolean found = false;
+        String scriptName = null;
+        if (engines != null) {
+            for (com.stardust.autojs.engine.ScriptEngine engine : engines) {
+                if (engine.getId() == id) {
+                    found = true;
+                    Object source = engine.getTag(com.stardust.autojs.engine.ScriptEngine.TAG_SOURCE);
+                    if (source instanceof com.stardust.autojs.script.ScriptSource) {
+                        scriptName = ((com.stardust.autojs.script.ScriptSource) source).getName();
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // 如果指定了 ID 但脚本不在运行中
+        if (id != -1 && !found) {
+            return "ERROR: Script not running, id=" + id;
+        }
+
+        // 从 logcat 读取日志
+        try {
+            Process process = Runtime.getRuntime().exec("logcat -d -v time -t " + lines);
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(process.getInputStream()));
+            
+            StringBuilder sb = new StringBuilder();
+            String line;
+            boolean hasOutput = false;
+            
+            while ((line = reader.readLine()) != null) {
+                // 过滤 AutoJS 相关日志
+                if (line.contains("AutoJS.Console") || 
+                    line.contains("GlobalConsole") ||
+                    line.contains("AdbDebugReceiver")) {
+                    
+                    // 如果指定了脚本 ID，进一步过滤
+                    if (id != -1 && scriptName != null) {
+                        if (line.contains(scriptName) || line.contains("[" + scriptName + "]") ||
+                            line.contains("id=" + id)) {
+                            sb.append(line).append("\n");
+                            hasOutput = true;
+                        }
+                    } else {
+                        sb.append(line).append("\n");
+                        hasOutput = true;
+                    }
+                }
+            }
+            
+            reader.close();
+            process.waitFor();
+            
+            if (!hasOutput) {
+                return "OK: No output logs found";
+            }
+            
+            return "OK: Script output:\n" + sb.toString().trim();
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading logcat", e);
+            return "ERROR: Failed to read logs: " + e.getMessage();
+        }
     }
 
     /**

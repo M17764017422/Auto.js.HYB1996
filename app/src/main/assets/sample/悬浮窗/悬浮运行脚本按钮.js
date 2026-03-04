@@ -1,4 +1,5 @@
-var path = "/sdcard/脚本/test.js";
+// SAF说明: 使用 files.getSdcardPath() 获取存储路径，兼容 Android 11+ 的存储访问框架
+var path = files.getSdcardPath() + "/脚本/test.js";
 if(!files.exists(path)){
     toast("脚本文件不存在: " + path);
     exit();
@@ -59,5 +60,3 @@ function onClick(){
         window.action.setText('开始运行');
     }
 }
-
-

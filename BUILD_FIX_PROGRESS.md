@@ -1,8 +1,16 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: 🔄 v0.80.2-beta.1 测试中
+## 当前状态: ✅ v0.80.2 正式发布
 
 ### 最近完成
+- **第二十五阶段**: 版本标签规范化 ✅ (2026-03-04)
+  - 统一版本标签格式：debug / beta / release
+  - 配置文件：`project-versions.json` 使用 `baseVersionName`
+  - 自动添加版本后缀：`-debug` / `-beta` / 无后缀
+  - 所有模块添加 beta buildType 支持
+  - 更新构建指南 `ISOLATED_BUILD_GUIDE.md`
+  - 清理 GitHub Releases 旧版本
+
 - **第二十四阶段**: ADB 调试接口 ✅ (2026-03-03)
   - 新增 `AdbDebugReceiver.java` 支持 8 个 ADB 命令
   - 命令：RUN_SCRIPT, STOP_SCRIPT, STOP_ALL, LIST_SCRIPTS, PUSH_SCRIPT, DELETE_SCRIPT, LIST_FILES, PING
@@ -2440,9 +2448,96 @@ init.js
 
 | 版本 | Tag | 日期 | 主要更新 |
 |------|-----|------|----------|
+| v0.80.2 | `v0.80.2` | 2026-03-04 | 版本标签规范化 |
 | v0.80.1 | `v0.80.1` | 2026-03-03 | 首个正式发布版本 |
-| v4.1.1-alpha2 | `v4.1.1-alpha2` | 2026-03-03 | AGP 7.4.2 + 多包名 flavor |
-| v4.1.1-alpha13 | `v4.1.1-alpha13` | 2026-03-03 | 编辑器功能增强 |
 
 ---
-更新时间: 2026-03-03 17:30
+
+## 第二十五阶段: 版本标签规范化 ✅
+
+### 版本标签规范
+
+项目采用三种构建类型，统一版本标签格式：
+
+| 构建类型 | versionName | Git Tag | 用途 |
+|----------|-------------|---------|------|
+| debug | `X.Y.Z-debug` | `vX.Y.Z-debug` | 开发调试 |
+| beta | `X.Y.Z-beta` | `vX.Y.Z-beta` | 测试发布 |
+| release | `X.Y.Z` | `vX.Y.Z` | 正式发布 |
+
+### 配置文件
+
+**project-versions.json** 定义基础版本号：
+```json
+{
+  "appVersionCode": 802001,
+  "baseVersionName": "0.80.2",
+  "target": 34,
+  "mini": 19,
+  "compile": 34,
+  "buildTool": "36.1.0"
+}
+```
+
+**app/build.gradle** 自动添加版本后缀：
+```groovy
+buildTypes {
+    debug {
+        versionNameSuffix "-debug"
+    }
+    beta {
+        versionNameSuffix "-beta"
+        signingConfig signingConfigs.debug
+    }
+    release {
+        // 无后缀，正式版本
+    }
+}
+```
+
+### 构建命令
+
+```bash
+# 调试版本
+gradlew assembleCoolapkDebug
+# 输出: app-coolapk-armeabi-v7a-debug.apk (versionName: 0.80.2-debug)
+
+# 测试版本
+gradlew assembleCoolapkBeta
+# 输出: app-coolapk-armeabi-v7a-beta.apk (versionName: 0.80.2-beta)
+
+# 正式版本
+gradlew assembleCoolapkRelease
+# 输出: app-coolapk-armeabi-v7a-release.apk (versionName: 0.80.2)
+```
+
+### 修改的文件
+
+| 文件 | 修改内容 |
+|------|----------|
+| `project-versions.json` | 改用 `baseVersionName` 字段 |
+| `app/build.gradle` | 添加 beta buildType，各 buildType 自动添加版本后缀 |
+| `autojs/build.gradle` | 添加 beta buildType |
+| `automator/build.gradle` | 添加 beta buildType |
+| `common/build.gradle` | 添加 beta buildType |
+| `apkbuilder/build.gradle` | 添加 beta buildType |
+| `inrt/build.gradle` | 添加 beta buildType |
+| `ISOLATED_BUILD_GUIDE.md` | 添加版本标签配置章节 |
+
+### 发布流程
+
+1. 更新 `project-versions.json` 中的 `baseVersionName`
+2. 构建对应类型的 APK
+3. 创建 Git 标签
+4. 发布到 GitHub Releases
+
+```bash
+# 示例：发布 beta 版本
+gradlew assembleCoolapkBeta
+git tag v0.80.2-beta
+git push origin v0.80.2-beta
+gh release create v0.80.2-beta ./app/build/outputs/apk/coolapk/beta/*.apk
+```
+
+---
+更新时间: 2026-03-04

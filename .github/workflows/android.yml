@@ -1,9 +1,24 @@
 name: Android CI build
+
 on:
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type: debug, beta, or release'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - debug
+          - beta
+          - release
+      version_name:
+        description: 'Custom version name (optional, e.g., 0.80.3). Leave empty to use baseVersionName from project-versions.json'
+        required: false
+        type: string
   push:
     tags:
-      - '*'
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -12,6 +27,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      build_type: ${{ steps.detect_build_type.outputs.build_type }}
+      version_name: ${{ steps.detect_build_type.outputs.version_name }}
     
     steps:
       - name: Checkout repository
@@ -35,37 +53,74 @@ jobs:
       - name: Grant execute permissions for gradlew
         run: chmod +x gradlew
 
-      - name: Update version from git tag
+      - name: Detect build type from tag or input
+        id: detect_build_type
         run: |
-          # Get tag name or use default
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          # Determine build type
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual trigger - use input
+            BUILD_TYPE="${{ github.event.inputs.build_type }}"
+            echo "Manual trigger with build_type: $BUILD_TYPE"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            # Tag trigger - detect from tag suffix
             TAG_NAME=${GITHUB_REF#refs/tags/}
-            # Remove 'v' prefix if present (v4.1.1-alpha8 -> 4.1.1-alpha8)
-            VERSION_NAME=${TAG_NAME#v}
+            echo "Tag trigger with tag: $TAG_NAME"
+            
+            if [[ "$TAG_NAME" == *-debug ]]; then
+              BUILD_TYPE="debug"
+            elif [[ "$TAG_NAME" == *-beta ]]; then
+              BUILD_TYPE="beta"
+            else
+              BUILD_TYPE="release"
+            fi
           else
-            # For non-tag builds, use commit hash
-            VERSION_NAME="dev-$(git rev-parse --short HEAD)"
+            # PR or push - default to debug
+            BUILD_TYPE="debug"
           fi
           
-          # Calculate versionCode from tag or use timestamp
-          # For tags like 4.1.1-alpha8: major*10000 + minor*100 + patch + alpha/beta number
-          if [[ "$VERSION_NAME" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-alpha([0-9]+))?(-beta([0-9]+))?$ ]]; then
+          echo "Detected build type: $BUILD_TYPE"
+          echo "build_type=$BUILD_TYPE" >> $GITHUB_OUTPUT
+
+      - name: Update version configuration
+        run: |
+          # Read base version from project-versions.json
+          BASE_VERSION=$(cat project-versions.json | jq -r '.baseVersionName // .appVersionName')
+          echo "Base version: $BASE_VERSION"
+          
+          # Determine final version name
+          BUILD_TYPE="${{ steps.detect_build_type.outputs.build_type }}"
+          
+          if [[ -n "${{ github.event.inputs.version_name }}" ]]; then
+            # Use custom version from input
+            BASE_VERSION="${{ github.event.inputs.version_name }}"
+            echo "Using custom version: $BASE_VERSION"
+          fi
+          
+          # Add suffix based on build type
+          if [[ "$BUILD_TYPE" == "debug" ]]; then
+            VERSION_NAME="${BASE_VERSION}-debug"
+          elif [[ "$BUILD_TYPE" == "beta" ]]; then
+            VERSION_NAME="${BASE_VERSION}-beta"
+          else
+            VERSION_NAME="$BASE_VERSION"
+          fi
+          
+          # Calculate versionCode from version components
+          # Format: MAJOR.MINOR.PATCH -> MAJOR*1000000 + MINOR*10000 + PATCH*1000
+          if [[ "$BASE_VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
             MAJOR=${BASH_REMATCH[1]}
             MINOR=${BASH_REMATCH[2]}
             PATCH=${BASH_REMATCH[3]}
-            ALPHA=${BASH_REMATCH[5]:-0}
-            BETA=${BASH_REMATCH[7]:-0}
-            # versionCode: 4.1.1-alpha8 -> 4010180, allows up to 99 for each component
-            VERSION_CODE=$((MAJOR * 1000000 + MINOR * 10000 + PATCH * 1000 + ALPHA * 10 + BETA))
+            VERSION_CODE=$((MAJOR * 1000000 + MINOR * 10000 + PATCH * 1000))
           else
-            # Fallback: use timestamp-based code
             VERSION_CODE=$(date +%s | tail -c 6)
           fi
           
-          echo "Version name: $VERSION_NAME"
+          echo "Final version name: $VERSION_NAME"
           echo "Version code: $VERSION_CODE"
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           
-          # Update project-versions.json
+          # Update project-versions.json (keep baseVersionName, set final appVersionName)
           cat project-versions.json | jq \
             --arg vn "$VERSION_NAME" \
             --arg vc "$VERSION_CODE" \
@@ -76,7 +131,7 @@ jobs:
           cat project-versions.json
 
       - name: Decode keystore
-        if: startsWith(github.ref, 'refs/tags/')
+        if: steps.detect_build_type.outputs.build_type == 'release'
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
         run: |
@@ -86,41 +141,35 @@ jobs:
             echo "KEYSTORE_FILE=app/release-keystore.jks" >> $GITHUB_ENV
           fi
 
-      - name: Build Debug APK (for non-tag builds)
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        run: ./gradlew assembleCoolapkDebug --info
-
-      - name: Build Release APK (for tag builds)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Build APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
-          if [ -f app/release-keystore.jks ]; then
-            echo "Building signed release APK..."
-            ./gradlew assembleCoolapkRelease --info
+          BUILD_TYPE="${{ steps.detect_build_type.outputs.build_type }}"
+          echo "Building $BUILD_TYPE APK..."
+          
+          if [[ "$BUILD_TYPE" == "debug" ]]; then
+            ./gradlew assembleCoolapkDebug --info
+          elif [[ "$BUILD_TYPE" == "beta" ]]; then
+            ./gradlew assembleCoolapkBeta --info
           else
-            echo "Keystore not found, building unsigned release..."
             ./gradlew assembleCoolapkRelease --info
           fi
 
       - name: List APK files
         run: find . -name "*.apk" -type f
 
-      - name: Upload Debug APK (coolapk)
-        if: "!startsWith(github.ref, 'refs/tags/')"
+      - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk-coolapk
-          path: app/build/outputs/apk/coolapk/debug/*.apk
-
-      - name: Upload Release APK (coolapk)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk-coolapk
-          path: app/build/outputs/apk/coolapk/release/*.apk
+          name: ${{ steps.detect_build_type.outputs.build_type }}-apk
+          path: |
+            app/build/outputs/apk/coolapk/${{ steps.detect_build_type.outputs.build_type }}/*.apk
+            app/build/outputs/apk/coolapk/debug/*.apk
+            app/build/outputs/apk/coolapk/beta/*.apk
+            app/build/outputs/apk/coolapk/release/*.apk
 
   # Release job - only runs on tags
   release:
@@ -135,7 +184,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-apk-coolapk
+          name: ${{ needs.build.outputs.build_type }}-apk
           path: artifacts
 
       - name: List downloaded files
@@ -165,17 +214,15 @@ jobs:
             
             WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
-            # Upload only armeabi-v7a APK (arm version)
-            APK_FILE=$(find artifacts -name "*armeabi-v7a*.apk" -type f | head -1)
-            if [ -n "$APK_FILE" ]; then
-              APK_NAME=$(basename "$APK_FILE")
-              echo "Uploading $APK_NAME (arm only)..."
-              curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"
-              echo "WebDAV upload completed!"
-            else
-              echo "APK file not found"
-              find artifacts -name "*.apk" -type f
-            fi
+            # Upload APK files
+            for APK_FILE in artifacts/*.apk; do
+              if [ -f "$APK_FILE" ]; then
+                APK_NAME=$(basename "$APK_FILE")
+                echo "Uploading $APK_NAME..."
+                curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"
+              fi
+            done
+            echo "WebDAV upload completed!"
           else
             echo "WebDAV credentials not configured, skipping upload"
           fi
