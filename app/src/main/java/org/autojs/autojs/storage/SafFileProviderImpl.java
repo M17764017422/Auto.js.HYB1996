@@ -130,15 +130,49 @@ public class SafFileProviderImpl implements IFileProvider {
 
     @Override
     public boolean rename(String path, String newName) {
-        // SAF 不直接支持重命名，需要复制+删除
-        // 这里暂时返回 false，后续可以实现
-        return false;
+        try {
+            Uri uri = getDocumentUri(path);
+            if (uri == null) {
+                Log.w(TAG, "rename: cannot get uri for " + path);
+                return false;
+            }
+            
+            // 使用 DocumentsContract.renameDocument
+            Uri newUri = DocumentsContract.renameDocument(mContext.getContentResolver(), uri, newName);
+            if (newUri != null) {
+                Log.d(TAG, "rename: success, old=" + path + ", newName=" + newName);
+                return true;
+            }
+            Log.w(TAG, "rename: failed, DocumentsContract.renameDocument returned null");
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "rename: exception - " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean move(String fromPath, String toPath) {
-        // SAF 不直接支持移动
-        return false;
+        // SAF 不直接支持移动，使用复制+删除实现
+        try {
+            // 先复制
+            if (!copy(fromPath, toPath)) {
+                Log.w(TAG, "move: copy failed from=" + fromPath + " to=" + toPath);
+                return false;
+            }
+            // 再删除源文件
+            if (!delete(fromPath)) {
+                Log.w(TAG, "move: delete source failed, but copy succeeded");
+                // 复制成功了，只是删除失败，也算移动成功？
+                // 这里我们返回 false 表示不完全成功
+                return false;
+            }
+            Log.d(TAG, "move: success from=" + fromPath + " to=" + toPath);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "move: exception - " + e.getMessage());
+            return false;
+        }
     }
 
     @Override

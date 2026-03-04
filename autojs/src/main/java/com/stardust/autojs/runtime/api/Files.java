@@ -11,6 +11,8 @@ import com.stardust.util.Func1;
 
 import com.stardust.pio.FileProviderFactory;
 
+import org.mozilla.javascript.NativeArray;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -199,6 +201,42 @@ public class Files {
         return provider.writeBytes(resolvedPath, bytes);
     }
 
+    public boolean writeBytes(String path, Object data) {
+        byte[] bytes;
+        if (data instanceof byte[]) {
+            bytes = (byte[]) data;
+        } else if (data instanceof NativeArray) {
+            // JavaScript 数组
+            NativeArray arr = (NativeArray) data;
+            int len = (int) arr.getLength();
+            bytes = new byte[len];
+            for (int i = 0; i < len; i++) {
+                Object val = arr.get(i, arr);
+                if (val instanceof Number) {
+                    bytes[i] = ((Number) val).byteValue();
+                } else {
+                    bytes[i] = 0;
+                }
+            }
+        } else if (data != null && data.getClass().isArray()) {
+            // 其他数组类型
+            int len = java.lang.reflect.Array.getLength(data);
+            bytes = new byte[len];
+            for (int i = 0; i < len; i++) {
+                Object val = java.lang.reflect.Array.get(data, i);
+                if (val instanceof Number) {
+                    bytes[i] = ((Number) val).byteValue();
+                } else {
+                    bytes[i] = 0;
+                }
+            }
+        } else {
+            Log.w(TAG + ".writeBytes", "Unsupported data type: " + (data != null ? data.getClass() : "null"));
+            return false;
+        }
+        return writeBytes(path, bytes);
+    }
+
     public boolean copy(String pathFrom, String pathTo) {
         String from = path(pathFrom);
         String to = path(pathTo);
@@ -247,6 +285,12 @@ public class Files {
         return PFiles.getNameWithoutExtension(filePath);
     }
 
+    public String getParent(String path) {
+        String resolvedPath = path(path);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        return provider.getParent(resolvedPath);
+    }
+
     public boolean remove(String path) {
         String resolvedPath = path(path);
         Log.d(TAG + ".remove", "path=" + resolvedPath);
@@ -290,6 +334,10 @@ public class Files {
 
     public boolean isDir(String path) {
         return PFiles.isDir(path(path));
+    }
+
+    public boolean isDirectory(String path) {
+        return isDir(path);
     }
 
     public boolean isEmptyDir(String path) {
