@@ -1,0 +1,163 @@
+﻿Configuration on demand is an incubating feature.
+
+> Configure project :app
+=== Signing Configuration ===
+KEYSTORE_FILE env: 
+Resolved keystore: null
+KEYSTORE_PASSWORD set: NO
+KEY_ALIAS: autojs
+Use release signing: false
+==============================
+WARNING: Using debug signing for release build!
+WARNING:Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :autojs
+WARNING:Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :automator
+WARNING:Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :inrt
+WARNING:Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :apkbuilder:preBuild UP-TO-DATE
+> Task :automator:preBuild UP-TO-DATE
+> Task :autojs:preBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :common:preBuild UP-TO-DATE
+> Task :apkbuilder:preDebugBuild UP-TO-DATE
+> Task :autojs:preDebugBuild UP-TO-DATE
+> Task :automator:preDebugBuild UP-TO-DATE
+> Task :common:preDebugBuild UP-TO-DATE
+> Task :app:preCoolapkDebugBuild UP-TO-DATE
+> Task :apkbuilder:compileDebugAidl NO-SOURCE
+> Task :automator:packageDebugRenderscript NO-SOURCE
+> Task :common:compileDebugAidl NO-SOURCE
+> Task :apkbuilder:compileDebugRenderscript NO-SOURCE
+> Task :autojs:packageDebugRenderscript NO-SOURCE
+> Task :automator:writeDebugAarMetadata UP-TO-DATE
+> Task :common:packageDebugRenderscript NO-SOURCE
+> Task :app:generateCoolapkDebugBuildConfig UP-TO-DATE
+> Task :common:writeDebugAarMetadata UP-TO-DATE
+> Task :common:compileDebugRenderscript NO-SOURCE
+> Task :app:generateCoolapkDebugResValues UP-TO-DATE
+> Task :autojs:writeDebugAarMetadata UP-TO-DATE
+> Task :automator:compileDebugAidl NO-SOURCE
+> Task :apkbuilder:generateDebugBuildConfig UP-TO-DATE
+> Task :common:generateDebugResValues UP-TO-DATE
+> Task :autojs:compileDebugRenderscript NO-SOURCE
+> Task :common:generateDebugResources UP-TO-DATE
+> Task :app:createCoolapkDebugCompatibleScreenManifests UP-TO-DATE
+> Task :automator:compileDebugRenderscript NO-SOURCE
+> Task :apkbuilder:generateDebugResValues UP-TO-DATE
+> Task :apkbuilder:generateDebugResources UP-TO-DATE
+> Task :autojs:compileDebugAidl NO-SOURCE
+> Task :automator:generateDebugResValues UP-TO-DATE
+> Task :automator:generateDebugResources UP-TO-DATE
+> Task :autojs:generateDebugResValues UP-TO-DATE
+> Task :autojs:generateDebugResources UP-TO-DATE
+> Task :apkbuilder:packageDebugResources UP-TO-DATE
+> Task :common:packageDebugResources UP-TO-DATE
+> Task :common:extractDeepLinksDebug UP-TO-DATE
+> Task :automator:packageDebugResources UP-TO-DATE
+> Task :apkbuilder:parseDebugLocalResources UP-TO-DATE
+> Task :automator:extractDeepLinksDebug UP-TO-DATE
+> Task :common:processDebugManifest UP-TO-DATE
+> Task :apkbuilder:processDebugManifest UP-TO-DATE
+> Task :automator:processDebugManifest UP-TO-DATE
+> Task :app:javaPreCompileCoolapkDebug UP-TO-DATE
+> Task :app:compileCoolapkDebugAidl NO-SOURCE
+> Task :common:parseDebugLocalResources UP-TO-DATE
+> Task :autojs:packageDebugResources UP-TO-DATE
+> Task :automator:parseDebugLocalResources UP-TO-DATE
+> Task :automator:compileDebugLibraryResources UP-TO-DATE
+> Task :automator:generateDebugBuildConfig UP-TO-DATE
+> Task :automator:javaPreCompileDebug UP-TO-DATE
+> Task :autojs:extractDeepLinksDebug UP-TO-DATE
+> Task :autojs:processDebugManifest UP-TO-DATE
+> Task :apkbuilder:generateDebugRFile UP-TO-DATE
+> Task :apkbuilder:kaptGenerateStubsDebugKotlin SKIPPED
+> Task :apkbuilder:kaptDebugKotlin SKIPPED
+> Task :autojs:compileDebugLibraryResources UP-TO-DATE
+> Task :autojs:parseDebugLocalResources UP-TO-DATE
+> Task :autojs:generateDebugBuildConfig UP-TO-DATE
+> Task :common:generateDebugRFile UP-TO-DATE
+> Task :autojs:javaPreCompileDebug UP-TO-DATE
+> Task :common:compileDebugLibraryResources UP-TO-DATE
+> Task :common:generateDebugBuildConfig UP-TO-DATE
+> Task :common:kaptGenerateStubsDebugKotlin SKIPPED
+> Task :common:kaptDebugKotlin SKIPPED
+> Task :apkbuilder:compileDebugKotlin UP-TO-DATE
+> Task :apkbuilder:javaPreCompileDebug UP-TO-DATE
+> Task :apkbuilder:compileDebugJavaWithJavac UP-TO-DATE
+> Task :apkbuilder:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :apkbuilder:packageDebugRenderscript NO-SOURCE
+> Task :app:compileCoolapkDebugRenderscript NO-SOURCE
+> Task :apkbuilder:compileDebugLibraryResources UP-TO-DATE
+> Task :apkbuilder:writeDebugAarMetadata UP-TO-DATE
+> Task :apkbuilder:extractDeepLinksDebug UP-TO-DATE
+> Task :automator:generateDebugRFile UP-TO-DATE
+> Task :common:compileDebugKotlin UP-TO-DATE
+> Task :common:javaPreCompileDebug UP-TO-DATE
+> Task :common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :automator:kaptGenerateStubsDebugKotlin SKIPPED
+> Task :automator:kaptDebugKotlin SKIPPED
+> Task :automator:compileDebugKotlin UP-TO-DATE
+> Task :automator:compileDebugJavaWithJavac UP-TO-DATE
+> Task :automator:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :autojs:generateDebugRFile UP-TO-DATE
+> Task :autojs:kaptGenerateStubsDebugKotlin SKIPPED
+> Task :autojs:kaptDebugKotlin SKIPPED
+> Task :app:checkCoolapkDebugAarMetadata UP-TO-DATE
+> Task :app:mapCoolapkDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateCoolapkDebugResources UP-TO-DATE
+> Task :app:mergeCoolapkDebugResources UP-TO-DATE
+> Task :app:extractDeepLinksCoolapkDebug UP-TO-DATE
+> Task :app:processCoolapkDebugMainManifest UP-TO-DATE
+> Task :app:processCoolapkDebugManifest UP-TO-DATE
+> Task :autojs:compileDebugKotlin UP-TO-DATE
+> Task :app:processCoolapkDebugManifestForPackage UP-TO-DATE
+> Task :autojs:compileDebugJavaWithJavac UP-TO-DATE
+> Task :autojs:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:processCoolapkDebugResources UP-TO-DATE
+> Task :app:generateCoolapkDebugR2 UP-TO-DATE
+> Task :app:kaptGenerateStubsCoolapkDebugKotlin UP-TO-DATE
+> Task :app:kaptCoolapkDebugKotlin UP-TO-DATE
+> Task :app:compileCoolapkDebugKotlin UP-TO-DATE
+
+> Task :app:compileCoolapkDebugJavaWithJavac
+.\gradlew : K:\msys64\home\ms900\Auto.js.HYB1996\app\src\main\java\org\autojs\autojs\pluginclient\DevPluginResponseHandler.java:147: ����: �Ҳ�������
+At line:1 char:72
++ ... F:\AIDE\jbr"; .\gradlew compileCoolapkDebugJavaWithJavac 2>&1 | Out-F ...
++                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (K:\msys64\home\...����: �Ҳ�������:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+                ExecutionConfig.Companion.getDefault()
+                               ^
+  ����:   ���� Companion
+  λ��: �� ExecutionConfig
+ע: ĳЩ�����ļ�ʹ�û򸲸����ѹ�ʱ�� API��
+ע: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+ע: ĳЩ�����ļ�ʹ����δ�����򲻰�ȫ�Ĳ�����
+ע: �й���ϸ��Ϣ, ��ʹ�� -Xlint:unchecked ���±��롣
+1 ������
+
+> Task :app:compileCoolapkDebugJavaWithJavac FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileCoolapkDebugJavaWithJavac'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 13s
+69 actionable tasks: 1 executed, 68 up-to-date

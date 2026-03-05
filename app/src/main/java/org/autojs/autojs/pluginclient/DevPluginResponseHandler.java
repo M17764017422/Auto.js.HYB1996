@@ -8,7 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.stardust.app.GlobalAppContext;
+import com.stardust.autojs.execution.ExecutionConfig;
 import com.stardust.autojs.execution.ScriptExecution;
+import com.stardust.autojs.execution.ScriptExecutionListener;
 import com.stardust.autojs.project.ProjectLauncher;
 import com.stardust.autojs.script.StringScriptSource;
 import com.stardust.io.Zip;
@@ -120,7 +122,32 @@ public class DevPluginResponseHandler implements Handler {
         } else {
             name = PFiles.getNameWithoutExtension(name);
         }
-        mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script)));
+        
+        // 创建监听器，在脚本执行完成后清理 mScriptExecutions
+        ScriptExecutionListener listener = new ScriptExecutionListener() {
+            @Override
+            public void onStart(ScriptExecution execution) {
+                // 无需处理
+            }
+
+            @Override
+            public void onSuccess(ScriptExecution execution, Object result) {
+                mScriptExecutions.remove(viewId);
+            }
+
+            @Override
+            public void onException(ScriptExecution execution, Throwable e) {
+                mScriptExecutions.remove(viewId);
+            }
+        };
+        
+        ExecutionConfig config = new ExecutionConfig();
+        ScriptExecution execution = AutoJs.getInstance().getScriptEngineService().execute(
+                new StringScriptSource("[remote]" + name, script),
+                listener,
+                config
+        );
+        mScriptExecutions.put(viewId, execution);
     }
 
 
