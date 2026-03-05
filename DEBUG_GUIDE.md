@@ -2,12 +2,13 @@
 
 ## 目录
 1. [ADB 调试接口](#1-adb-调试接口)
-2. [日志系统](#2-日志系统)
-3. [常见问题排查](#3-常见问题排查)
-4. [Debug vs Release 差异](#4-debug-vs-release-差异)
-5. [SAF 模式调试](#5-saf-模式调试)
-6. [签名验证调试](#6-签名验证调试)
-7. [脚本调试技巧](#7-脚本调试技巧)
+2. [WebSocket 调试服务器](#2-websocket-调试服务器)
+3. [日志系统](#3-日志系统)
+4. [常见问题排查](#4-常见问题排查)
+5. [Debug vs Release 差异](#5-debug-vs-release-差异)
+6. [SAF 模式调试](#6-saf-模式调试)
+7. [签名验证调试](#7-签名验证调试)
+8. [脚本调试技巧](#8-脚本调试技巧)
 
 ---
 
@@ -121,7 +122,149 @@ adb shell am broadcast -a org.autojs.AUTOJS_ADB --es command PUSH_SCRIPT --es co
 
 ---
 
-## 2. 日志系统
+## 2. WebSocket 调试服务器
+
+### 2.1 概述
+
+WebSocket 调试服务器是一个 Python 命令行工具，用于替代已下架的 VS Code 插件，实现在电脑上编辑脚本、推送到手机运行的开发流程。
+
+**文件位置**: `scripts/autojs_debug_server.py`
+
+**依赖安装**:
+```bash
+pip install websockets
+```
+
+### 2.2 启动服务器
+
+#### 交互模式
+
+```bash
+# 默认端口 9317
+python scripts/autojs_debug_server.py
+
+# 指定端口
+python scripts/autojs_debug_server.py -p 9317
+```
+
+启动后显示：
+```
+==================================================
+Auto.js 调试服务器已启动
+==================================================
+本机 IP: 192.168.31.193:9317
+请在 Auto.js 手机端点击「连接电脑」并输入上述地址
+输入 'help' 查看命令帮助
+
+debug>
+```
+
+#### HTTP API 模式
+
+```bash
+# 启用 HTTP API（端口 9318）
+python scripts/autojs_debug_server.py --http
+
+# 自定义 HTTP 端口
+python scripts/autojs_debug_server.py --http --http-port 8080
+```
+
+#### 单命令模式
+
+```bash
+# 运行脚本后退出
+python scripts/autojs_debug_server.py -e run:test.js
+
+# 停止脚本
+python scripts/autojs_debug_server.py -e stop:script_1
+
+# 停止所有
+python scripts/autojs_debug_server.py -e stopall
+```
+
+### 2.3 手机端连接
+
+1. 确保手机和电脑在同一局域网
+2. 打开 Auto.js 应用
+3. 点击左侧侧边栏 → 连接电脑
+4. 输入电脑显示的 IP 地址（如 `192.168.31.193:9317`）
+5. 连接成功后显示设备信息
+
+### 2.4 交互命令
+
+| 命令 | 说明 |
+|------|------|
+| `run <file.js>` | 运行脚本文件（从电脑读取） |
+| `rerun <file.js>` | 重新运行脚本（先停止再运行） |
+| `stop <id>` | 停止指定 ID 的脚本 |
+| `stopall` | 停止所有脚本 |
+| `list` / `ps` | 列出运行中的脚本 |
+| `save <file.js>` | 保存脚本到手机 |
+| `logs [on/off]` | 显示/隐藏日志 |
+| `status` | 查看连接状态 |
+| `help` | 显示帮助 |
+| `exit` | 退出程序 |
+
+### 2.5 HTTP API
+
+启用 HTTP 模式后，可以通过 HTTP 请求控制：
+
+```bash
+# 查看状态
+curl http://localhost:9318/status
+
+# 列出运行中的脚本
+curl http://localhost:9318/list
+
+# 运行脚本
+curl -X POST -d '{"file":"test.js"}' http://localhost:9318/run
+
+# 停止脚本
+curl -X POST -d '{"id":"script_1"}' http://localhost:9318/stop
+
+# 停止所有
+curl -X POST http://localhost:9318/stopall
+```
+
+### 2.6 API 模式（供 AI 助手使用）
+
+```bash
+# 运行脚本（绝对路径）
+curl -X POST -d "{\"file\":\"K:\\\\msys64\\\\home\\\\ms900\\\\test.js\"}" http://192.168.31.193:9318/run
+
+# 查看状态
+curl http://192.168.31.193:9318/status
+```
+
+### 2.7 命令行参数
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `-p, --port` | WebSocket 端口 | 9317 |
+| `-H, --host` | 监听地址 | 0.0.0.0 |
+| `--http` | 启用 HTTP API | - |
+| `--http-port` | HTTP API 端口 | 9318 |
+| `-e, --exec` | 执行单命令后退出 | - |
+| `--timeout` | 等待设备连接超时 | 10秒 |
+| `--quiet` | 安静模式 | - |
+
+### 2.8 使用示例
+
+```bash
+# 启动服务器（交互模式）
+python scripts/autojs_debug_server.py
+
+# 在 debug> 提示符下
+debug> run my_script.js        # 运行脚本
+debug> list                     # 查看运行中的脚本
+debug> stop script_1            # 停止脚本
+debug> logs off                 # 关闭日志显示
+debug> status                   # 查看连接状态
+```
+
+---
+
+## 3. 日志系统
 
 ### 2.1 日志 TAG 规范
 
@@ -181,7 +324,7 @@ adb logcat -v time > debug_log.txt
 
 ---
 
-## 3. 常见问题排查
+## 4. 常见问题排查
 
 ### 3.1 应用启动闪退
 
@@ -255,7 +398,7 @@ Permission to access file: /storage/emulated/0/脚本/test.js is denied
 
 ---
 
-## 4. Debug vs Release 差异
+## 5. Debug vs Release 差异
 
 ### 4.1 主要差异
 
@@ -300,7 +443,7 @@ protected void onStart() {
 
 ---
 
-## 5. SAF 模式调试
+## 6. SAF 模式调试
 
 ### 5.1 SAF 模式识别
 
@@ -347,7 +490,7 @@ SAF 模式下，应用私有目录自动使用 TraditionalFileProvider：
 
 ---
 
-## 6. 签名验证调试
+## 7. 签名验证调试
 
 ### 6.1 查看签名信息
 
@@ -377,7 +520,7 @@ adb logcat | grep "DeveloperUtils"
 
 ---
 
-## 7. 脚本调试技巧
+## 8. 脚本调试技巧
 
 ### 7.1 控制台调试
 
@@ -447,55 +590,9 @@ adb shell am broadcast -a org.autojs.AUTOJS_ADB \
 
 ---
 
-## 附录
+## 9. 开发构建环境配置
 
-### A. 常用 ADB 命令
-
-```bash
-# 安装 APK
-adb install app-debug.apk
-
-# 启动应用
-adb shell am start -n org.autojs.autojs/.ui.splash.SplashActivity
-
-# 强制停止
-adb shell am force-stop org.autojs.autojs
-
-# 清除数据
-adb shell pm clear org.autojs.autojs
-
-# 查看权限
-adb shell dumpsys package org.autojs.autojs | grep permission
-
-# 截屏
-adb shell screencap -p /sdcard/screenshot.png
-adb pull /sdcard/screenshot.png
-```
-
-### B. 日志级别对照
-
-| 方法 | Android Log | 级别 |
-|------|-------------|------|
-| `console.verbose()` | `Log.v()` | 最低 |
-| `console.log()` | `Log.d()` | 低 |
-| `console.info()` | `Log.i()` | 中 |
-| `console.warn()` | `Log.w()` | 高 |
-| `console.error()` | `Log.e()` | 最高 |
-
-### C. 版本兼容性
-
-| Android 版本 | API 级别 | 注意事项 |
-|--------------|----------|----------|
-| Android 10 | 29 | 分区存储开始引入 |
-| Android 11 | 30 | 强制分区存储，需要 MANAGE_EXTERNAL_STORAGE |
-| Android 12 | 31 | PendingIntent 需要 FLAG_IMMUTABLE |
-| Android 13 | 33 | 通知权限变化 |
-
----
-
-## 8. 开发构建环境配置
-
-### 8.1 隔离环境目录结构
+### 9.1 隔离环境目录结构
 
 ```
 F:\AIDE\
@@ -511,7 +608,7 @@ F:\AIDE\
 └── maven-repo\             # 本地 Maven 仓库
 ```
 
-### 8.2 环境变量配置
+### 9.2 环境变量配置
 
 | 变量名 | 值 | 说明 |
 |--------|-----|------|
@@ -521,7 +618,7 @@ F:\AIDE\
 | `USERPROFILE` | `F:\AIDE\.userprofile` | 用户配置目录 |
 | `TEMP` / `TMP` | `F:\AIDE\.temp` | 临时文件目录 |
 
-### 8.3 环境验证命令
+### 9.3 环境验证命令
 
 ```cmd
 # 验证环境变量
@@ -537,7 +634,7 @@ java -version
 dir %ANDROID_SDK_ROOT%\platforms
 ```
 
-### 8.4 镜像加速配置
+### 9.4 镜像加速配置
 
 **重要：镜像必须放在仓库配置的最前面！**
 
@@ -564,7 +661,7 @@ repositories {
 distributionUrl=https\://mirrors.aliyun.com/macports/distfiles/gradle/gradle-7.5-all.zip
 ```
 
-### 8.5 Gradle 配置 (gradle.properties)
+### 9.5 Gradle 配置 (gradle.properties)
 
 ```properties
 # 隔离环境配置
@@ -579,7 +676,7 @@ org.gradle.daemon=true
 # 注意：AGP 4.2.x 不支持 configuration-cache，必须禁用
 ```
 
-### 8.6 AGP/Gradle 版本兼容性
+### 9.6 AGP/Gradle 版本兼容性
 
 | AGP 版本 | 兼容 Gradle 版本 | configuration-cache |
 |----------|------------------|---------------------|
@@ -590,7 +687,7 @@ org.gradle.daemon=true
 
 **当前项目**：AGP 7.4.2 + Gradle 7.5
 
-### 8.7 构建命令
+### 9.7 构建命令
 
 ```cmd
 # 激活环境
@@ -609,7 +706,7 @@ gradlew.bat clean
 gradlew.bat dependencies
 ```
 
-### 8.8 镜像地址速查表
+### 9.8 镜像地址速查表
 
 | 镜像源 | 地址 | 用途 |
 |--------|------|------|
@@ -621,7 +718,7 @@ gradlew.bat dependencies
 | 腾讯云 | `mirrors.cloud.tencent.com/nexus/repository/maven-public/` | 备用镜像 |
 | Gradle 发行版 | `mirrors.aliyun.com/macports/distfiles/gradle/` | Gradle 下载 |
 
-### 8.9 隔离环境检查清单
+### 9.9 隔离环境检查清单
 
 构建前确认：
 - ✅ `ANDROID_SDK_ROOT` 指向隔离环境
@@ -691,4 +788,4 @@ adb pull /sdcard/screenshot.png
 
 ---
 
-更新时间: 2026-03-04
+更新时间: 2026-03-05
