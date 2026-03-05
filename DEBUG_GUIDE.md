@@ -82,11 +82,86 @@ adb pair 192.168.31.98:配对端口
 # 输入设备上显示的配对码
 ```
 
-### 1.1 支持的命令
+### 1.1 ADB 广播调试命令
+
+**重要：Android 8.0+ 需要使用显式 Intent！**
+
+由于 Android 8.0+ 的后台执行限制，隐式广播无法被静态注册的 Receiver 接收。必须使用显式 Intent（指定包名和类名）。
+
+#### 命令格式
+
+```bash
+# 通用格式（显式 Intent）
+adb shell "am broadcast -n <包名>/<完整类名> -a <action> [--es <参数名> <值>]"
+```
+
+#### 支持的 Action
+
+| Action | 功能 | 参数 |
+|--------|------|------|
+| `.adb.RUN_SCRIPT` | 运行脚本 | `script` 或 `path`, 可选 `id`, `name` |
+| `.adb.STOP_SCRIPT` | 停止脚本 | `id` |
+| `.adb.STOP_ALL` | 停止所有脚本 | 无 |
+| `.adb.LIST_SCRIPTS` | 列出运行中脚本 | 无 |
+| `.adb.SAVE_SCRIPT` | 保存脚本 | `script`, 可选 `name` |
+| `.adb.RERUN_SCRIPT` | 重运行脚本 | `script`, `id`, 可选 `name` |
+
+#### 使用示例
+
+**coolapk 版本（包名: org.autojs.autojs.coolapk）**:
+
+```bash
+# 列出运行中的脚本
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.LIST_SCRIPTS"
+
+# 运行脚本（直接传入代码）
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.RUN_SCRIPT --es script 'toast(\"Hello\");'"
+
+# 运行脚本（指定名称和 ID）
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.RUN_SCRIPT --es script 'console.log(\"test\");' --es name 'test.js' --es id 'my_script_1'"
+
+# 停止脚本
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.STOP_SCRIPT --es id 1"
+
+# 停止所有脚本
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.STOP_ALL"
+
+# 保存脚本到手机
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.SAVE_SCRIPT --es script 'toast(\"saved\");' --es name 'my_script.js'"
+```
+
+#### 查看执行结果
+
+```bash
+# 方法 1：查看日志
+adb logcat -s AdbDebugReceiver:V
+
+# 方法 2：检查广播返回值（extras 大小 > 0 表示有结果）
+# Broadcast completed: result=0, extras: Bundle[mParcelledData.dataSize=80]
+```
+
+#### 日志示例
+
+```
+D/AdbDebugReceiver: Received action: org.autojs.autojs.coolapk.adb.RUN_SCRIPT
+D/AdbDebugReceiver: Result: OK: Script started
+
+D/AdbDebugReceiver: Received action: org.autojs.autojs.coolapk.adb.LIST_SCRIPTS
+D/AdbDebugReceiver: Result: OK: Running scripts (1):
+D/AdbDebugReceiver:   id=1, source=[remote][adb_1772714932000]
+```
+
+### 1.2 原有命令格式（已废弃）
+
+以下格式在 Android 8.0+ 上不工作，保留仅用于参考：
+
+~~`adb shell am broadcast -a org.autojs.AUTOJS_ADB --es command RUN_SCRIPT --es path "/sdcard/test.js"`~~
+
+### 1.3 支持的命令（旧格式参考）
 
 | 命令 | 功能 | 示例 |
 |------|------|------|
-| `RUN_SCRIPT` | 运行脚本 | `adb shell am broadcast -a org.autojs.AUTOJS_ADB --es command RUN_SCRIPT --es path "/sdcard/test.js"` |
+| `RUN_SCRIPT` | 运行脚本 | `--es command RUN_SCRIPT --es path "/sdcard/test.js"` |
 | `STOP_SCRIPT` | 停止脚本 | `--es command STOP_SCRIPT` |
 | `STOP_ALL` | 停止所有脚本 | `--es command STOP_ALL` |
 | `LIST_SCRIPTS` | 列出运行中脚本 | `--es command LIST_SCRIPTS` |
@@ -95,7 +170,7 @@ adb pair 192.168.31.98:配对端口
 | `LIST_FILES` | 列出文件 | `--es command LIST_FILES --es path "/sdcard"` |
 | `PING` | 测试连接 | `--es command PING` |
 
-### 1.2 使用脚本工具
+### 1.4 使用脚本工具
 
 项目提供了跨平台的 ADB 调试脚本：
 
@@ -110,7 +185,7 @@ adb pair 192.168.31.98:配对端口
 ./scripts/autojs-adb.sh RUN_SCRIPT "/sdcard/test.js"
 ```
 
-### 1.3 Base64 编码传输
+### 1.5 Base64 编码传输
 
 对于包含中文或特殊字符的内容，使用 Base64 编码：
 
