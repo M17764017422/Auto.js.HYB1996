@@ -25,6 +25,71 @@ HTTP API 模式 (适合自动化):
    - GET /list - 列出运行中的脚本
 
 依赖: pip install websockets
+
+================================================================================
+相关源码路径 (用于扩展功能参考)
+================================================================================
+
+WebSocket 协议实现:
+  app/src/main/java/org/autojs/autojs/pluginclient/
+  ├── DevPluginService.java      # 服务端连接管理、状态维护
+  ├── JsonWebSocket.java         # WebSocket 消息收发、JSON 解析
+  └── DevPluginResponseHandler.java  # 命令路由和处理
+
+Android 端连接入口:
+  app/src/main/java/org/autojs/autojs/ui/main/drawer/DrawerFragment.java
+  - mConnectionItem: "连接电脑" 菜单项
+  - connectOrDisconnectToRemote(): 连接/断开处理
+  - inputRemoteHost(): 输入服务器地址对话框
+
+================================================================================
+消息协议
+================================================================================
+
+握手流程:
+  1. 客户端连接后发送: {"type": "hello", "data": {"device_name": ..., "client_version": 2}}
+  2. 服务端回复: {"type": "hello", "data": {"server_version": ..., "name": ...}}
+
+命令格式 (服务端 -> 客户端):
+  {
+    "type": "command",
+    "data": {
+      "command": "run|stop|stopAll|save|rerun",
+      "id": "script_1",           # 脚本唯一标识
+      "script": "...",            # 脚本内容 (run/save/rerun)
+      "name": "test.js"           # 脚本名称 (可选)
+    }
+  }
+
+响应格式 (客户端 -> 服务端):
+  {"type": "log", "data": {"log": "日志内容"}}
+  {"type": "command_result", "data": {"success": true, "message": "..."}}
+
+================================================================================
+命令处理器参考 (DevPluginResponseHandler.java)
+================================================================================
+
+Router mRouter = new Router.RootRouter("type")
+    .handler("command", new Router("command")
+        .handler("run", data -> { ... })      # 运行脚本
+        .handler("stop", data -> { ... })     # 停止脚本
+        .handler("save", data -> { ... })     # 保存脚本
+        .handler("rerun", data -> { ... })    # 重运行
+        .handler("stopAll", data -> { ... })) # 停止所有
+    .handler("bytes_command", new Router("command")
+        .handler("run_project", data -> { ... })   # 运行项目
+        .handler("save_project", data -> { ... })); # 保存项目
+
+================================================================================
+扩展功能建议
+================================================================================
+
+1. 项目运行: 添加 bytes_command/run_project 支持，需要实现 ZIP 打包发送
+2. 文件浏览: 扩展 list_files 命令，参考 AdbDebugReceiver.java
+3. 实时日志: 订阅 log 类型消息，已在 handle_message 中实现
+4. 断点调试: 需要扩展 Rhino Debugger 协议，参考 autojs/rhino/debug/
+5. 变量监视: 参考 DebugBar.java 和 DebuggerSingleton.java
+
 """
 
 import asyncio
