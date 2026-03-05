@@ -28,7 +28,8 @@ public class ProjectTemplate {
     @SuppressLint("CheckResult")
     public Observable<File> newProject() {
         return Observable.fromCallable(() -> {
-            mProjectDir.mkdirs();
+            // 使用 PFiles.mkdirs 以支持 SAF 模式
+            PFiles.mkdirs(mProjectDir.getPath());
             String configPath = ProjectConfig.configFileOfDir(mProjectDir.getPath());
             String configJson = mProjectConfig.toJson();
             

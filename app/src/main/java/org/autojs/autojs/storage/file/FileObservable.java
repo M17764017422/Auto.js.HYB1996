@@ -56,7 +56,7 @@ public class FileObservable {
             FileUtils.copyFile(fromFile, toFile);
         }
         if (deleteOld) {
-            fromFile.delete();
+            PFiles.remove(fromFile.getPath());
         }
     }
 

@@ -90,6 +90,22 @@ public class PFiles {
         return open(path, "r", DEFAULT_ENCODING, DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * 创建目录（包含父目录），支持 SAF 模式
+     */
+    public static boolean mkdirs(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            Log.d(TAG, "mkdirs: path=" + path + " (SAF mode)");
+            return provider.mkdirs(path);
+        }
+        // 传统模式
+        boolean result = new File(path).mkdirs();
+        Log.d(TAG, "mkdirs: path=" + path + ", result=" + result + " (Traditional mode)");
+        return result;
+    }
+
     public static boolean create(String path) {
         IFileProvider provider = FileProviderFactory.getProvider(path);
         if (provider != null && !(provider instanceof TraditionalFileProvider)) {
@@ -182,6 +198,18 @@ public class PFiles {
         }
         // 传统模式
         return new File(path).exists();
+    }
+
+    public static boolean remove(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            Log.d(TAG, "remove: path=" + path + " (SAF mode)");
+            return provider.delete(path);
+        }
+        boolean result = new File(path).delete();
+        Log.d(TAG, "remove: path=" + path + ", result=" + result + " (Traditional mode)");
+        return result;
     }
 
     public static boolean ensureDir(String path) {
@@ -480,19 +508,41 @@ public class PFiles {
     }
 
     public static boolean renameWithoutExtension(String path, String newName) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            String ext = getExtension(getName(path));
+            return provider.rename(path, newName + "." + ext);
+        }
         File file = new File(path);
         File newFile = new File(file.getParent(), newName + "." + getExtension(file.getName()));
         return file.renameTo(newFile);
     }
 
     public static boolean rename(String path, String newName) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            Log.d(TAG, "rename: path=" + path + ", newName=" + newName + " (SAF mode)");
+            return provider.rename(path, newName);
+        }
         File f = new File(path);
-        return f.renameTo(new File(f.getParent(), newName));
+        boolean result = f.renameTo(new File(f.getParent(), newName));
+        Log.d(TAG, "rename: path=" + path + ", newName=" + newName + ", result=" + result + " (Traditional mode)");
+        return result;
     }
 
     public static boolean move(String path, String newPath) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            Log.d(TAG, "move: path=" + path + ", newPath=" + newPath + " (SAF mode)");
+            return provider.move(path, newPath);
+        }
         File f = new File(path);
-        return f.renameTo(new File(newPath));
+        boolean result = f.renameTo(new File(newPath));
+        Log.d(TAG, "move: path=" + path + ", newPath=" + newPath + ", result=" + result + " (Traditional mode)");
+        return result;
     }
 
     public static String getExtension(String fileName) {
@@ -569,22 +619,16 @@ public class PFiles {
         return true;
     }
 
-    public static boolean remove(String path) {
-        IFileProvider provider = FileProviderFactory.getProvider(path);
-        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
-            // SAF 模式
-            return provider.delete(path);
-        }
-        return new File(path).delete();
-    }
-
     public static boolean removeDir(String path) {
         IFileProvider provider = FileProviderFactory.getProvider(path);
         if (provider != null && !(provider instanceof TraditionalFileProvider)) {
             // SAF 模式
+            Log.d(TAG, "removeDir: path=" + path + " (SAF mode)");
             return provider.deleteRecursively(path);
         }
-        return deleteRecursively(new File(path));
+        boolean result = deleteRecursively(new File(path));
+        Log.d(TAG, "removeDir: path=" + path + ", result=" + result + " (Traditional mode)");
+        return result;
     }
 
     public static String getSdcardPath() {

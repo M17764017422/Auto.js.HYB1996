@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.stardust.pio.PFile;
+import com.stardust.pio.PFiles;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,7 +45,12 @@ public class ExplorerDirPage extends ExplorerFileItem implements ExplorerPage {
 
     @Override
     public ExplorerFileItem rename(String newName) {
-        return new ExplorerDirPage(getFile().renameTo(newName), getParent());
+        String newPath = new File(getFile().getParent(), newName).getPath();
+        if (PFiles.rename(getFile().getPath(), newName)) {
+            return new ExplorerDirPage(newPath, getParent());
+        }
+        // 重命名失败，返回原对象
+        return this;
     }
 
     protected int indexOf(ExplorerItem child){

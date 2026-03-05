@@ -2,6 +2,7 @@ package org.autojs.autojs.model.explorer;
 
 import com.stardust.autojs.project.ProjectConfig;
 import com.stardust.pio.PFile;
+import com.stardust.pio.PFiles;
 
 import java.io.File;
 
@@ -30,6 +31,11 @@ public class ExplorerProjectPage extends ExplorerDirPage {
 
     @Override
     public ExplorerFileItem rename(String newName) {
-        return new ExplorerProjectPage(getFile().renameTo(newName), getParent(), mProjectConfig);
+        String newPath = new File(getFile().getParent(), newName).getPath();
+        if (PFiles.rename(getFile().getPath(), newName)) {
+            return new ExplorerProjectPage(newPath, getParent(), mProjectConfig);
+        }
+        // 重命名失败，返回原对象
+        return this;
     }
 }

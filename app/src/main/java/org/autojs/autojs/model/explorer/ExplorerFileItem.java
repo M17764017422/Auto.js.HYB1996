@@ -1,6 +1,7 @@
 package org.autojs.autojs.model.explorer;
 
 import com.stardust.pio.PFile;
+import com.stardust.pio.PFiles;
 import com.stardust.util.ObjectHelper;
 import com.stardust.util.Objects;
 
@@ -72,7 +73,12 @@ public class ExplorerFileItem implements ExplorerItem {
     }
 
     public ExplorerFileItem rename(String newName) {
-        return new ExplorerFileItem(mFile.renameTo(newName), getParent());
+        String newPath = new File(mFile.getParent(), newName).getPath();
+        if (PFiles.rename(mFile.getPath(), newName)) {
+            return new ExplorerFileItem(newPath, getParent());
+        }
+        // 重命名失败，返回原对象
+        return this;
     }
 
     @Override

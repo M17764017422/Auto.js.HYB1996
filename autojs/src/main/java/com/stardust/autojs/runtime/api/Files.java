@@ -12,6 +12,7 @@ import com.stardust.util.Func1;
 import com.stardust.pio.FileProviderFactory;
 
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.typedarrays.NativeTypedArrayView;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,7 +132,10 @@ public class Files {
         Log.d(TAG + ".read", "path=" + resolvedPath + ", encoding=" + encoding);
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
         String result = provider.read(resolvedPath, encoding);
-        Log.d(TAG + ".read", "result: length=" + (result != null ? result.length() : 0));
+        if (result == null) {
+            throw new RuntimeException("File not found: " + resolvedPath);
+        }
+        Log.d(TAG + ".read", "result: length=" + result.length());
         return result;
     }
 
@@ -141,7 +145,10 @@ public class Files {
         Log.d(TAG + ".read", "path=" + resolvedPath);
         IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
         String result = provider.read(resolvedPath);
-        Log.d(TAG + ".read", "result: length=" + (result != null ? result.length() : 0));
+        if (result == null) {
+            throw new RuntimeException("File not found: " + resolvedPath);
+        }
+        Log.d(TAG + ".read", "result: length=" + result.length());
         return result;
     }
 
@@ -194,13 +201,6 @@ public class Files {
         return provider.append(resolvedPath, text, encoding);
     }
 
-    public boolean writeBytes(String path, byte[] bytes) {
-        String resolvedPath = path(path);
-        Log.d(TAG + ".writeBytes", "path=" + resolvedPath + ", size=" + (bytes != null ? bytes.length : 0));
-        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
-        return provider.writeBytes(resolvedPath, bytes);
-    }
-
     public boolean writeBytes(String path, Object data) {
         byte[] bytes;
         if (data instanceof byte[]) {
@@ -218,6 +218,21 @@ public class Files {
                     bytes[i] = 0;
                 }
             }
+            Log.d(TAG + ".writeBytes", "Converted NativeArray to byte[], length=" + len);
+        } else if (data instanceof NativeTypedArrayView) {
+            // ES6 类型化数组 (Uint8Array, Int8Array 等)
+            NativeTypedArrayView<?> arr = (NativeTypedArrayView<?>) data;
+            int len = arr.getArrayLength();
+            bytes = new byte[len];
+            for (int i = 0; i < len; i++) {
+                Object val = arr.getArrayElement(i);
+                if (val instanceof Number) {
+                    bytes[i] = ((Number) val).byteValue();
+                } else {
+                    bytes[i] = 0;
+                }
+            }
+            Log.d(TAG + ".writeBytes", "Converted NativeTypedArrayView to byte[], length=" + len);
         } else if (data != null && data.getClass().isArray()) {
             // 其他数组类型
             int len = java.lang.reflect.Array.getLength(data);
@@ -230,11 +245,16 @@ public class Files {
                     bytes[i] = 0;
                 }
             }
+            Log.d(TAG + ".writeBytes", "Converted Java array to byte[], length=" + len);
         } else {
             Log.w(TAG + ".writeBytes", "Unsupported data type: " + (data != null ? data.getClass() : "null"));
             return false;
         }
-        return writeBytes(path, bytes);
+        // 直接调用 provider，避免递归调用自身
+        String resolvedPath = path(path);
+        Log.d(TAG + ".writeBytes", "path=" + resolvedPath + ", size=" + bytes.length);
+        IFileProvider provider = FileProviderFactory.getProvider(resolvedPath);
+        return provider.writeBytes(resolvedPath, bytes);
     }
 
     public boolean copy(String pathFrom, String pathTo) {

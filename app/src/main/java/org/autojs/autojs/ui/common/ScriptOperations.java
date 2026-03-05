@@ -220,7 +220,7 @@ public class ScriptOperations {
         showNameInputDialog("", new InputCallback())
                 .subscribe(path -> {
                     ScriptFile newDir = new ScriptFile(getCurrentDirectory(), path);
-                    if (newDir.mkdirs()) {
+                    if (PFiles.mkdirs(newDir.getPath())) {
                         showMessage(R.string.text_already_create);
                         notifyFileCreated(mCurrentDirectory, new ScriptFile(newDir));
                     } else {
@@ -317,7 +317,7 @@ public class ScriptOperations {
     @SuppressLint("CheckResult")
     public void deleteWithoutConfirm(final ScriptFile scriptFile) {
         boolean isDir = scriptFile.isDirectory();
-        Observable.fromPublisher((Publisher<Boolean>) s -> s.onNext(PFiles.deleteRecursively(scriptFile)))
+        Observable.fromPublisher((Publisher<Boolean>) s -> s.onNext(PFiles.removeDir(scriptFile.getPath())))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(deleted -> {

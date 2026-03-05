@@ -34,38 +34,59 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public boolean exists(String path) {
-        return new File(resolvePath(path)).exists();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).exists();
+        Log.d(TAG, "exists: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean isFile(String path) {
-        return new File(resolvePath(path)).isFile();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).isFile();
+        Log.d(TAG, "isFile: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean isDirectory(String path) {
-        return new File(resolvePath(path)).isDirectory();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).isDirectory();
+        Log.d(TAG, "isDirectory: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean mkdir(String path) {
-        return new File(resolvePath(path)).mkdir();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).mkdir();
+        Log.d(TAG, "mkdir: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean mkdirs(String path) {
-        return new File(resolvePath(path)).mkdirs();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).mkdirs();
+        Log.d(TAG, "mkdirs: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean delete(String path) {
-        return new File(resolvePath(path)).delete();
+        String resolved = resolvePath(path);
+        boolean result = new File(resolved).delete();
+        Log.d(TAG, "delete: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean deleteRecursively(String path) {
-        File file = new File(resolvePath(path));
-        return deleteRecursive(file);
+        String resolved = resolvePath(path);
+        File file = new File(resolved);
+        boolean result = deleteRecursive(file);
+        Log.d(TAG, "deleteRecursively: path=" + path + ", resolved=" + resolved + ", result=" + result);
+        return result;
     }
 
     private boolean deleteRecursive(File file) {
@@ -82,31 +103,44 @@ public class TraditionalFileProvider implements IFileProvider {
 
     @Override
     public boolean rename(String path, String newName) {
-        File file = new File(resolvePath(path));
+        String resolved = resolvePath(path);
+        File file = new File(resolved);
         File newFile = new File(file.getParent(), newName);
-        return file.renameTo(newFile);
+        boolean result = file.renameTo(newFile);
+        Log.d(TAG, "rename: path=" + path + ", resolved=" + resolved + ", newName=" + newName + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean move(String fromPath, String toPath) {
-        File from = new File(resolvePath(fromPath));
-        File to = new File(resolvePath(toPath));
-        return from.renameTo(to);
+        String fromResolved = resolvePath(fromPath);
+        String toResolved = resolvePath(toPath);
+        File from = new File(fromResolved);
+        File to = new File(toResolved);
+        boolean result = from.renameTo(to);
+        Log.d(TAG, "move: from=" + fromPath + ", to=" + toPath + ", fromResolved=" + fromResolved + ", toResolved=" + toResolved + ", result=" + result);
+        return result;
     }
 
     @Override
     public boolean copy(String fromPath, String toPath) {
+        String fromResolved = resolvePath(fromPath);
+        String toResolved = resolvePath(toPath);
+        Log.d(TAG, "copy: from=" + fromPath + ", to=" + toPath + ", fromResolved=" + fromResolved + ", toResolved=" + toResolved);
         try {
-            File from = new File(resolvePath(fromPath));
-            File to = new File(resolvePath(toPath));
+            File from = new File(fromResolved);
+            File to = new File(toResolved);
             
+            boolean result;
             if (from.isDirectory()) {
-                return copyDirectory(from, to);
+                result = copyDirectory(from, to);
             } else {
-                return copyFile(from, to);
+                result = copyFile(from, to);
             }
+            Log.d(TAG, "copy: result=" + result);
+            return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "copy: error=" + e.getMessage(), e);
             return false;
         }
     }
