@@ -7,8 +7,8 @@ import com.stardust.autojs.project.ProjectConfig;
 import com.stardust.pio.PFile;
 import com.stardust.pio.PFiles;
 
-import org.autojs.autojs.Pref;
 import org.autojs.autojs.model.script.ScriptFile;
+import org.autojs.autojs.storage.FileProviderFactory;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -118,7 +118,7 @@ public class WorkspaceFileProvider extends ExplorerFileProvider {
     @Override
     protected ExplorerDirPage createExplorerPage(String path, ExplorerPage parent) {
         ExplorerDirPage page = super.createExplorerPage(path, parent);
-        if (new File(path).equals(new File(Pref.getScriptDirPath()))) {
+        if (new File(path).equals(new File(FileProviderFactory.getProvider().getWorkingDirectory()))) {
             page.addChild(ExplorerSamplePage.createRoot(mSampleDir));
         }
         return page;

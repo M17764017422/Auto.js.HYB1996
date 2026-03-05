@@ -16,6 +16,8 @@ import org.autojs.autojs.Pref;
 
 import java.util.List;
 
+import org.autojs.autojs.storage.FileProviderFactory;
+
 /**
  * 存储权限管理帮助类
  * 支持 Android 11+ 的 SAF (Storage Access Framework) 目录授权
@@ -154,6 +156,17 @@ public class StoragePermissionHelper {
                 Pref.setSafDirectoryUri(treeUri.toString());
                 Log.i(TAG, "handleSafResult: saved SAF URI to preferences");
                 
+                // 从 SAF URI 解析实际路径并同步更新脚本目录
+                String actualPath = getActualPathFromSafUri(treeUri);
+                if (actualPath != null) {
+                    Pref.setScriptDirPath(actualPath);
+                    Log.i(TAG, "handleSafResult: synced script dir path to " + actualPath);
+                }
+                
+                // 刷新 FileProvider
+                FileProviderFactory.refresh();
+                Log.i(TAG, "handleSafResult: FileProvider refreshed");
+                
                 return true;
             }
         }
@@ -224,5 +237,60 @@ public class StoragePermissionHelper {
 
     public static int getRequestCodeManageStorage() {
         return REQUEST_CODE_MANAGE_STORAGE;
+    }
+
+    /**
+     * 从 SAF URI 解析实际文件系统路径
+     * @param treeUri SAF 目录树 URI
+     * @return 实际文件系统路径，解析失败返回 null
+     */
+    private static String getActualPathFromSafUri(Uri treeUri) {
+        if (treeUri == null) return null;
+        
+        try {
+            String documentId = DocumentsContract.getTreeDocumentId(treeUri);
+            Log.d(TAG, "getActualPathFromSafUri: documentId=" + documentId);
+            
+            // ExternalStorageProvider 格式: primary:Download 或 XXXX-XXXX:Directory
+            if (documentId.startsWith("primary:")) {
+                // 主存储
+                String relativePath = documentId.substring(8); // "primary:".length()
+                String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+                return sdcard + "/" + relativePath;
+            } else if (documentId.contains(":")) {
+                // 可能是 SD 卡或其他存储设备
+                String[] parts = documentId.split(":", 2);
+                String volumeId = parts[0];
+                String relativePath = parts.length > 1 ? parts[1] : "";
+                
+                // 查找对应的存储路径
+                String storagePath = findStoragePath(volumeId);
+                if (storagePath != null) {
+                    return relativePath.isEmpty() ? storagePath : storagePath + "/" + relativePath;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "getActualPathFromSafUri failed", e);
+        }
+        
+        return null;
+    }
+
+    /**
+     * 根据 volume ID 查找存储路径
+     */
+    private static String findStoragePath(String volumeId) {
+        // primary 通常是主存储
+        if ("primary".equalsIgnoreCase(volumeId)) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
+        
+        // SD 卡或其他存储: /storage/XXXX-XXXX
+        java.io.File storageDir = new java.io.File("/storage/" + volumeId);
+        if (storageDir.exists()) {
+            return storageDir.getAbsolutePath();
+        }
+        
+        return null;
     }
 }

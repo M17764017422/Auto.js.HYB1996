@@ -11,11 +11,11 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.network.NodeBB;
 import org.autojs.autojs.model.script.Scripts;
 import org.autojs.autojs.network.download.DownloadManager;
+import org.autojs.autojs.storage.FileProviderFactory;
 import org.autojs.autojs.ui.common.OptionListView;
 import org.autojs.autojs.ui.common.ScriptOperations;
 import org.autojs.autojs.ui.filechooser.FileChooserDialogBuilder;
@@ -134,7 +134,7 @@ public class CommunityWebView extends EWebView {
             }
             new FileChooserDialogBuilder(getContext())
                     .title(R.string.text_select_file_to_upload)
-                    .dir(Pref.getScriptDirPath())
+                    .dir(FileProviderFactory.getProvider().getWorkingDirectory())
                     .singleChoice(file -> callback.onReceiveValue(Uri.fromFile(file)))
                     .cancelListener(dialog -> callback.onReceiveValue(null))
                     .show();

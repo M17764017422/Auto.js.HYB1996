@@ -87,7 +87,7 @@ public class ScriptOperations {
     }
 
     public ScriptOperations(Context context, View view) {
-        this(context, view, new ScriptFile(Pref.getScriptDirPath()));
+        this(context, view, new ScriptFile(FileProviderFactory.getProvider().getWorkingDirectory()));
     }
 
     public void newScriptFileForScript(final String script) {
@@ -337,11 +337,12 @@ public class ScriptOperations {
 
 
     public Observable<ScriptFile> download(String url) {
-        BuglyLog.i(LOG_TAG, "dir = " + Pref.getScriptDirPath() + ", sdcard = " + Environment.getExternalStorageDirectory() + ", url = " + url);
+        String scriptDir = FileProviderFactory.getProvider().getWorkingDirectory();
+        BuglyLog.i(LOG_TAG, "dir = " + scriptDir + ", sdcard = " + Environment.getExternalStorageDirectory() + ", url = " + url);
         String fileName = DownloadManager.parseFileNameLocally(url);
         return new FileChooserDialogBuilder(mContext)
                 .title(R.string.text_select_save_path)
-                .dir(Pref.getScriptDirPath())
+                .dir(scriptDir)
                 .chooseDir()
                 .singleChoice()
                 .map(saveDir -> new File(saveDir, fileName).getPath())

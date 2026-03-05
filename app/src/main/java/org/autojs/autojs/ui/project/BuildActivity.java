@@ -24,12 +24,12 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
-import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.build.ApkBuilder;
 import org.autojs.autojs.build.ApkBuilderPluginHelper;
 import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.model.script.ScriptFile;
+import org.autojs.autojs.storage.FileProviderFactory;
 import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import org.autojs.autojs.tool.BitmapTool;
 import org.autojs.autojs.ui.BaseActivity;
@@ -144,7 +144,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     private void setupWithSourceFile(ScriptFile file) {
         String dir = file.getParent();
         if (dir.startsWith(getFilesDir().getPath())) {
-            dir = Pref.getScriptDirPath();
+            dir = FileProviderFactory.getProvider().getWorkingDirectory();
         }
         mOutputPath.setText(dir);
         mAppName.setText(file.getSimplifiedName());
@@ -164,7 +164,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
         new FileChooserDialogBuilder(this)
                 .title(R.string.text_source_file_path)
                 .dir(Environment.getExternalStorageDirectory().getPath(),
-                        initialDir == null ? Pref.getScriptDirPath() : initialDir)
+                        initialDir == null ? FileProviderFactory.getProvider().getWorkingDirectory() : initialDir)
                 .singleChoice(this::setSource)
                 .show();
     }
@@ -186,7 +186,7 @@ public class BuildActivity extends BaseActivity implements ApkBuilder.ProgressCa
     @Click(R.id.select_output)
     void selectOutputDirPath() {
         String initialDir = new File(mOutputPath.getText().toString()).exists() ?
-                mOutputPath.getText().toString() : Pref.getScriptDirPath();
+                mOutputPath.getText().toString() : FileProviderFactory.getProvider().getWorkingDirectory();
         new FileChooserDialogBuilder(this)
                 .title(R.string.text_output_apk_path)
                 .dir(initialDir)

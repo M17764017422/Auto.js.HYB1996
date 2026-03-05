@@ -186,4 +186,13 @@ public class Pref {
     public static void setSafDirectoryUri(String uri) {
         def().edit().putString(KEY_SAF_DIRECTORY_URI, uri).apply();
     }
+
+    /**
+     * 设置脚本目录路径
+     */
+    public static void setScriptDirPath(String path) {
+        def().edit().putString(getString(R.string.key_script_dir_path), 
+                path.replace(Environment.getExternalStorageDirectory().getAbsolutePath() + "/", ""))
+                .apply();
+    }
 }

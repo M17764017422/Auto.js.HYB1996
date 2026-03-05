@@ -114,20 +114,115 @@ adb shell "am broadcast -n <包名>/<完整类名> -a <action> [--es <参数名>
 # 列出运行中的脚本
 adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.LIST_SCRIPTS"
 
-# 运行脚本（直接传入代码）
-adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.RUN_SCRIPT --es script 'toast(\"Hello\");'"
-
-# 运行脚本（指定名称和 ID）
-adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.RUN_SCRIPT --es script 'console.log(\"test\");' --es name 'test.js' --es id 'my_script_1'"
-
 # 停止脚本
 adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.STOP_SCRIPT --es id 1"
 
 # 停止所有脚本
 adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.STOP_ALL"
+```
 
-# 保存脚本到手机
-adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.SAVE_SCRIPT --es script 'toast(\"saved\");' --es name 'my_script.js'"
+#### 重要：使用 Base64 编码传输脚本
+
+**由于 PowerShell/adb shell 的引号转义问题，直接传递脚本字符串可能导致语法错误。**
+
+推荐使用 `--ez base64 true` 参数传递 Base64 编码的脚本：
+
+**PowerShell 示例**:
+```powershell
+# 编码脚本并执行
+$script = 'toast("Hello");console.log("测试");'
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($script)
+$b64 = [Convert]::ToBase64String($bytes)
+
+# PUSH_SCRIPT - 推送并运行脚本
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.PUSH_SCRIPT --es script $b64 --ez base64 true"
+
+# RUN_SCRIPT - 运行脚本（可指定名称和 ID）
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.RUN_SCRIPT --es script $b64 --ez base64 true --es name 'test.js' --es id 'my_script_1'"
+
+# SAVE_SCRIPT - 保存脚本到手机
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.SAVE_SCRIPT --es script $b64 --ez base64 true --es name 'my_script.js'"
+```
+
+**一行命令版本**:
+```powershell
+# 快速执行脚本
+$script='toast("测试");'; $b64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($script)); F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.PUSH_SCRIPT --es script $b64 --ez base64 true"
+```
+
+#### 更多使用示例
+
+**获取版本信息**:
+```powershell
+# 文本格式
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.VERSION"
+
+# JSON 格式
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.VERSION --ez json true"
+```
+
+**文件操作**:
+```powershell
+# 列出脚本目录文件
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.LIST_FILES"
+
+# 读取文件内容
+F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.READ_FILE --es path test.js"
+
+# 写入文件（Base64 编码内容）
+$content='console.log("Hello");'; $b64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($content)); F:\AIDE\sdk\platform-tools\adb.exe shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.WRITE_FILE --es path new_script.js --es content $b64 --ez base64 true"
+```
+
+**Bash/Linux 示例**:
+```bash
+# 编码并执行
+script='toast("Hello");'
+b64=$(echo -n "$script" | base64)
+adb shell "am broadcast -n org.autojs.autojs.coolapk/org.autojs.autojs.external.receiver.AdbDebugReceiver -a org.autojs.autojs.coolapk.adb.PUSH_SCRIPT --es script $b64 --ez base64 true"
+```
+
+#### 支持的 Action 完整列表
+
+| Action | 功能 | 参数 | 说明 |
+|--------|------|------|------|
+| `.adb.PING` | 测试连接 | 无 | 返回 PONG 和版本信息 |
+| `.adb.VERSION` | 获取版本 | 无 | 返回详细版本信息 |
+| `.adb.GET_CONFIG` | 获取配置 | 可选 `key` | 返回配置信息 |
+| `.adb.LIST_SCRIPTS` | 列出运行中脚本 | 无 | 支持 JSON 输出 |
+| `.adb.STOP_ALL` | 停止所有脚本 | 无 | 支持 JSON 输出 |
+| `.adb.STOP_SCRIPT` | 停止指定脚本 | `id` | 支持 JSON 输出 |
+| `.adb.PUSH_SCRIPT` | 推送并运行脚本 | `script`, `base64`, 可选 `id`, `name` | 推荐 |
+| `.adb.RUN_SCRIPT` | 运行脚本 | `script` 或 `path`, `base64`, 可选 `id`, `name` | 可从文件读取 |
+| `.adb.SAVE_SCRIPT` | 保存脚本到手机 | `script`, `base64`, 可选 `name` | 保存到脚本目录 |
+| `.adb.RERUN_SCRIPT` | 重运行脚本 | `script`, `base64`, `id`, 可选 `name` | 先停止再运行 |
+| `.adb.LIST_FILES` | 列出目录文件 | 可选 `path`, `json` | 默认脚本目录 |
+| `.adb.READ_FILE` | 读取文件内容 | `path`, `json` | 返回文件内容 |
+| `.adb.WRITE_FILE` | 写入文件内容 | `path`, `content`, `base64` | 创建或覆盖文件 |
+| `.adb.DELETE_FILE` | 删除文件 | `path` | 删除指定文件 |
+| `.adb.MKDIR` | 创建目录 | `path` | 创建完整路径 |
+| `.adb.RENAME_FILE` | 重命名文件 | `oldpath`, `newpath` | 移动/重命名 |
+
+#### JSON 输出格式
+
+所有命令支持 `--ez json true` 参数，返回 JSON 格式结果：
+
+```bash
+# 文本输出
+adb shell "am broadcast ... -a org.autojs.autojs.coolapk.adb.LIST_SCRIPTS"
+# 返回: OK: Running scripts (2): ...
+
+# JSON 输出
+adb shell "am broadcast ... -a org.autojs.autojs.coolapk.adb.LIST_SCRIPTS --ez json true"
+# 返回: {"success":true,"count":2,"scripts":[{"id":"adb_xxx","source":"test.js"}]}
+```
+
+**JSON 响应格式**：
+```json
+// 成功
+{"success": true, "data": ...}
+
+// 失败
+{"success": false, "error": "错误信息"}
 ```
 
 #### 查看执行结果

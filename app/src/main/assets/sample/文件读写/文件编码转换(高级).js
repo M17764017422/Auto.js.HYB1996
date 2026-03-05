@@ -1,6 +1,7 @@
+//工作目录（当前脚本所在目录）
+var workDir = engines.myEngine().cwd();
 
-
-convert("/sdcard/1.txt", "utf-8", "/sdcard/2.txt", "gbk");
+convert(workDir + "/1.txt", "utf-8", workDir + "/2.txt", "gbk");
 
 /**
  * fromFile: 源文件路径

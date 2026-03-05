@@ -1,7 +1,10 @@
+//工作目录（当前脚本所在目录）
+var workDir = engines.myEngine().cwd();
+
 console.setGlobalLogConfig({
-    file: "/sdcard/log.txt"
+    file: workDir + "/log.txt"
 });
 console.log(1);
 console.log(2);
 console.error(3);
-app.viewFile("/sdcard/log.txt");
+app.viewFile(workDir + "/log.txt");

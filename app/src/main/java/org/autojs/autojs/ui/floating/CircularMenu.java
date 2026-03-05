@@ -15,13 +15,13 @@ import com.stardust.autojs.core.record.Recorder;
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.FloatyWindow;
 
-import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.autojs.record.GlobalActionRecorder;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.Explorers;
 import org.autojs.autojs.model.script.Scripts;
+import org.autojs.autojs.storage.FileProviderFactory;
 import org.autojs.autojs.tool.AccessibilityServiceTool;
 import org.autojs.autojs.tool.RootTool;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
@@ -136,7 +136,7 @@ public class CircularMenu implements Recorder.OnStateChangedListener, LayoutInsp
     void showScriptList() {
         mWindow.collapse();
         ExplorerView explorerView = new ExplorerView(mContext);
-        explorerView.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(Pref.getScriptDirPath()));
+        explorerView.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(FileProviderFactory.getProvider().getWorkingDirectory()));
         explorerView.setDirectorySpanSize(2);
         final MaterialDialog dialog = new ThemeColorMaterialDialogBuilder(mContext)
                 .title(R.string.text_run_script)

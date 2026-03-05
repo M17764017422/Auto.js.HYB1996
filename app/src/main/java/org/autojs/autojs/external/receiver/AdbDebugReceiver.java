@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.script.ScriptSource;
@@ -21,7 +23,10 @@ import org.autojs.autojs.pluginclient.DevPluginResponseHandler;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -31,10 +36,10 @@ import java.util.Set;
  * 命令处理委托给 DevPluginResponseHandler 统一处理
  * 
  * 使用方法:
- * adb shell am broadcast -a org.autojs.autojs.adb.RUN_SCRIPT --es script "toast('hello')"
- * adb shell am broadcast -a org.autojs.autojs.adb.RUN_SCRIPT --es path "/sdcard/脚本/test.js"
- * adb shell am broadcast -a org.autojs.autojs.adb.STOP_ALL
- * adb shell am broadcast -a org.autojs.autojs.adb.LIST_SCRIPTS
+ * adb shell am broadcast -n <package>/<class> -a <action> [--es param value]
+ * 
+ * 推荐使用 Base64 编码传输脚本内容，避免引号转义问题:
+ * --es script <base64> --ez base64 true
  */
 public class AdbDebugReceiver extends BroadcastReceiver {
 
@@ -48,12 +53,15 @@ public class AdbDebugReceiver extends BroadcastReceiver {
     public static final String ACTION_SAVE_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.SAVE_SCRIPT";
     public static final String ACTION_PUSH_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.PUSH_SCRIPT";
     public static final String ACTION_RERUN_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.RERUN_SCRIPT";
-    public static final String ACTION_DELETE_SCRIPT = BuildConfig.APPLICATION_ID + ".adb.DELETE_SCRIPT";
+    public static final String ACTION_DELETE_FILE = BuildConfig.APPLICATION_ID + ".adb.DELETE_FILE";
     public static final String ACTION_LIST_FILES = BuildConfig.APPLICATION_ID + ".adb.LIST_FILES";
     public static final String ACTION_READ_FILE = BuildConfig.APPLICATION_ID + ".adb.READ_FILE";
+    public static final String ACTION_WRITE_FILE = BuildConfig.APPLICATION_ID + ".adb.WRITE_FILE";
     public static final String ACTION_MKDIR = BuildConfig.APPLICATION_ID + ".adb.MKDIR";
     public static final String ACTION_RENAME_FILE = BuildConfig.APPLICATION_ID + ".adb.RENAME_FILE";
     public static final String ACTION_PING = BuildConfig.APPLICATION_ID + ".adb.PING";
+    public static final String ACTION_VERSION = BuildConfig.APPLICATION_ID + ".adb.VERSION";
+    public static final String ACTION_GET_CONFIG = BuildConfig.APPLICATION_ID + ".adb.GET_CONFIG";
 
     // Extras
     public static final String EXTRA_SCRIPT = "script";
@@ -62,9 +70,15 @@ public class AdbDebugReceiver extends BroadcastReceiver {
     public static final String EXTRA_ID = "id";
     public static final String EXTRA_RESULT = "result";
     public static final String EXTRA_BASE64 = "base64";
+    public static final String EXTRA_JSON = "json";
+    public static final String EXTRA_CONTENT = "content";
+    public static final String EXTRA_OLDPATH = "oldpath";
+    public static final String EXTRA_NEWPATH = "newpath";
+    public static final String EXTRA_KEY = "key";
 
     // 统一的命令处理器
     private static DevPluginResponseHandler sHandler = null;
+    private static final Gson sGson = new Gson();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -77,12 +91,13 @@ public class AdbDebugReceiver extends BroadcastReceiver {
             sHandler = new DevPluginResponseHandler(cacheDir);
         }
 
+        boolean jsonOutput = getBooleanExtra(intent, EXTRA_JSON, false);
         String result;
         try {
-            result = handleAction(intent);
+            result = handleAction(intent, context);
         } catch (Exception e) {
             Log.e(TAG, "Error handling action: " + action, e);
-            result = "ERROR: " + e.getMessage();
+            result = jsonOutput ? buildJsonError(e.getMessage()) : ("ERROR: " + e.getMessage());
         }
 
         // 返回结果
@@ -95,68 +110,139 @@ public class AdbDebugReceiver extends BroadcastReceiver {
      * 统一命令处理入口
      * 将 Intent 转换为 JSON 格式，委托给 DevPluginResponseHandler 处理
      */
-    private String handleAction(Intent intent) {
+    private String handleAction(Intent intent, Context context) {
         String action = intent.getAction();
+        boolean jsonOutput = getBooleanExtra(intent, EXTRA_JSON, false);
 
-        // 处理不需要 JSON 转换的简单命令
+        // 基础命令
         if (ACTION_PING.equals(action)) {
-            String modeStr = FileProviderFactory.getModeDescription();
-            return "PONG: " + BuildConfig.APPLICATION_ID + " v" + BuildConfig.VERSION_NAME + " (mode: " + modeStr + ")";
+            return handlePing(jsonOutput);
+        }
+
+        if (ACTION_VERSION.equals(action)) {
+            return handleVersion(jsonOutput);
+        }
+
+        if (ACTION_GET_CONFIG.equals(action)) {
+            return handleGetConfig(intent, jsonOutput);
         }
 
         if (ACTION_LIST_SCRIPTS.equals(action)) {
-            return handleListScripts();
+            return handleListScripts(jsonOutput);
         }
 
         if (ACTION_STOP_ALL.equals(action)) {
-            return handleStopAll();
+            return handleStopAll(jsonOutput);
         }
 
-        // 转换为 JSON 格式，委托给 DevPluginResponseHandler
+        // 脚本命令 - 委托给 DevPluginResponseHandler
         if (ACTION_RUN_SCRIPT.equals(action)) {
-            return handleRunScript(intent);
+            return handleRunScript(intent, jsonOutput);
         }
 
         if (ACTION_STOP_SCRIPT.equals(action)) {
-            return handleStopScript(intent);
+            return handleStopScript(intent, jsonOutput);
         }
 
-        if (ACTION_SAVE_SCRIPT.equals(action) || ACTION_PUSH_SCRIPT.equals(action)) {
-            return handleSaveScript(intent);
+        if (ACTION_SAVE_SCRIPT.equals(action)) {
+            return handleSaveScript(intent, jsonOutput);
+        }
+
+        if (ACTION_PUSH_SCRIPT.equals(action)) {
+            return handlePushScript(intent, jsonOutput);
         }
 
         if (ACTION_RERUN_SCRIPT.equals(action)) {
-            return handleRerunScript(intent);
+            return handleRerunScript(intent, jsonOutput);
         }
 
-        // 文件操作命令（扩展功能，不通过 DevPluginResponseHandler）
-        if (ACTION_DELETE_SCRIPT.equals(action)) {
-            return handleFileOperation("delete", intent);
+        // 文件操作命令
+        if (ACTION_DELETE_FILE.equals(action)) {
+            return handleFileDelete(intent, jsonOutput);
         }
 
         if (ACTION_LIST_FILES.equals(action)) {
-            return handleFileOperation("list", intent);
+            return handleFileList(intent, jsonOutput);
         }
 
         if (ACTION_READ_FILE.equals(action)) {
-            return handleFileOperation("read", intent);
+            return handleFileRead(intent, jsonOutput);
+        }
+
+        if (ACTION_WRITE_FILE.equals(action)) {
+            return handleFileWrite(intent, jsonOutput);
         }
 
         if (ACTION_MKDIR.equals(action)) {
-            return handleFileOperation("mkdir", intent);
+            return handleMkdir(intent, jsonOutput);
         }
 
         if (ACTION_RENAME_FILE.equals(action)) {
-            return handleFileOperation("rename", intent);
+            return handleRenameFile(intent, jsonOutput);
         }
 
-        return "Unknown action: " + action;
+        String errorMsg = "Unknown action: " + action;
+        return jsonOutput ? buildJsonError(errorMsg) : errorMsg;
+    }
+
+    /**
+     * PING 命令
+     */
+    private String handlePing(boolean jsonOutput) {
+        String modeStr = FileProviderFactory.getModeDescription();
+        String message = BuildConfig.APPLICATION_ID + " v" + BuildConfig.VERSION_NAME + " (mode: " + modeStr + ")";
+        return jsonOutput ? buildJsonSuccess("pong", message) : "PONG: " + message;
+    }
+
+    /**
+     * VERSION 命令
+     */
+    private String handleVersion(boolean jsonOutput) {
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", true);
+            result.addProperty("package", BuildConfig.APPLICATION_ID);
+            result.addProperty("versionName", BuildConfig.VERSION_NAME);
+            result.addProperty("versionCode", BuildConfig.VERSION_CODE);
+            result.addProperty("debug", BuildConfig.DEBUG);
+            result.addProperty("fileMode", FileProviderFactory.getModeDescription());
+            return sGson.toJson(result);
+        }
+        return "Version: " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")\n" +
+               "Package: " + BuildConfig.APPLICATION_ID + "\n" +
+               "Mode: " + FileProviderFactory.getModeDescription();
+    }
+
+    /**
+     * GET_CONFIG 命令 - 获取配置信息
+     */
+    private String handleGetConfig(Intent intent, boolean jsonOutput) {
+        String key = intent.getStringExtra(EXTRA_KEY);
+        
+        // 使用 FileProvider 获取实际工作目录，确保 SAF 模式兼容
+        IFileProvider provider = FileProviderFactory.getProvider();
+        
+        JsonObject config = new JsonObject();
+        config.addProperty("scriptDir", provider.getWorkingDirectory());
+        config.addProperty("fileMode", FileProviderFactory.getModeDescription());
+        config.addProperty("versionName", BuildConfig.VERSION_NAME);
+        config.addProperty("packageName", BuildConfig.APPLICATION_ID);
+        
+        if (!TextUtils.isEmpty(key)) {
+            if (config.has(key)) {
+                String value = config.get(key).getAsString();
+                return jsonOutput ? buildJsonSuccess("config", value) : value;
+            }
+            return jsonOutput ? buildJsonError("Key not found: " + key) : "ERROR: Key not found: " + key;
+        }
+        
+        return jsonOutput ? sGson.toJson(config) : config.toString();
     }
 
     /**
      * 运行脚本 - 委托给 DevPluginResponseHandler
      */
-    private String handleRunScript(Intent intent) {
+    private String handleRunScript(Intent intent, boolean jsonOutput) {
         String script = intent.getStringExtra(EXTRA_SCRIPT);
         String path = intent.getStringExtra(EXTRA_PATH);
         String name = intent.getStringExtra(EXTRA_NAME);
@@ -169,7 +255,7 @@ public class AdbDebugReceiver extends BroadcastReceiver {
                 byte[] decoded = Base64.decode(script, Base64.DEFAULT);
                 script = new String(decoded, StandardCharsets.UTF_8);
             } catch (IllegalArgumentException e) {
-                return "ERROR: Invalid base64 encoding";
+                return jsonOutput ? buildJsonError("Invalid base64 encoding") : "ERROR: Invalid base64 encoding";
             }
         }
 
@@ -178,41 +264,51 @@ public class AdbDebugReceiver extends BroadcastReceiver {
             try {
                 script = FileProviderFactory.getProvider().read(path);
                 if (script == null) {
-                    return "ERROR: Failed to read file: " + path;
+                    return jsonOutput ? buildJsonError("Failed to read file: " + path) : "ERROR: Failed to read file: " + path;
                 }
                 if (TextUtils.isEmpty(name)) {
                     name = new File(path).getName();
                 }
             } catch (Exception e) {
-                return "ERROR: Cannot read file: " + e.getMessage();
+                return jsonOutput ? buildJsonError("Cannot read file: " + e.getMessage()) : "ERROR: Cannot read file: " + e.getMessage();
             }
         }
 
         if (TextUtils.isEmpty(script)) {
-            return "ERROR: Missing 'script' or 'path' parameter";
+            return jsonOutput ? buildJsonError("Missing 'script' or 'path' parameter") : "ERROR: Missing 'script' or 'path' parameter";
         }
+
+        String scriptId = TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id;
+        String scriptName = TextUtils.isEmpty(name) ? "" : name;
 
         // 构建JSON并委托给处理器
         JsonObject data = new JsonObject();
-        data.addProperty("id", TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id);
+        data.addProperty("id", scriptId);
         data.addProperty("script", script);
-        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
+        data.addProperty("name", scriptName);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
         command.add("data", buildCommandData("run", data));
 
         boolean success = sHandler.handle(command);
-        return success ? "OK: Script started" : "ERROR: Failed to start script";
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("id", scriptId);
+            result.addProperty("name", scriptName);
+            return sGson.toJson(result);
+        }
+        return success ? "OK: Script started, id=" + scriptId : "ERROR: Failed to start script";
     }
 
     /**
      * 停止脚本 - 委托给 DevPluginResponseHandler
      */
-    private String handleStopScript(Intent intent) {
+    private String handleStopScript(Intent intent, boolean jsonOutput) {
         String id = intent.getStringExtra(EXTRA_ID);
         if (TextUtils.isEmpty(id)) {
-            return "ERROR: Missing 'id' parameter";
+            return jsonOutput ? buildJsonError("Missing 'id' parameter") : "ERROR: Missing 'id' parameter";
         }
 
         JsonObject data = new JsonObject();
@@ -223,19 +319,26 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         command.add("data", buildCommandData("stop", data));
 
         boolean success = sHandler.handle(command);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("id", id);
+            return sGson.toJson(result);
+        }
         return success ? "OK: Script stopped, id=" + id : "ERROR: Failed to stop script";
     }
 
     /**
-     * 保存脚本 - 委托给 DevPluginResponseHandler
+     * 推送并运行脚本 - 委托给 DevPluginResponseHandler
      */
-    private String handleSaveScript(Intent intent) {
+    private String handlePushScript(Intent intent, boolean jsonOutput) {
         String script = intent.getStringExtra(EXTRA_SCRIPT);
         String name = intent.getStringExtra(EXTRA_NAME);
+        String id = intent.getStringExtra(EXTRA_ID);
         boolean isBase64 = getBooleanExtra(intent, EXTRA_BASE64, false);
 
         if (TextUtils.isEmpty(script)) {
-            return "ERROR: Missing 'script' parameter";
+            return jsonOutput ? buildJsonError("Missing 'script' parameter") : "ERROR: Missing 'script' parameter";
         }
 
         // 解码 base64
@@ -244,54 +347,152 @@ public class AdbDebugReceiver extends BroadcastReceiver {
                 byte[] decoded = Base64.decode(script, Base64.DEFAULT);
                 script = new String(decoded, StandardCharsets.UTF_8);
             } catch (IllegalArgumentException e) {
-                return "ERROR: Invalid base64 encoding";
+                return jsonOutput ? buildJsonError("Invalid base64 encoding") : "ERROR: Invalid base64 encoding";
             }
         }
 
+        String scriptId = TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id;
+        String scriptName = TextUtils.isEmpty(name) ? "" : name;
+
+        // 构建JSON并委托给处理器（使用 run 命令）
+        JsonObject data = new JsonObject();
+        data.addProperty("id", scriptId);
+        data.addProperty("script", script);
+        data.addProperty("name", scriptName);
+
+        JsonObject command = new JsonObject();
+        command.addProperty("type", "command");
+        command.add("data", buildCommandData("run", data));
+
+        boolean success = sHandler.handle(command);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("id", scriptId);
+            result.addProperty("name", scriptName);
+            return sGson.toJson(result);
+        }
+        return success ? "OK: Script pushed and started, id=" + scriptId : "ERROR: Failed to start script";
+    }
+
+    /**
+     * 保存脚本 - 委托给 DevPluginResponseHandler
+     */
+    private String handleSaveScript(Intent intent, boolean jsonOutput) {
+        String script = intent.getStringExtra(EXTRA_SCRIPT);
+        String name = intent.getStringExtra(EXTRA_NAME);
+        boolean isBase64 = getBooleanExtra(intent, EXTRA_BASE64, false);
+
+        if (TextUtils.isEmpty(script)) {
+            return jsonOutput ? buildJsonError("Missing 'script' parameter") : "ERROR: Missing 'script' parameter";
+        }
+
+        // 解码 base64
+        if (isBase64) {
+            try {
+                byte[] decoded = Base64.decode(script, Base64.DEFAULT);
+                script = new String(decoded, StandardCharsets.UTF_8);
+            } catch (IllegalArgumentException e) {
+                return jsonOutput ? buildJsonError("Invalid base64 encoding") : "ERROR: Invalid base64 encoding";
+            }
+        }
+
+        String scriptName = TextUtils.isEmpty(name) ? "untitled.js" : name;
+
         JsonObject data = new JsonObject();
         data.addProperty("script", script);
-        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
+        data.addProperty("name", scriptName);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
         command.add("data", buildCommandData("save", data));
 
         boolean success = sHandler.handle(command);
-        return success ? "OK: Script saved" : "ERROR: Failed to save script";
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("name", scriptName);
+            return sGson.toJson(result);
+        }
+        return success ? "OK: Script saved: " + scriptName : "ERROR: Failed to save script";
     }
 
     /**
      * 重运行脚本 - 委托给 DevPluginResponseHandler
      */
-    private String handleRerunScript(Intent intent) {
+    private String handleRerunScript(Intent intent, boolean jsonOutput) {
         String script = intent.getStringExtra(EXTRA_SCRIPT);
         String id = intent.getStringExtra(EXTRA_ID);
         String name = intent.getStringExtra(EXTRA_NAME);
+        boolean isBase64 = getBooleanExtra(intent, EXTRA_BASE64, false);
 
         if (TextUtils.isEmpty(script)) {
-            return "ERROR: Missing 'script' parameter";
+            return jsonOutput ? buildJsonError("Missing 'script' parameter") : "ERROR: Missing 'script' parameter";
         }
 
+        // 解码 base64
+        if (isBase64) {
+            try {
+                byte[] decoded = Base64.decode(script, Base64.DEFAULT);
+                script = new String(decoded, StandardCharsets.UTF_8);
+            } catch (IllegalArgumentException e) {
+                return jsonOutput ? buildJsonError("Invalid base64 encoding") : "ERROR: Invalid base64 encoding";
+            }
+        }
+
+        String scriptId = TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id;
+        String scriptName = TextUtils.isEmpty(name) ? "" : name;
+
         JsonObject data = new JsonObject();
-        data.addProperty("id", TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id);
+        data.addProperty("id", scriptId);
         data.addProperty("script", script);
-        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
+        data.addProperty("name", scriptName);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
         command.add("data", buildCommandData("rerun", data));
 
         boolean success = sHandler.handle(command);
-        return success ? "OK: Script rerun" : "ERROR: Failed to rerun script";
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("id", scriptId);
+            return sGson.toJson(result);
+        }
+        return success ? "OK: Script rerun, id=" + scriptId : "ERROR: Failed to rerun script";
     }
 
     /**
      * 列出运行中的脚本
      */
-    private String handleListScripts() {
+    private String handleListScripts(boolean jsonOutput) {
         try {
             Set<ScriptEngine> engines = AutoJs.getInstance()
                     .getScriptEngineService().getEngines();
+            
+            if (jsonOutput) {
+                JsonObject result = new JsonObject();
+                result.addProperty("success", true);
+                JsonArray scriptsArray = new JsonArray();
+                
+                if (engines != null && !engines.isEmpty()) {
+                    result.addProperty("count", engines.size());
+                    for (ScriptEngine engine : engines) {
+                        JsonObject scriptInfo = new JsonObject();
+                        scriptInfo.addProperty("id", engine.getId());
+                        Object source = engine.getTag(ScriptEngine.TAG_SOURCE);
+                        if (source instanceof ScriptSource) {
+                            scriptInfo.addProperty("source", ((ScriptSource) source).getName());
+                        }
+                        scriptsArray.add(scriptInfo);
+                    }
+                } else {
+                    result.addProperty("count", 0);
+                }
+                result.add("scripts", scriptsArray);
+                return sGson.toJson(result);
+            }
+            
             if (engines == null || engines.isEmpty()) {
                 return "OK: No running scripts";
             }
@@ -307,77 +508,207 @@ public class AdbDebugReceiver extends BroadcastReceiver {
             }
             return sb.toString().trim();
         } catch (Exception e) {
-            return "OK: No running scripts";
+            return jsonOutput ? buildJsonError(e.getMessage()) : "ERROR: " + e.getMessage();
         }
     }
 
     /**
      * 停止所有脚本 - 委托给 DevPluginResponseHandler
      */
-    private String handleStopAll() {
+    private String handleStopAll(boolean jsonOutput) {
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
         command.add("data", buildCommandData("stopAll", new JsonObject()));
 
         boolean success = sHandler.handle(command);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            return sGson.toJson(result);
+        }
         return success ? "OK: All scripts stopped" : "ERROR: Failed to stop all scripts";
     }
 
+    // ==================== 文件操作命令 ====================
+
     /**
-     * 文件操作（扩展功能）
+     * 删除文件
      */
-    private String handleFileOperation(String operation, Intent intent) {
-        // 这些操作使用 FileProvider 直接处理
+    private String handleFileDelete(Intent intent, boolean jsonOutput) {
         IFileProvider provider = FileProviderFactory.getProvider();
         String path = intent.getStringExtra(EXTRA_PATH);
-
-        if ("delete".equals(operation)) {
-            if (TextUtils.isEmpty(path)) return "ERROR: Missing 'path' parameter";
-            if (!provider.exists(path)) return "ERROR: File not found: " + path;
-            boolean deleted = provider.delete(path);
-            return deleted ? "OK: File deleted: " + path : "ERROR: Failed to delete";
+        
+        if (TextUtils.isEmpty(path)) {
+            return jsonOutput ? buildJsonError("Missing 'path' parameter") : "ERROR: Missing 'path' parameter";
         }
+        if (!provider.exists(path)) {
+            return jsonOutput ? buildJsonError("File not found: " + path) : "ERROR: File not found: " + path;
+        }
+        
+        boolean deleted = provider.delete(path);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", deleted);
+            result.addProperty("path", path);
+            return sGson.toJson(result);
+        }
+        return deleted ? "OK: File deleted: " + path : "ERROR: Failed to delete";
+    }
 
-        if ("list".equals(operation)) {
-            if (TextUtils.isEmpty(path)) {
-                path = PFiles.getSdcardPath() + "/脚本";
+    /**
+     * 列出目录内容
+     */
+    private String handleFileList(Intent intent, boolean jsonOutput) {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String path = intent.getStringExtra(EXTRA_PATH);
+        
+        if (TextUtils.isEmpty(path)) {
+            path = provider.getWorkingDirectory();
+        }
+        
+        if (!provider.exists(path)) {
+            return jsonOutput ? buildJsonError("Directory not found: " + path) : "ERROR: Directory not found: " + path;
+        }
+        
+        List<IFileProvider.FileInfo> files = provider.listFiles(path);
+        
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", true);
+            result.addProperty("path", path);
+            JsonArray filesArray = new JsonArray();
+            
+            if (files != null) {
+                for (IFileProvider.FileInfo f : files) {
+                    JsonObject fileInfo = new JsonObject();
+                    fileInfo.addProperty("name", f.name);
+                    fileInfo.addProperty("isDirectory", f.isDirectory);
+                    fileInfo.addProperty("size", f.size);
+                    filesArray.add(fileInfo);
+                }
             }
-            if (!provider.exists(path)) return "ERROR: Directory not found: " + path;
-            java.util.List<IFileProvider.FileInfo> files = provider.listFiles(path);
-            if (files == null || files.isEmpty()) {
-                return "OK: Empty directory: " + path;
+            result.add("files", filesArray);
+            return sGson.toJson(result);
+        }
+        
+        if (files == null || files.isEmpty()) {
+            return "OK: Empty directory: " + path;
+        }
+        
+        StringBuilder sb = new StringBuilder("OK: Files in " + path + ":\n");
+        for (IFileProvider.FileInfo f : files) {
+            sb.append("  ").append(f.isDirectory ? "[D] " : "[F] ").append(f.name);
+            if (!f.isDirectory) {
+                sb.append(" (").append(formatSize(f.size)).append(")");
             }
-            StringBuilder sb = new StringBuilder("OK: Files in " + path + ":\n");
-            for (IFileProvider.FileInfo f : files) {
-                sb.append("  ").append(f.isDirectory ? "[D] " : "[F] ").append(f.name).append("\n");
+            sb.append("\n");
+        }
+        return sb.toString().trim();
+    }
+
+    /**
+     * 读取文件内容
+     */
+    private String handleFileRead(Intent intent, boolean jsonOutput) {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String path = intent.getStringExtra(EXTRA_PATH);
+        
+        if (TextUtils.isEmpty(path)) {
+            return jsonOutput ? buildJsonError("Missing 'path' parameter") : "ERROR: Missing 'path' parameter";
+        }
+        if (!provider.exists(path)) {
+            return jsonOutput ? buildJsonError("File not found: " + path) : "ERROR: File not found: " + path;
+        }
+        
+        String content = provider.read(path);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", content != null);
+            result.addProperty("path", path);
+            result.addProperty("content", content != null ? content : "");
+            return sGson.toJson(result);
+        }
+        return content != null ? "OK: " + content : "ERROR: Failed to read file";
+    }
+
+    /**
+     * 写入文件内容
+     */
+    private String handleFileWrite(Intent intent, boolean jsonOutput) {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String path = intent.getStringExtra(EXTRA_PATH);
+        String content = intent.getStringExtra(EXTRA_CONTENT);
+        boolean isBase64 = getBooleanExtra(intent, EXTRA_BASE64, false);
+        
+        if (TextUtils.isEmpty(path)) {
+            return jsonOutput ? buildJsonError("Missing 'path' parameter") : "ERROR: Missing 'path' parameter";
+        }
+        if (TextUtils.isEmpty(content)) {
+            return jsonOutput ? buildJsonError("Missing 'content' parameter") : "ERROR: Missing 'content' parameter";
+        }
+        
+        // 解码 base64
+        if (isBase64) {
+            try {
+                byte[] decoded = Base64.decode(content, Base64.DEFAULT);
+                content = new String(decoded, StandardCharsets.UTF_8);
+            } catch (IllegalArgumentException e) {
+                return jsonOutput ? buildJsonError("Invalid base64 encoding") : "ERROR: Invalid base64 encoding";
             }
-            return sb.toString().trim();
         }
-
-        if ("read".equals(operation)) {
-            if (TextUtils.isEmpty(path)) return "ERROR: Missing 'path' parameter";
-            if (!provider.exists(path)) return "ERROR: File not found: " + path;
-            String content = provider.read(path);
-            return content != null ? "OK: " + content : "ERROR: Failed to read file";
+        
+        boolean success = provider.write(path, content);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", success);
+            result.addProperty("path", path);
+            return sGson.toJson(result);
         }
+        return success ? "OK: File written: " + path : "ERROR: Failed to write file";
+    }
 
-        if ("mkdir".equals(operation)) {
-            if (TextUtils.isEmpty(path)) return "ERROR: Missing 'path' parameter";
-            boolean created = provider.mkdirs(path);
-            return created ? "OK: Directory created: " + path : "ERROR: Failed to create directory";
+    /**
+     * 创建目录
+     */
+    private String handleMkdir(Intent intent, boolean jsonOutput) {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String path = intent.getStringExtra(EXTRA_PATH);
+        
+        if (TextUtils.isEmpty(path)) {
+            return jsonOutput ? buildJsonError("Missing 'path' parameter") : "ERROR: Missing 'path' parameter";
         }
-
-        if ("rename".equals(operation)) {
-            String oldPath = intent.getStringExtra("oldpath");
-            String newPath = intent.getStringExtra("newpath");
-            if (TextUtils.isEmpty(oldPath) || TextUtils.isEmpty(newPath)) {
-                return "ERROR: Missing 'oldpath' or 'newpath' parameter";
-            }
-            boolean renamed = provider.rename(oldPath, provider.getName(newPath));
-            return renamed ? "OK: Renamed to " + newPath : "ERROR: Failed to rename";
+        
+        boolean created = provider.mkdirs(path);
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", created);
+            result.addProperty("path", path);
+            return sGson.toJson(result);
         }
+        return created ? "OK: Directory created: " + path : "ERROR: Failed to create directory";
+    }
 
-        return "ERROR: Unknown file operation: " + operation;
+    /**
+     * 重命名文件
+     */
+    private String handleRenameFile(Intent intent, boolean jsonOutput) {
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String oldPath = intent.getStringExtra(EXTRA_OLDPATH);
+        String newPath = intent.getStringExtra(EXTRA_NEWPATH);
+        
+        if (TextUtils.isEmpty(oldPath) || TextUtils.isEmpty(newPath)) {
+            return jsonOutput ? buildJsonError("Missing 'oldpath' or 'newpath' parameter") : "ERROR: Missing 'oldpath' or 'newpath' parameter";
+        }
+        
+        boolean renamed = provider.rename(oldPath, provider.getName(newPath));
+        if (jsonOutput) {
+            JsonObject result = new JsonObject();
+            result.addProperty("success", renamed);
+            result.addProperty("oldPath", oldPath);
+            result.addProperty("newPath", newPath);
+            return sGson.toJson(result);
+        }
+        return renamed ? "OK: Renamed to " + newPath : "ERROR: Failed to rename";
     }
 
     /**
@@ -404,5 +735,35 @@ public class AdbDebugReceiver extends BroadcastReceiver {
             }
         }
         return value;
+    }
+
+    /**
+     * 构建 JSON 成功响应
+     */
+    private String buildJsonSuccess(String key, String value) {
+        JsonObject result = new JsonObject();
+        result.addProperty("success", true);
+        result.addProperty(key, value);
+        return sGson.toJson(result);
+    }
+
+    /**
+     * 构建 JSON 错误响应
+     */
+    private String buildJsonError(String message) {
+        JsonObject result = new JsonObject();
+        result.addProperty("success", false);
+        result.addProperty("error", message);
+        return sGson.toJson(result);
+    }
+
+    /**
+     * 格式化文件大小
+     */
+    private String formatSize(long size) {
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format(Locale.US, "%.1f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format(Locale.US, "%.1f MB", size / (1024.0 * 1024));
+        return String.format(Locale.US, "%.1f GB", size / (1024.0 * 1024 * 1024));
     }
 }

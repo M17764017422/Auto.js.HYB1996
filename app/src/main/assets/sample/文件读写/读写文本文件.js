@@ -1,5 +1,8 @@
-//以写入模式打开SD卡根目录文件1.txt
-var file = open("/sdcard/1.txt", "w")
+//工作目录（当前脚本所在目录）
+var workDir = engines.myEngine().cwd();
+
+//以写入模式打开文件1.txt
+var file = open(workDir + "/1.txt", "w")
 //写入aaaa
 file.write("aaaa");
 //写入bbbbb后换行
@@ -10,7 +13,7 @@ file.writelines(["ccc", "ddd"]);
 file.close();
 
 //以附加模式打开文件
-file = open("/sdcard/1.txt", "a");
+file = open(workDir + "/1.txt", "a");
 //附加一行"啦啦啦啦"
 file.writeline("啦啦啦啦");
 //附加一行"哈哈哈哈"
@@ -24,7 +27,7 @@ file.close();
 
 
 //以读取模式打开文件
-file = open("/sdcard/test.txt", "r")
+file = open(workDir + "/test.txt", "r")
 //读取一行并打印
 print(file.readline());
 //读取剩余所有行并打印

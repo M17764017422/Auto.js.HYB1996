@@ -186,8 +186,9 @@ public class DevPluginResponseHandler implements Handler {
         if (!name.endsWith(".js")) {
             name = name + ".js";
         }
-        String filePath = Pref.getScriptDirPath() + "/" + name;
-        IFileProvider provider = FileProviderFactory.getProvider(filePath);
+        // 使用 FileProvider 获取实际工作目录，确保 SAF 模式兼容
+        IFileProvider provider = FileProviderFactory.getProvider();
+        String filePath = provider.getWorkingDirectory() + "/" + name;
         // 如果文件不存在，写入内容会自动创建文件
         provider.write(filePath, script);
         GlobalAppContext.toast(R.string.text_script_save_successfully);
@@ -200,7 +201,9 @@ public class DevPluginResponseHandler implements Handler {
             name = "untitled";
         }
         name = PFiles.getNameWithoutExtension(name);
-        File toDir = new File(Pref.getScriptDirPath(), name);
+        // 使用 FileProvider 获取实际工作目录，确保 SAF 模式兼容
+        String workDir = FileProviderFactory.getProvider().getWorkingDirectory();
+        File toDir = new File(workDir, name);
         Observable.fromCallable(() -> {
             copyDir(new File(dir), toDir);
             return toDir.getPath();

@@ -12,12 +12,12 @@ import com.stardust.util.IntentUtil;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
-import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.Explorers;
 import org.autojs.autojs.model.script.Scripts;
+import org.autojs.autojs.storage.FileProviderFactory;
 import org.autojs.autojs.tool.SimpleObserver;
 import org.autojs.autojs.ui.common.ScriptOperations;
 import org.autojs.autojs.ui.explorer.ExplorerView;
@@ -59,7 +59,7 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
     void setUpViews() {
         ExplorerItemList.SortConfig sortConfig = ExplorerItemList.SortConfig.from(PreferenceManager.getDefaultSharedPreferences(getContext()));
         mExplorerView.setSortConfig(sortConfig);
-        mExplorerView.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(Pref.getScriptDirPath()));
+        mExplorerView.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(FileProviderFactory.getProvider().getWorkingDirectory()));
         mExplorerView.setOnItemClickListener((view, item) -> {
             if (item.isEditable()) {
                 Scripts.INSTANCE.edit(getActivity(), item.toScriptFile());
