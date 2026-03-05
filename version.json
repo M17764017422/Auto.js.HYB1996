@@ -1,30 +1,28 @@
 {
-  "versionCode": 8000,
-  "versionName": "Pro 8.7.6",
-  "releaseNotes": "**Auto.js免费版已不再维护，建议使用Pro 8.7版本**\n* dex加密、snapshot等增强的加密方式、自定义签名、更小的打包体积\n* 可视化UI编辑、专业级单步调试、全新界面与编辑器\n* 新增大量API，压缩、加解密、OCR、加速找色等，修复大量问题\n* V9版本将支持Node.js，敬请期待",
+  "versionCode": 810000,
+  "versionName": "0.81.0",
+  "releaseNotes": "**v0.81.0 正式支持 SAF (Storage Access Framework)**\n\n## SAF 文件操作支持\n\nAndroid 11+ 引入了分区存储限制，需要通过 SAF 授权才能访问公共目录。本版本完整支持 SAF 模式下的文件操作。\n\n### 新增功能\n- 完整支持 SAF 授权目录下的文件读写操作\n- 支持 files 模块所有 API 在 SAF 目录下正常工作\n- 支持 open() 函数在 SAF 目录下创建和读写文件\n- 支持多种编码 (UTF-8/GBK 等) 的文件读写\n- 支持 Uint8Array 和普通数组的二进制数据读写\n\n### 修复问题\n- 修复 PReadableTextFile.read() 方法混合使用 readline() 后数据丢失问题\n- 修复 PReadableTextFile.readlines() 方法在某些情况下无法正确读取问题\n- 修复 files.read() 对不存在文件返回 null 而非抛出异常问题\n- 修复 SAF 模式下文件操作的各种边界情况\n\n### 测试验证\n- 添加完整的 SAF 文件操作测试套件 (55 个测试用例)\n- 测试通过率 100%\n- 跨版本兼容性验证通过\n\n## 其他改进\n- 更新 Rhino 引擎到 1.7.14，支持 ES6 部分特性\n- 更新 OpenCV 到 4.8.0\n- 内置 PaddleOCR 支持\n- 支持 ONNX 模型本地推理",
   "downloads" : [
 	{
-	  "name": "官网下载",
-	  "url": "https://pro.autojs.org/download"
+	  "name": "GitHub Release",
+	  "url": "https://github.com/TonyJiangWJ/Auto.js/releases"
 	},
 	{
 	  "name": "酷安",
-	  "url": "https://www.coolapk.com/apk/246247"
-	},
-	{
-	  "name": "小米商店",
-	  "url": "https://app.mi.com/details?id=org.autojs.autojspro"
+	  "url": "https://www.coolapk.com/apk/org.autojs.autojs.modify"
 	}
   ],
   "oldVersions": [
     {
-	  "versionCode": 115,
-	  "issues": "[测试] 当前版本为Beta版本，问题很多，请尽快更新正式版"
+	  "versionCode": 802000,
+	  "versionName": "0.80.2",
+	  "issues": "SAF 模式下部分文件操作存在问题"
 	},
 	{
-	  "versionCode": "116",
-	  "issues": "[测试] 当前版本为Beta版本，请尽快更新正式版"
+	  "versionCode": 800000,
+	  "versionName": "0.80.0",
+	  "issues": "初始 SAF 支持版本"
 	}
   ],
-  "deprecated": 116
+  "deprecated": 800000
 }

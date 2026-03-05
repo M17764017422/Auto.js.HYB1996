@@ -1,6 +1,6 @@
 {
-  "appVersionCode": 802000,
-  "baseVersionName": "0.80.2",
+  "appVersionCode": 810000,
+  "baseVersionName": "0.81.0",
   "target": 34,
   "mini": 19,
   "compile": 34,
