@@ -220,6 +220,21 @@
             </intent-filter>
         </receiver>
 
+        <!-- ADB 调试接口接收器 -->
+        <receiver android:name=".external.receiver.AdbDebugReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="${applicationId}.adb.RUN_SCRIPT"/>
+                <action android:name="${applicationId}.adb.STOP_SCRIPT"/>
+                <action android:name="${applicationId}.adb.STOP_ALL"/>
+                <action android:name="${applicationId}.adb.LIST_SCRIPTS"/>
+                <action android:name="${applicationId}.adb.SAVE_SCRIPT"/>
+                <action android:name="${applicationId}.adb.PUSH_SCRIPT"/>
+                <action android:name="${applicationId}.adb.RERUN_SCRIPT"/>
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".external.tasker.FireSettingReceiver"
             android:exported="true"

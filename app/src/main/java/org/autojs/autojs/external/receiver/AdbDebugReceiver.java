@@ -196,9 +196,7 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         JsonObject data = new JsonObject();
         data.addProperty("id", TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id);
         data.addProperty("script", script);
-        if (!TextUtils.isEmpty(name)) {
-            data.addProperty("name", name);
-        }
+        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
@@ -252,9 +250,7 @@ public class AdbDebugReceiver extends BroadcastReceiver {
 
         JsonObject data = new JsonObject();
         data.addProperty("script", script);
-        if (!TextUtils.isEmpty(name)) {
-            data.addProperty("name", name);
-        }
+        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
@@ -279,9 +275,7 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         JsonObject data = new JsonObject();
         data.addProperty("id", TextUtils.isEmpty(id) ? "adb_" + System.currentTimeMillis() : id);
         data.addProperty("script", script);
-        if (!TextUtils.isEmpty(name)) {
-            data.addProperty("name", name);
-        }
+        data.addProperty("name", TextUtils.isEmpty(name) ? "" : name);
 
         JsonObject command = new JsonObject();
         command.addProperty("type", "command");
