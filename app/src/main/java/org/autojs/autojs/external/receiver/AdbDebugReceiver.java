@@ -296,19 +296,18 @@ public class AdbDebugReceiver extends BroadcastReceiver {
      */
     private String handleListScripts() {
         try {
-            java.util.Set<com.stardust.autojs.engine.ScriptEngine> engines = 
-                com.stardust.autojs.autojs.AutoJs.getInstance()
+            Set<ScriptEngine> engines = AutoJs.getInstance()
                     .getScriptEngineService().getEngines();
             if (engines == null || engines.isEmpty()) {
                 return "OK: No running scripts";
             }
 
             StringBuilder sb = new StringBuilder("OK: Running scripts (" + engines.size() + "):\n");
-            for (com.stardust.autojs.engine.ScriptEngine engine : engines) {
+            for (ScriptEngine engine : engines) {
                 sb.append("  id=").append(engine.getId());
-                Object source = engine.getTag(com.stardust.autojs.engine.ScriptEngine.TAG_SOURCE);
-                if (source instanceof com.stardust.autojs.script.ScriptSource) {
-                    sb.append(", source=").append(((com.stardust.autojs.script.ScriptSource) source).getName());
+                Object source = engine.getTag(ScriptEngine.TAG_SOURCE);
+                if (source instanceof ScriptSource) {
+                    sb.append(", source=").append(((ScriptSource) source).getName());
                 }
                 sb.append("\n");
             }
