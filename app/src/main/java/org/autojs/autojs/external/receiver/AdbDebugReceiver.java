@@ -9,7 +9,6 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
-import com.stardust.autojs.autojs.AutoJs;
 import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.script.ScriptSource;
 import com.stardust.pio.IFileProvider;
@@ -17,6 +16,7 @@ import com.stardust.pio.PFiles;
 import com.stardust.pio.FileProviderFactory;
 
 import org.autojs.autojs.BuildConfig;
+import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.pluginclient.DevPluginResponseHandler;
 
 import java.io.File;
