@@ -4,15 +4,16 @@ package com.stardust.autojs.rhino;
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException;
 
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.tools.shell.ShellContextFactory;
+import org.mozilla.javascript.ContextFactory;
 
 import java.io.File;
 
 /**
  * Created by Stardust on 2017/4/5.
+ * Updated for Rhino 2.0.0 compatibility - now extends ContextFactory instead of ShellContextFactory
+ * (ShellContextFactory is in rhino-tools module, not in the core rhino jar)
  */
-
-public class AndroidContextFactory extends ShellContextFactory {
+public class AndroidContextFactory extends ContextFactory {
     private final File cacheDirectory;
 
     /**

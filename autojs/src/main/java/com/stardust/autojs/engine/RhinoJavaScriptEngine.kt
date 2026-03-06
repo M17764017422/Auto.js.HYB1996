@@ -15,6 +15,7 @@ import com.stardust.pio.UncheckedIOException
 import org.mozilla.javascript.*
 import org.mozilla.javascript.commonjs.module.RequireBuilder
 import org.mozilla.javascript.commonjs.module.provider.SoftCachingModuleScriptProvider
+import org.mozilla.javascript.lc.type.TypeInfo
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
@@ -153,18 +154,20 @@ open class RhinoJavaScriptEngine(private val mAndroidContext: android.content.Co
 
     private inner class WrapFactory : org.mozilla.javascript.WrapFactory() {
 
-        override fun wrap(cx: Context, scope: Scriptable, obj: Any?, staticType: Class<*>?): Any? {
+        // Rhino 2.0.0 API: override the TypeInfo version instead of Class version (which is now final)
+        override fun wrap(cx: Context, scope: Scriptable, obj: Any?, staticType: TypeInfo): Any? {
             return when {
                 obj is String -> runtime.bridges.toString(obj.toString())
-                staticType == UiObjectCollection::class.java -> runtime.bridges.asArray(obj)
+                staticType.is(UiObjectCollection::class.java) -> runtime.bridges.asArray(obj)
                 else -> super.wrap(cx, scope, obj, staticType)
             }
         }
 
-        override fun wrapAsJavaObject(cx: Context?, scope: Scriptable, javaObject: Any?, staticType: Class<*>?): Scriptable? {
+        // Rhino 2.0.0 API: override the TypeInfo version instead of Class version (which is now final)
+        override fun wrapAsJavaObject(cx: Context?, scope: Scriptable, javaObject: Any?, staticType: TypeInfo): Scriptable? {
             //Log.d(LOG_TAG, "wrapAsJavaObject: java = " + javaObject + ", result = " + result + ", scope = " + scope);
             return if (javaObject is View) {
-                ViewExtras.getNativeView(scope, javaObject, staticType, runtime)
+                ViewExtras.getNativeView(scope, javaObject, staticType.asClass(), runtime)
             } else {
                 super.wrapAsJavaObject(cx, scope, javaObject, staticType)
             }
