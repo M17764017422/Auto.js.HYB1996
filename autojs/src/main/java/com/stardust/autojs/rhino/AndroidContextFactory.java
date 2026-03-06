@@ -1,4 +1,4 @@
-﻿package com.stardust.autojs.rhino;
+package com.stardust.autojs.rhino;
 
 
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException;

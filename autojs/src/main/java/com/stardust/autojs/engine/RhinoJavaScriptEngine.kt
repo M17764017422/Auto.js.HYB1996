@@ -1,4 +1,4 @@
-﻿package com.stardust.autojs.engine
+package com.stardust.autojs.engine
 
 import android.util.Log
 import android.view.View
