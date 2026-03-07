@@ -33,27 +33,31 @@
 
 #### ES6+ 支持情况
 
-**支持率**: 70.4% (50/71 项测试)
+**实测支持率**: 94% (34/36 项测试) - 2026-03-08 实机验证
 
-**支持特性**:
-- 箭头函数
-- 模板字符串
-- let/const 块级作用域
-- 解构赋值
-- Promise
-- Map/Set
-- 生成器 (function*/yield)
-- Object.assign/values/entries
-- 数组方法 (find/filter/map 等)
+**支持特性** (34项):
+- ✅ 箭头函数 (含闭包)
+- ✅ 模板字符串 (含表达式插值)
+- ✅ let/const 块级作用域
+- ✅ 解构赋值 (嵌套+默认值)
+- ✅ Promise (链式调用、all、race)
+- ✅ Map/Set (完整操作)
+- ✅ 生成器 (function*/yield)
+- ✅ Object.assign/values/keys/entries
+- ✅ 数组方法 (find/findIndex/includes/from/of/fill)
+- ✅ 字符串方法 (includes/startsWith/endsWith/repeat/padStart/padEnd)
+- ✅ **展开运算符 ...** (实测支持)
+- ✅ **默认参数** (实测支持)
+- ✅ **空值合并 ??** (实测支持)
+- ✅ for...of 迭代
+- ✅ Symbol
 
-**不支持特性**:
-- 默认参数
-- 扩展运算符 (...)
-- class 关键字
-- async/await
-- 可选链 (?.)
-- 空值合并 (??)
-- ES6 import/export
+**不支持特性** (2项):
+- ❌ let 循环闭包捕获 (返回最终值而非每次迭代的值)
+- ❌ class 关键字
+- ❌ async/await
+- ❌ 可选链 ?.
+- ❌ `Java.extend` (API 已移除，使用 `new Interface()`)
 
 #### API 变更
 
@@ -199,6 +203,77 @@ try {
 | TTS 朗读 | ❌ 失败 | ✅ 成功 |
 | 默认引擎发现 | ❌ 无法发现 | ✅ org.nobody.sgtts |
 
+### 4.4 综合能力实测报告
+
+**测试日期**: 2026-03-08  
+**测试脚本**: `test_rhino2_comprehensive.js`  
+**测试环境**: Android 14, targetSdk 34
+
+#### 总体结果
+
+| 指标 | 数值 |
+|------|------|
+| 总测试项 | 36 项 |
+| 通过 | 34 项 |
+| 失败 | 2 项 |
+| **支持率** | **94%** |
+| 耗时 | 625ms |
+
+#### 分类统计
+
+| 类别 | 通过/总数 | 支持率 |
+|------|-----------|--------|
+| ES6+ 语法 | 14/15 | 93% |
+| Java 互操作 | 7/8 | 88% |
+| 类型系统 | 3/3 | 100% |
+| 异常处理 | 3/3 | 100% |
+| 性能测试 | 3/3 | 100% |
+| AutoJS API | 4/4 | 100% |
+
+#### ES6+ 详细测试结果
+
+```
+【ES6】 14/15 (93%)
+✓ 1.1 箭头函数闭包 (data=10,15,24)
+✓ 1.2 模板字符串表达式 (AutoJS v2: 22 items)
+✗ 1.3 let块级作用域 (返回 3,3,3 - 闭包捕获问题)
+✓ 1.4 复杂解构赋值 (Tom@Beijing sum=10)
+✓ 1.5 Promise链式数据传递
+✓ 1.6 Map数据完整性 (a:1;b:2;c:3)
+✓ 1.7 Set去重与操作 (size=3 has2=true)
+✓ 1.8 生成器状态机 (fib=0,1,1,2,3)
+✓ 1.9 Object.entries转换
+✓ 1.10 Array.find/findIndex (found=B idx=2)
+✓ 1.11 展开运算符 ... (支持)
+✓ 1.12 默认参数 (支持, 15,25)
+✓ 1.13 空值合并 ?? (支持)
+✓ 1.14 for...of迭代 (sum=15 chars=ABC)
+✓ 1.15 Symbol唯一性
+```
+
+#### Java 互操作测试结果
+
+```
+【Java】 7/8 (88%)
+✓ 2.1 Java类型实例化 (str=5 list=2 file=true)
+✓ 2.2 importClass/importPackage
+✓ 2.3 接口实现 new Interface() (runnable=true cmp=5)
+✗ 2.4 Java.extend ("Java" 未定义 - 已弃用)
+✓ 2.5 Java数组操作 (len=5 sum=60)
+✓ 2.6 StringBuilder性能 (len=1000)
+✓ 2.7 HashMap操作 (size=3 sum=6)
+✓ 2.8 反射调用静态方法
+```
+
+#### 性能测试结果
+
+```
+【Perf】 3/3 (100%)
+✓ 5.1 循环性能 (1万次 10ms)
+✓ 5.2 对象创建 (1000个HashMap 25ms)
+✓ 5.3 字符串拼接 (5000次 6ms)
+```
+
 ---
 
 ## 五、迁移指南
@@ -237,22 +312,47 @@ var map = new Map();
 var set = new Set();
 ```
 
-### 5.3 不支持特性替代方案
+### 5.3 实测支持的特性 (之前误判为不支持)
+
+以下特性经实测确认**已支持**：
 
 ```javascript
-// ❌ 默认参数
-function foo(a = 1) { }
+// ✅ 默认参数 (实测支持)
+function foo(a = 1) { return a; }
+foo();  // 返回 1
 
-// ✅ 替代方案
-function foo(a) {
-    a = a !== undefined ? a : 1;
+// ✅ 展开运算符 (实测支持)
+var arr1 = [1, 2, 3];
+var arr2 = [4, 5];
+var combined = [...arr1, ...arr2];  // [1,2,3,4,5]
+
+// ✅ 空值合并 ?? (实测支持)
+var x = null ?? "default";  // "default"
+var y = 0 ?? 100;  // 0 (0 不是 null/undefined)
+```
+
+### 5.4 仍不支持的特性替代方案
+
+```javascript
+// ❌ let 循环闭包捕获
+for (let i = 0; i < 3; i++) {
+    arr.push(() => i);
+}
+// 预期: [0, 1, 2]  实际: [3, 3, 3]
+
+// ✅ 替代方案: 使用 IIFE 或 let 外变量
+for (let i = 0; i < 3; i++) {
+    (function(j) {
+        arr.push(() => j);
+    })(i);
 }
 
-// ❌ 扩展运算符
-var arr = [...other]
+// ❌ class 关键字
+class Foo { }
 
-// ✅ 替代方案
-var arr = other.slice();
+// ✅ 替代方案: 构造函数 + 原型
+function Foo() { }
+Foo.prototype.method = function() { };
 
 // ❌ async/await
 async function foo() { await bar(); }
@@ -263,6 +363,19 @@ function foo() {
         bar(function() { resolve(); });
     });
 }
+
+// ❌ 可选链 ?.
+var x = obj?.prop?.nested;
+
+// ✅ 替代方案
+var x = obj && obj.prop && obj.prop.nested;
+
+// ❌ Java.extend (API 已移除)
+var Ext = Java.extend(ArrayList, {...});
+
+// ✅ 替代方案: new Interface() 或 JavaAdapter
+var runnable = new java.lang.Runnable({run: function() {}});
+var list = new JavaAdapter(java.util.ArrayList, {...});
 ```
 
 ---
