@@ -566,11 +566,44 @@ if(Looper.myLooper() == Looper.getMainLooper()){
 
 | 文件 | 原因 |
 |------|------|
-| `app/src/main/res/layout/activity_view_sample.xml` | 引用不存在的类 `JecEditText`、`EditorView`，无源码使用 |
-| `app/src/main/java/.../ViewSampleActivity.java` | 对应上述布局，功能未使用 |
+| `app/src/main/res/layout/activity_view_sample.xml` | 引用不存在的类 `JecEditText`、`EditorView` |
+| `app/src/main/res/menu/menu_view_sample.xml` | 对应 ViewSampleActivity 的菜单文件 |
+| `app/src/main/java/.../ViewSampleActivity.java` | 布局依赖缺失，且未被项目引用 |
+| `app/src/main/AndroidManifest.xml` | 移除 ViewSampleActivity 声明 |
 | `autojs/libs/rhino-1.7.14-jdk7.jar` | 已替换为 rhino-all-2.0.0-SNAPSHOT.jar |
 
-### 4.2 影响分析
+### 4.2 ViewSampleActivity 功能分析
+
+**原始功能**：示例脚本查看器，用于查看和运行内置示例脚本。
+
+| 方法 | 功能 |
+|------|------|
+| `view(Context, SampleFile)` | 静态入口，启动 Activity 查看示例 |
+| `run()` | 运行当前示例脚本 |
+| `edit()` | 导入示例到用户脚本目录并打开编辑器 |
+| `importSample()` | 将示例脚本复制到用户脚本目录 |
+
+**菜单功能**：
+- `action_console` - 显示脚本控制台
+- `action_log` - 显示日志窗口
+- `action_help` - 显示帮助
+- `action_import` - 导入示例到我的脚本
+
+**删除原因**：
+
+布局文件 `activity_view_sample.xml` 引用了以下类：
+- `com.jecelyin.editor.v2.core.widget.JecEditText`
+- `com.jecelyin.editor.v2.view.EditorView`
+
+这些类是原作者 `hyb1996` 的私有编辑器组件，**未包含在开源代码中**。因此该 Activity 实际上无法正常工作，属于无效代码。
+
+**调用链分析**：
+```
+ViewSampleActivity.view() ← 无调用者
+```
+项目中无任何代码调用 `ViewSampleActivity.view()`，确认为死代码。
+
+### 4.3 影响分析
 
 | 属性 | 说明 |
 |------|------|
