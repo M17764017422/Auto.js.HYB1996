@@ -103,7 +103,6 @@
             android:name=".external.tasker.TaskerScriptEditActivity_"
             android:configChanges="orientation|screenSize"
             />
-        <activity android:name=".ui.edit.ViewSampleActivity"/>
         <activity
             android:name=".ui.user.LoginActivity_"
             android:windowSoftInputMode="adjustResize"/>
