@@ -10,7 +10,8 @@ module.exports = function(runtime, global){
     }
 
     global.sleep = function(t) {
-        if(ui.isUiThread()){
+        var Looper = android.os.Looper;
+        if(Looper.myLooper() == Looper.getMainLooper()){
             throw new Error("不能在ui线程执行阻塞操作，请使用setTimeout代替");
         }
         runtime.sleep(t);
@@ -67,7 +68,8 @@ module.exports = function(runtime, global){
     }
 
     function ensureNonUiThread() {
-        if(ui.isUiThread()){
+        var Looper = android.os.Looper;
+        if(Looper.myLooper() == Looper.getMainLooper()){
             throw new Error("不能在ui线程执行阻塞操作，请在子线程或子脚本执行，或者使用setInterval循环检测当前activity和package");
         }
     }

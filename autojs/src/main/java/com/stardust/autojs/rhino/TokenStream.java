@@ -7,11 +7,11 @@
 package com.stardust.autojs.rhino;
 
 import org.mozilla.javascript.Kit;
-import org.mozilla.javascript.ObjToIntMap;
 import org.mozilla.javascript.Token;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 
 
 public  class TokenStream {
@@ -1053,11 +1053,10 @@ public  class TokenStream {
 				String str = getStringFromBuffer();
 				int result = stringToKeyword(str);
 				if (result != Token.EOF) {
-					return result;
-				}
-				this.string = (String) allStrings.intern(str);
-				return Token.NAME;
-			}
+									return result;
+								}
+								this.string = allStrings.computeIfAbsent(str, k -> k);
+								return Token.NAME;			}
 
 			// is it a number?
 			if (isDigit(c) || (c == '.' && isDigit(peekChar()))) {
@@ -1280,7 +1279,7 @@ public  class TokenStream {
 				}
 
 				String str = getStringFromBuffer();
-				this.string = (String) allStrings.intern(str);
+				this.string = allStrings.computeIfAbsent(str, k -> k);
 				return Token.STRING;
 			}
 
@@ -2276,7 +2275,7 @@ public  class TokenStream {
 
 	private char[] stringBuffer = new char[128];
 	private int stringBufferTop;
-	private ObjToIntMap allStrings = new ObjToIntMap(50);
+	private final HashMap<String, String> allStrings = new HashMap<>();
 
 	// Room to backtrace from to < on failed match of the last - in <!--
 	private final int[] ungetBuffer = new int[3];

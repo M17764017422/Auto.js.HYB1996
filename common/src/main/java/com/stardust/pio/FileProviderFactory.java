@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.util.Log;
 
 /**
@@ -127,6 +128,12 @@ public class FileProviderFactory {
                 if (safUri != null && !safUri.isEmpty()) {
                     Uri treeUri = Uri.parse(safUri);
                     try {
+                        // 从 SAF URI 解析实际路径，确保 rootPath 与授权目录匹配
+                        String actualRootPath = getActualPathFromSafUri(treeUri);
+                        if (actualRootPath != null) {
+                            workDir = actualRootPath;
+                            Log.i(TAG, "Using actual rootPath from SAF URI: " + workDir);
+                        }
                         sInstance = new SafFileProviderImpl(treeUri, workDir);
                         Log.i(TAG, "SafFileProviderImpl created successfully");
                         return sInstance;
@@ -204,5 +211,60 @@ public class FileProviderFactory {
             default:
                 return "无权限";
         }
+    }
+
+    /**
+     * 从 SAF URI 解析实际文件系统路径
+     * @param treeUri SAF 授权的树 URI
+     * @return 实际文件系统路径，如 /storage/emulated/0/脚本/测试
+     */
+    private static String getActualPathFromSafUri(Uri treeUri) {
+        if (treeUri == null) return null;
+        
+        try {
+            String documentId = DocumentsContract.getTreeDocumentId(treeUri);
+            Log.d(TAG, "getActualPathFromSafUri: documentId=" + documentId);
+            
+            // ExternalStorageProvider 格式: primary:Download 或 XXXX-XXXX:Directory
+            if (documentId.startsWith("primary:")) {
+                // 主存储
+                String relativePath = documentId.substring(8); // "primary:".length()
+                String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+                return sdcard + "/" + relativePath;
+            } else if (documentId.contains(":")) {
+                // 可能是 SD 卡或其他存储设备
+                String[] parts = documentId.split(":", 2);
+                String volumeId = parts[0];
+                String relativePath = parts.length > 1 ? parts[1] : "";
+                
+                // 查找对应的存储路径
+                String storagePath = findStoragePath(volumeId);
+                if (storagePath != null) {
+                    return relativePath.isEmpty() ? storagePath : storagePath + "/" + relativePath;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "getActualPathFromSafUri failed", e);
+        }
+        
+        return null;
+    }
+
+    /**
+     * 根据 volume ID 查找存储路径
+     */
+    private static String findStoragePath(String volumeId) {
+        // primary 通常是主存储
+        if ("primary".equalsIgnoreCase(volumeId)) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
+        
+        // SD 卡或其他存储: /storage/XXXX-XXXX
+        java.io.File storageDir = new java.io.File("/storage/" + volumeId);
+        if (storageDir.exists()) {
+            return storageDir.getAbsolutePath();
+        }
+        
+        return null;
     }
 }

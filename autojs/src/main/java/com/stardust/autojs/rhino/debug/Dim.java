@@ -469,18 +469,16 @@ public class Dim {
      */
     private static DebuggableScript[] getAllFunctions
     (DebuggableScript function) {
-        ObjArray functions = new ObjArray();
+        List<DebuggableScript> functions = new ArrayList<>();
         collectFunctions_r(function, functions);
-        DebuggableScript[] result = new DebuggableScript[functions.size()];
-        functions.toArray(result);
-        return result;
+        return functions.toArray(new DebuggableScript[0]);
     }
 
     /**
      * Helper function for {@link #getAllFunctions(DebuggableScript)}.
      */
     private static void collectFunctions_r(DebuggableScript function,
-                                           ObjArray array) {
+                                           List<DebuggableScript> array) {
         array.add(function);
         for (int i = 0; i != function.getFunctionCount(); ++i) {
             collectFunctions_r(function.getFunction(i), array);
@@ -1074,7 +1072,7 @@ public class Dim {
         /**
          * The stack frames.
          */
-        private ObjArray frameStack = new ObjArray();
+        private final LinkedList<StackFrame> frameStack = new LinkedList<>();
 
         /**
          * Whether the debugger should break at the next line in this context.
@@ -1116,7 +1114,7 @@ public class Dim {
          */
         public StackFrame getFrame(int frameNumber) {
             int num = frameStack.size() - frameNumber - 1;
-            return (StackFrame) frameStack.get(num);
+            return frameStack.get(num);
         }
 
         /**

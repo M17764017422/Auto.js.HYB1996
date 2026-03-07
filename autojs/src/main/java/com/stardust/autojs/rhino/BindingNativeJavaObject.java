@@ -18,11 +18,11 @@ public class BindingNativeJavaObject extends NativeJavaObject {
 
     @Override
     protected void initMembers() {
-        Class dynamicType;
+        Class<?> dynamicType;
         if (this.javaObject != null) {
             dynamicType = this.javaObject.getClass();
         } else {
-            dynamicType = this.staticType;
+            dynamicType = this.staticType.asClass();
         }
 
 

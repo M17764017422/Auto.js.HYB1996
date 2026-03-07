@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'com.google.devtools.ksp'
 
 def AAVersion = '4.8.0'
 def SupportLibVersion = '28.0.0'
@@ -23,6 +24,10 @@ android {
     namespace 'org.autojs.autojs'
     compileSdkVersion versions.compile
     buildToolsVersion versions.buildTool
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
     
     // Resolve keystore file path - handle both absolute and relative paths
     def resolveKeystoreFile = { String path ->

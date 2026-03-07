@@ -3,7 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
+    namespace 'com.stardust.autojs'
     compileSdkVersion versions.compile
+    buildFeatures {
+        buildConfig true
+    }
     buildToolsVersion versions.buildTool
 
     defaultConfig {
@@ -76,8 +80,8 @@ dependencies {
     api(name: 'term-debug', ext: 'aar')
     // Rhino JavaScript Engine - upgraded to 2.0.0-SNAPSHOT for ES6+ features
     // Using custom build from Rhino-For-AutoJs (Java 11 bytecode, Android compatible)
-    // Includes: optional chaining, nullish coalescing, globalThis, etc.
-    api files('libs/rhino-2.0.0-SNAPSHOT.jar')
+    // Includes: optional chaining, nullish coalescing, globalThis, debugger, etc.
+    api files('libs/rhino-all-2.0.0-SNAPSHOT.jar')
     api project(path: ':common')
     api project(path: ':automator')
 }
