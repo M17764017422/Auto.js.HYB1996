@@ -220,28 +220,25 @@ dependencies {
     implementation('com.heinrichreimersoftware:android-issue-reporter:1.3.1', {
         exclude group: 'com.afollestad.material-dialogs'
         exclude group: 'com.android.support'
-        // Force compatible version of expandable-layout
-        exclude group: 'com.github.aakira', module: 'expandable-layout'
     })
-    // Add compatible version of expandable-layout directly
-    implementation('com.github.aakira:expandable-layout:1.4.3@aar') {
-        transitive = true
-    }
+    // Expandable layout - local AAR
+    implementation files('libs/expandable-layout-1.4.3.aar')
     //MultiLevelListView - local AAR
     implementation files('libs/android-multi-level-listview-1.1.aar')
     //Licenses Dialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
     //Expandable RecyclerView
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
-    //FlexibleDivider - JitPack
-    implementation 'com.github.yqritc:RecyclerView-FlexibleDivider:1.4.0'
-    //AVLoadingIndicatorView - JitPack
-    implementation 'com.github.HarlonWang:AVLoadingIndicatorView:2.1.3'
+    //FlexibleDivider - local AAR
+    implementation files('libs/recyclerview-flexibledivider-1.4.0.aar')
+    //AVLoadingIndicatorView - local AAR
+    implementation files('libs/library-2.1.3.aar')
     //Commons-lang
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     //Commons-io
-    implementation 'commons-io:commons-io:2.11.0'    //Expandable RecyclerView - JitPack
-    implementation 'com.github.thoughtbot:expandable-recycler-view:1.4'
+    implementation 'commons-io:commons-io:2.11.0'
+    //Expandable RecyclerView - local AAR
+    implementation files('libs/expandablerecyclerview-1.3.aar')
     // ApkBuilder - use local module
     implementation project(':apkbuilder')
     // RxJava
