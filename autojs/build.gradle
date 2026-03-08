@@ -42,7 +42,6 @@ repositories {
     }
     google()
     mavenCentral()
-    maven { url "https://jitpack.io" }
     maven { url "https://maven.aliyun.com/repository/central" }
     maven { url "https://maven.aliyun.com/repository/google" }
     maven { url "https://maven.aliyun.com/repository/public" }
@@ -60,8 +59,7 @@ dependencies {
         exclude group: 'com.android.support'
     })
     api "com.google.android.material:material:$material_version"
-    // EnhancedFloaty - use local AAR since JitPack may not work
-    api(name: 'EnhancedFloaty-0.31', ext: 'aar')
+    api 'com.github.hyb1996:EnhancedFloaty:0.31'
     api 'com.makeramen:roundedimageview:2.3.0'
     // OpenCv
     api(name: 'opencv-3.4.3', ext: 'aar')
@@ -87,3 +85,4 @@ dependencies {
     api project(path: ':common')
     api project(path: ':automator')
 }
+

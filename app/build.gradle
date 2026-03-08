@@ -209,37 +209,40 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "com.google.android.material:material:$material_version"
     implementation 'androidx.multidex:multidex:2.0.1'
+    // Personal libraries
+    implementation 'com.github.hyb1996:MutableTheme:1.0.0'
     // Material Dialogs
     implementation('com.afollestad.material-dialogs:core:0.9.2.3', {
         exclude group: 'com.android.support'
     })
     // Common Markdown
-    implementation 'org.commonmark:commonmark:0.21.0'
-    implementation 'org.commonmark:commonmark-ext-heading-anchor:0.21.0'
+    implementation 'com.github.atlassian:commonmark-java:commonmark-parent-0.9.0'
     // Android issue reporter (a github issue reporter)
     implementation('com.heinrichreimersoftware:android-issue-reporter:1.3.1', {
         exclude group: 'com.afollestad.material-dialogs'
         exclude group: 'com.android.support'
+        // Force compatible version of expandable-layout
         exclude group: 'com.github.aakira', module: 'expandable-layout'
     })
-    // Expandable layout - local AAR
-    implementation files('libs/expandable-layout-1.4.3.aar')
-    //MultiLevelListView - local AAR
-    implementation files('libs/android-multi-level-listview-1.1.aar')
+    // Add compatible version of expandable-layout directly
+    implementation('com.github.aakira:expandable-layout:1.4.3@aar') {
+        transitive = true
+    }
+    //MultiLevelListView
+    implementation 'com.github.hyb1996:android-multi-level-listview:1.1'
     //Licenses Dialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
     //Expandable RecyclerView
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
-    //FlexibleDivider - local AAR
-    implementation files('libs/recyclerview-flexibledivider-1.4.0.aar')
-    //AVLoadingIndicatorView - local AAR
-    implementation files('libs/library-2.1.3.aar')
+    //FlexibleDivider
+    implementation 'com.yqritc:recyclerview-flexibledivider:1.4.0'
+    //???
+    implementation 'com.wang.avi:library:2.1.3'
     //Commons-lang
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     //Commons-io
-    implementation 'commons-io:commons-io:2.11.0'
-    //Expandable RecyclerView - local AAR
-    implementation files('libs/expandablerecyclerview-1.3.aar')
+    implementation 'commons-io:commons-io:2.11.0'    //Expandable RecyclerView
+    implementation 'com.thoughtbot:expandablerecyclerview:1.3'
     // ApkBuilder - use local module
     implementation project(':apkbuilder')
     // RxJava
@@ -264,8 +267,8 @@ dependencies {
         exclude module: 'android-annotation'
         exclude module: 'android-assertion'
     }
-    // Flurry - from Maven Central
-    implementation 'com.flurry.android:analytics:14.0.0'
+    // Flurry
+    implementation 'com.flurry.android:analytics:7.0.0@aar'
     // Bugly
     implementation 'com.tencent.bugly:crashreport:4.0.4'
     // MaterialDialogCommon
