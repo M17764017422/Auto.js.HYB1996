@@ -46,4 +46,8 @@ dependencies {
     testImplementation "junit:junit:$junit_version"
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     api 'androidx.annotation:annotation:1.3.0'
+    // AndroidX dependencies for common module
+    api 'androidx.fragment:fragment:1.5.5'
+    api 'androidx.drawerlayout:drawerlayout:1.1.1'
+    api 'androidx.core:core:1.9.0'
 }
