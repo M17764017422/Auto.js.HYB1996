@@ -88,6 +88,7 @@ import static org.autojs.autojs.model.script.Scripts.ACTION_ON_EXECUTION_FINISHE
 import static org.autojs.autojs.model.script.Scripts.EXTRA_EXCEPTION_COLUMN_NUMBER;
 import static org.autojs.autojs.model.script.Scripts.EXTRA_EXCEPTION_LINE_NUMBER;
 import static org.autojs.autojs.model.script.Scripts.EXTRA_EXCEPTION_MESSAGE;
+import static org.autojs.autojs.model.script.Scripts.EXTRA_STACK_TRACE;
 
 /**
  * Created by Stardust on 2017/9/28.
@@ -148,6 +149,13 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 String msg = intent.getStringExtra(EXTRA_EXCEPTION_MESSAGE);
                 int line = intent.getIntExtra(EXTRA_EXCEPTION_LINE_NUMBER, -1);
                 int col = intent.getIntExtra(EXTRA_EXCEPTION_COLUMN_NUMBER, 0);
+                String stackTrace = intent.getStringExtra(EXTRA_STACK_TRACE);
+                
+                // 解析堆栈帧
+                java.util.ArrayList<CodeEditor.StackFrame> frames = parseStackTrace(stackTrace, line, col);
+                mEditor.setStackFrames(frames);
+                
+                // 跳转到第一个错误位置
                 if (line >= 1) {
                     mEditor.jumpTo(line - 1, col);
                 }
@@ -157,6 +165,52 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
             }
         }
     };
+
+    // 解析 Rhino scriptStackTrace 格式的堆栈帧
+    // 格式: "\tat functionName(filename:line)" 或 "\tat filename:line"
+    private java.util.ArrayList<CodeEditor.StackFrame> parseStackTrace(String stackTrace, int mainLine, int mainCol) {
+        java.util.ArrayList<CodeEditor.StackFrame> frames = new java.util.ArrayList<>();
+        
+        // 添加主错误行
+        if (mainLine >= 1) {
+            frames.add(new CodeEditor.StackFrame("<error>", mainLine - 1, mainCol));
+        }
+        
+        if (stackTrace == null || stackTrace.isEmpty()) {
+            return frames;
+        }
+        
+        // 解析 Rhino scriptStackTrace 格式:
+        // \tat level3(test_stack.js:5)
+        // \tat level2(test_stack.js:10)
+        // \tat test_stack.js:22
+        java.util.regex.Pattern stackPattern = java.util.regex.Pattern.compile(
+            "\\s+at\\s+(?:(\\w+)\\s*\\([^)]*?:(\\d+)\\)|([^\\s(]+):(\\d+))"
+        );
+        java.util.regex.Matcher stackMatcher = stackPattern.matcher(stackTrace);
+        
+        while (stackMatcher.find()) {
+            String funcName;
+            int lineNum;
+            
+            if (stackMatcher.group(1) != null) {
+                // 格式: at functionName(file:line)
+                funcName = stackMatcher.group(1);
+                lineNum = Integer.parseInt(stackMatcher.group(2)) - 1;
+            } else {
+                // 格式: at file:line (全局调用)
+                funcName = "<global>";
+                lineNum = Integer.parseInt(stackMatcher.group(4)) - 1;
+            }
+            
+            // 避免重复添加
+            if (frames.isEmpty() || frames.get(frames.size() - 1).lineNumber != lineNum) {
+                frames.add(new CodeEditor.StackFrame(funcName, lineNum, 0));
+            }
+        }
+        
+        return frames;
+    }
 
     private SparseBooleanArray mMenuItemStatus = new SparseBooleanArray();
     private String mRestoredText;

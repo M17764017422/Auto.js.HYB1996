@@ -109,8 +109,26 @@ public class EditorMenu {
             case R.id.action_jump_to_line_end:
                 mEditor.jumpToLineEnd();
                 return true;
+            case R.id.action_jump_to_error_line:
+                jumpToErrorLine();
+                return true;
         }
         return false;
+    }
+
+    private void jumpToErrorLine() {
+        if (mEditor.hasStackFrame()) {
+            CodeEditor.StackFrame frame = mEditor.getNextStackFrame();
+            mEditor.jumpTo(frame.lineNumber, frame.columnNumber);
+            int total = mEditor.getStackFrameCount();
+            int current = mEditor.getCurrentFrameIndex() + 1;
+            String funcName = frame.functionName;
+            String info = mContext.getString(R.string.text_stack_frame_info, 
+                current, total, funcName, frame.lineNumber + 1);
+            Toast.makeText(mContext, info, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mContext, R.string.text_no_error_line, Toast.LENGTH_SHORT).show();
+        }
     }
 
 

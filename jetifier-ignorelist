@@ -1,0 +1,3 @@
+# Jetifier ignore list
+# These JARs will not be processed by Jetifier
+rhino-all-2.0.0-SNAPSHOT.jar

@@ -39,6 +39,7 @@ object Scripts {
     const val EXTRA_EXCEPTION_MESSAGE = "message"
     const val EXTRA_EXCEPTION_LINE_NUMBER = "lineNumber"
     const val EXTRA_EXCEPTION_COLUMN_NUMBER = "columnNumber"
+    const val EXTRA_STACK_TRACE = "stackTrace"
 
     val FILE_FILTER = FileFilter { file ->
         file.isDirectory || file.name.endsWith(".js")
@@ -55,9 +56,12 @@ object Scripts {
             val rhinoException = getRhinoException(e)
             var line = -1
             var col = 0
+            var stackTrace: String? = null
             if (rhinoException != null) {
                 line = rhinoException.lineNumber()
                 col = rhinoException.columnNumber()
+                // 获取完整的脚本堆栈跟踪
+                stackTrace = rhinoException.scriptStackTrace
             }
             if (ScriptInterruptedException.causedByInterrupted(e)) {
                 GlobalAppContext.get().sendBroadcast(Intent(ACTION_ON_EXECUTION_FINISHED)
@@ -67,7 +71,8 @@ object Scripts {
                 GlobalAppContext.get().sendBroadcast(Intent(ACTION_ON_EXECUTION_FINISHED)
                         .putExtra(EXTRA_EXCEPTION_MESSAGE, e.message)
                         .putExtra(EXTRA_EXCEPTION_LINE_NUMBER, line)
-                        .putExtra(EXTRA_EXCEPTION_COLUMN_NUMBER, col))
+                        .putExtra(EXTRA_EXCEPTION_COLUMN_NUMBER, col)
+                        .putExtra(EXTRA_STACK_TRACE, stackTrace))
             }
         }
 

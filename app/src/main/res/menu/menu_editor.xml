@@ -75,6 +75,11 @@
                 android:id="@+id/action_jump_to_line_end"
                 android:title="@string/text_jump_to_line_end"
                 app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/action_jump_to_error_line"
+                android:title="@string/text_jump_to_error_line"
+                app:showAsAction="never"/>
         </menu>
 
     </item>

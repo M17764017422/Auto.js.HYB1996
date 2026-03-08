@@ -20,6 +20,7 @@ import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.ui.edit.theme.Theme;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -71,6 +72,22 @@ public class CodeEditor extends HVScrollView {
     private String mKeywords;
     private Matcher mMatcher;
     private int mFoundIndex = -1;
+
+    // 堆栈帧数据结构
+    public static class StackFrame {
+        public final String functionName;
+        public final int lineNumber;
+        public final int columnNumber;
+
+        public StackFrame(String functionName, int lineNumber, int columnNumber) {
+            this.functionName = functionName;
+            this.lineNumber = lineNumber;
+            this.columnNumber = columnNumber;
+        }
+    }
+
+    private ArrayList<StackFrame> mStackFrames = new ArrayList<>();
+    private int mCurrentFrameIndex = -1;
 
     public CodeEditor(Context context) {
         super(context);
@@ -415,6 +432,58 @@ public class CodeEditor extends HVScrollView {
 
     public void setDebuggingLine(int line) {
         mCodeEditText.setDebuggingLine(line);
+    }
+
+    // 添加堆栈帧
+    public void addStackFrame(String functionName, int line, int col) {
+        if (line < 0) return;
+        mStackFrames.add(new StackFrame(functionName, line, col));
+        mCurrentFrameIndex = mStackFrames.size() - 1;
+    }
+
+    // 清空并设置新的堆栈帧列表
+    public void setStackFrames(ArrayList<StackFrame> frames) {
+        mStackFrames.clear();
+        mStackFrames.addAll(frames);
+        mCurrentFrameIndex = frames.isEmpty() ? -1 : 0;
+    }
+
+    public int getStackFrameCount() {
+        return mStackFrames.size();
+    }
+
+    public int getCurrentFrameIndex() {
+        return mCurrentFrameIndex;
+    }
+
+    public StackFrame getCurrentStackFrame() {
+        if (mCurrentFrameIndex >= 0 && mCurrentFrameIndex < mStackFrames.size()) {
+            return mStackFrames.get(mCurrentFrameIndex);
+        }
+        return null;
+    }
+
+    // 跳转到下一个堆栈帧
+    public StackFrame getNextStackFrame() {
+        if (mStackFrames.isEmpty()) return null;
+        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mStackFrames.size();
+        return mStackFrames.get(mCurrentFrameIndex);
+    }
+
+    // 跳转到上一个堆栈帧
+    public StackFrame getPrevStackFrame() {
+        if (mStackFrames.isEmpty()) return null;
+        mCurrentFrameIndex = (mCurrentFrameIndex - 1 + mStackFrames.size()) % mStackFrames.size();
+        return mStackFrames.get(mCurrentFrameIndex);
+    }
+
+    public boolean hasStackFrame() {
+        return !mStackFrames.isEmpty();
+    }
+
+    public void clearStackFrames() {
+        mStackFrames.clear();
+        mCurrentFrameIndex = -1;
     }
 
     public void setBreakpointChangeListener(BreakpointChangeListener listener) {

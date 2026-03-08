@@ -85,15 +85,15 @@ class App : MultiDexApplication() {
         // 注册 ScriptFileReader 以支持 SAF 模式下的脚本读取
         ScriptFileReaderRegistry.register(object : ScriptFileReader {
             override fun read(filePath: String): String {
-                return FileProviderFactory.getProvider().read(filePath)
+                return FileProviderFactory.getProvider().read(filePath) ?: ""
             }
             
             override fun read(filePath: String, encoding: String): String {
-                return FileProviderFactory.getProvider().read(filePath, encoding)
+                return FileProviderFactory.getProvider().read(filePath, encoding) ?: ""
             }
             
             override fun openInputStream(filePath: String): InputStream {
-                return FileProviderFactory.getProvider().openInputStream(filePath)
+                return FileProviderFactory.getProvider().openInputStream(filePath)!!
             }
         })
         

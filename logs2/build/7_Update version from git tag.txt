@@ -1,0 +1,64 @@
+﻿2026-03-06T19:55:10.9610078Z ##[group]Run # Get tag name or use default
+2026-03-06T19:55:10.9610446Z [36;1m# Get tag name or use default[0m
+2026-03-06T19:55:10.9610768Z [36;1mif [[ "$GITHUB_REF" == refs/tags/* ]]; then[0m
+2026-03-06T19:55:10.9611079Z [36;1m  TAG_NAME=${GITHUB_REF#refs/tags/}[0m
+2026-03-06T19:55:10.9611443Z [36;1m  # Remove 'v' prefix if present (v4.1.1-alpha8 -> 4.1.1-alpha8)[0m
+2026-03-06T19:55:10.9611809Z [36;1m  VERSION_NAME=${TAG_NAME#v}[0m
+2026-03-06T19:55:10.9612051Z [36;1melse[0m
+2026-03-06T19:55:10.9612263Z [36;1m  # For non-tag builds, use commit hash[0m
+2026-03-06T19:55:10.9612600Z [36;1m  VERSION_NAME="dev-$(git rev-parse --short HEAD)"[0m
+2026-03-06T19:55:10.9612903Z [36;1mfi[0m
+2026-03-06T19:55:10.9613066Z [36;1m[0m
+2026-03-06T19:55:10.9613298Z [36;1m# Calculate versionCode from tag or use timestamp[0m
+2026-03-06T19:55:10.9614009Z [36;1m# For tags like 4.1.1-alpha8: major*10000 + minor*100 + patch + alpha/beta number[0m
+2026-03-06T19:55:10.9614580Z [36;1mif [[ "$VERSION_NAME" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-alpha([0-9]+))?(-beta([0-9]+))?$ ]]; then[0m
+2026-03-06T19:55:10.9615024Z [36;1m  MAJOR=${BASH_REMATCH[1]}[0m
+2026-03-06T19:55:10.9615283Z [36;1m  MINOR=${BASH_REMATCH[2]}[0m
+2026-03-06T19:55:10.9615526Z [36;1m  PATCH=${BASH_REMATCH[3]}[0m
+2026-03-06T19:55:10.9615765Z [36;1m  ALPHA=${BASH_REMATCH[5]:-0}[0m
+2026-03-06T19:55:10.9616023Z [36;1m  BETA=${BASH_REMATCH[7]:-0}[0m
+2026-03-06T19:55:10.9616396Z [36;1m  # versionCode: 4.1.1-alpha8 -> 4010180, allows up to 99 for each component[0m
+2026-03-06T19:55:10.9616920Z [36;1m  VERSION_CODE=$((MAJOR * 1000000 + MINOR * 10000 + PATCH * 1000 + ALPHA * 10 + BETA))[0m
+2026-03-06T19:55:10.9617313Z [36;1melse[0m
+2026-03-06T19:55:10.9617524Z [36;1m  # Fallback: use timestamp-based code[0m
+2026-03-06T19:55:10.9617821Z [36;1m  VERSION_CODE=$(date +%s | tail -c 6)[0m
+2026-03-06T19:55:10.9618076Z [36;1mfi[0m
+2026-03-06T19:55:10.9618246Z [36;1m[0m
+2026-03-06T19:55:10.9618426Z [36;1mecho "Version name: $VERSION_NAME"[0m
+2026-03-06T19:55:10.9618705Z [36;1mecho "Version code: $VERSION_CODE"[0m
+2026-03-06T19:55:10.9618951Z [36;1m[0m
+2026-03-06T19:55:10.9619139Z [36;1m# Update project-versions.json[0m
+2026-03-06T19:55:10.9619407Z [36;1mcat project-versions.json | jq \[0m
+2026-03-06T19:55:10.9619674Z [36;1m  --arg vn "$VERSION_NAME" \[0m
+2026-03-06T19:55:10.9619923Z [36;1m  --arg vc "$VERSION_CODE" \[0m
+2026-03-06T19:55:10.9620254Z [36;1m  '.appVersionName = $vn | .appVersionCode = ($vc | tonumber)' \[0m
+2026-03-06T19:55:10.9620786Z [36;1m  > project-versions.json.tmp && mv project-versions.json.tmp project-versions.json[0m
+2026-03-06T19:55:10.9621203Z [36;1m[0m
+2026-03-06T19:55:10.9621417Z [36;1mecho "Updated project-versions.json:"[0m
+2026-03-06T19:55:10.9621714Z [36;1mcat project-versions.json[0m
+2026-03-06T19:55:10.9664869Z shell: /usr/bin/bash -e {0}
+2026-03-06T19:55:10.9665108Z env:
+2026-03-06T19:55:10.9665406Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-06T19:55:10.9665908Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-06T19:55:10.9666466Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-06T19:55:10.9666758Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-06T19:55:10.9667056Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-03-06T19:55:10.9667342Z   GRADLE_USER_HOME: /home/runner/.gradle
+2026-03-06T19:55:10.9667614Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-03-06T19:55:10.9667889Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-03-06T19:55:10.9668318Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-03-06T19:55:10.9668778Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-03-06T19:55:10.9669077Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-03-06T19:55:10.9669321Z ##[endgroup]
+2026-03-06T19:55:10.9753962Z Version name: 2.0.0-rhino-debug
+2026-03-06T19:55:10.9754327Z Version code: 26910
+2026-03-06T19:55:10.9800526Z Updated project-versions.json:
+2026-03-06T19:55:10.9810105Z {
+2026-03-06T19:55:10.9810530Z   "appVersionCode": 26910,
+2026-03-06T19:55:10.9811028Z   "baseVersionName": "0.81.1",
+2026-03-06T19:55:10.9811374Z   "target": 34,
+2026-03-06T19:55:10.9811566Z   "mini": 19,
+2026-03-06T19:55:10.9811764Z   "compile": 34,
+2026-03-06T19:55:10.9812003Z   "buildTool": "36.1.0",
+2026-03-06T19:55:10.9812285Z   "appVersionName": "2.0.0-rhino-debug"
+2026-03-06T19:55:10.9812570Z }
