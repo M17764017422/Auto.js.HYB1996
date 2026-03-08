@@ -220,6 +220,7 @@ dependencies {
     implementation('com.heinrichreimersoftware:android-issue-reporter:1.3.1', {
         exclude group: 'com.afollestad.material-dialogs'
         exclude group: 'com.android.support'
+        exclude group: 'com.github.aakira', module: 'expandable-layout'
     })
     // Expandable layout - local AAR
     implementation files('libs/expandable-layout-1.4.3.aar')
