@@ -235,15 +235,15 @@ dependencies {
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
     //Expandable RecyclerView
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
-    //FlexibleDivider
-    implementation 'com.yqritc:recyclerview-flexibledivider:1.4.0'
-    //???
-    implementation 'com.wang.avi:library:2.1.3'
+    //FlexibleDivider - JitPack
+    implementation 'com.github.yqritc:RecyclerView-FlexibleDivider:1.4.0'
+    //AVLoadingIndicatorView - JitPack
+    implementation 'com.github.HarlonWang:AVLoadingIndicatorView:2.1.3'
     //Commons-lang
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     //Commons-io
-    implementation 'commons-io:commons-io:2.11.0'    //Expandable RecyclerView
-    implementation 'com.thoughtbot:expandablerecyclerview:1.3'
+    implementation 'commons-io:commons-io:2.11.0'    //Expandable RecyclerView - JitPack
+    implementation 'com.github.thoughtbot:expandable-recycler-view:1.4'
     // ApkBuilder - use local module
     implementation project(':apkbuilder')
     // RxJava
