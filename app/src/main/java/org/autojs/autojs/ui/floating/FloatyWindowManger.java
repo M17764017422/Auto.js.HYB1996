@@ -20,8 +20,6 @@ import com.stardust.util.IntentUtil;
 
 import java.lang.ref.WeakReference;
 
-import ezy.assist.compat.SettingsCompat;
-
 import static com.stardust.autojs.util.FloatingPermission.manageDrawOverlays;
 
 /**

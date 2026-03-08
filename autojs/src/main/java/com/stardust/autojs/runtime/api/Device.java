@@ -30,8 +30,6 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 
-import ezy.assist.compat.SettingsCompat;
-
 /**
  * Created by Stardust on 2017/12/2.
  */
@@ -281,11 +279,15 @@ public class Device {
 
 
     private void checkWriteSettingsPermission() {
-        if (SettingsCompat.canWriteSettings(mContext)) {
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(mContext)) {
+                return;
+            }
+            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+            intent.setData(android.net.Uri.parse("package:" + mContext.getPackageName()));
+            mContext.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            throw new SecurityException(mContext.getString(R.string.no_write_settings_permissin));
         }
-        SettingsCompat.manageWriteSettings(mContext);
-        throw new SecurityException(mContext.getString(R.string.no_write_settings_permissin));
     }
 
 

@@ -209,8 +209,6 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "com.google.android.material:material:$material_version"
     implementation 'androidx.multidex:multidex:2.0.1'
-    // Personal libraries - local AAR
-    implementation files('libs/MutableTheme-1.0.0.aar')
     // Material Dialogs
     implementation('com.afollestad.material-dialogs:core:0.9.2.3', {
         exclude group: 'com.android.support'

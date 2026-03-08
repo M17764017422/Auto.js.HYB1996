@@ -7,36 +7,16 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import androidx.annotation.RequiresApi;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.stardust.autojs.R;
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
-
-import java.lang.reflect.Method;
-
-import ezy.assist.compat.RomUtil;
-import ezy.assist.compat.SettingsCompat;
 
 /**
  * Created by Stardust on 2018/1/30.
  */
 
 public class FloatingPermission {
-
-
-    private static final int OP_SYSTEM_ALERT_WINDOW = 24;
-    private static Method sCheckOp;
-
-    static {
-        try {
-            sCheckOp = SettingsCompat.class.getDeclaredMethod("checkOp", Context.class, int.class);
-            sCheckOp.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static boolean ensurePermissionGranted(Context context) {
         if (!canDrawOverlays(context)) {
@@ -65,43 +45,30 @@ public class FloatingPermission {
                 return;
             Thread.sleep(200);
         }
-
     }
-
 
     public static void manageDrawOverlays(Context context) {
         try {
-            if (RomUtil.isMiui() && TextUtils.equals("V10", RomUtil.getVersion())
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                manageDrawOverlaysForAndroidM(context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             } else {
-                SettingsCompat.manageDrawOverlays(context);
+                // Pre-Marshmallow: try app settings
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             }
         } catch (Exception ex) {
             FloatingWindowPermissionUtil.goToAppDetailSettings(context, context.getPackageName());
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public static void manageDrawOverlaysForAndroidM(Context context) {
-        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-        intent.setData(Uri.parse("package:" + context.getPackageName()));
-        context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-    }
-
     public static boolean canDrawOverlays(Context context) {
-        return SettingsCompat.canDrawOverlays(context);
-    }
-
-    private static boolean checkOp(Context context, int op) {
-        if (sCheckOp == null) {
-            return SettingsCompat.canDrawOverlays(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Settings.canDrawOverlays(context);
         }
-        try {
-            return (boolean) sCheckOp.invoke(null, context, op);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        // Pre-Marshmallow: always return true (permission is granted at install time)
+        return true;
     }
 }
