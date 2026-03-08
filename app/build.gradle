@@ -209,8 +209,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "com.google.android.material:material:$material_version"
     implementation 'androidx.multidex:multidex:2.0.1'
-    // Personal libraries
-    implementation 'com.github.hyb1996:MutableTheme:1.0.0'
+    // Personal libraries - local AAR
+    implementation files('libs/MutableTheme-1.0.0.aar')
     // Material Dialogs
     implementation('com.afollestad.material-dialogs:core:0.9.2.3', {
         exclude group: 'com.android.support'
@@ -229,8 +229,8 @@ dependencies {
     implementation('com.github.aakira:expandable-layout:1.4.3@aar') {
         transitive = true
     }
-    //MultiLevelListView
-    implementation 'com.github.hyb1996:android-multi-level-listview:1.1'
+    //MultiLevelListView - local AAR
+    implementation files('libs/android-multi-level-listview-1.1.aar')
     //Licenses Dialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
     //Expandable RecyclerView
