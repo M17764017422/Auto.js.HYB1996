@@ -212,12 +212,24 @@ public class PFiles {
         return result;
     }
 
+    /**
+     * 确保父目录存在（支持 SAF 模式）
+     */
     public static boolean ensureDir(String path) {
         int i = path.lastIndexOf("\\");
         if (i < 0)
             i = path.lastIndexOf("/");
         if (i >= 0) {
             String folder = path.substring(0, i);
+            IFileProvider provider = FileProviderFactory.getProvider(folder);
+            if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+                // SAF 模式
+                if (provider.exists(folder)) {
+                    return true;
+                }
+                return provider.mkdirs(folder);
+            }
+            // 传统模式
             File file = new File(folder);
             if (file.exists())
                 return true;
@@ -289,7 +301,33 @@ public class PFiles {
         return copyStream(is, path);
     }
 
+    /**
+     * 复制流到文件（支持 SAF 模式）
+     */
     public static boolean copyStream(InputStream is, String path) {
+        // SAF 模式检查
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            Log.d(TAG, "copyStream: path=" + path + " (SAF mode)");
+            try {
+                // 确保父目录存在
+                String parent = provider.getParent(path);
+                if (parent != null && !provider.exists(parent)) {
+                    provider.mkdirs(parent);
+                }
+                OutputStream os = provider.openOutputStream(path);
+                if (os == null) {
+                    return false;
+                }
+                write(is, os);
+                return true;
+            } catch (Exception e) {
+                Log.e(TAG, "copyStream failed: " + e.getMessage());
+                return false;
+            }
+        }
+        // 传统模式
         if (!ensureDir(path))
             return false;
         File file = new File(path);
@@ -450,10 +488,37 @@ public class PFiles {
         }
     }
 
+    /**
+     * 复制文件（支持 SAF 模式）
+     * 源路径和目标路径都可以是 SAF 路径
+     */
     public static boolean copy(String pathFrom, String pathTo) {
+        IFileProvider providerFrom = FileProviderFactory.getProvider(pathFrom);
+        IFileProvider providerTo = FileProviderFactory.getProvider(pathTo);
+        
+        boolean isSafFrom = providerFrom != null && !(providerFrom instanceof TraditionalFileProvider);
+        boolean isSafTo = providerTo != null && !(providerTo instanceof TraditionalFileProvider);
+        
+        Log.d(TAG, "copy: from=" + pathFrom + " (SAF=" + isSafFrom + "), to=" + pathTo + " (SAF=" + isSafTo + ")");
+        
         try {
-            return copyStream(new FileInputStream(pathFrom), pathTo);
-        } catch (FileNotFoundException e) {
+            InputStream is;
+            if (isSafFrom) {
+                // SAF 源路径
+                is = providerFrom.openInputStream(pathFrom);
+            } else {
+                // 传统源路径
+                is = new FileInputStream(pathFrom);
+            }
+            
+            if (is == null) {
+                Log.e(TAG, "copy: failed to open source stream");
+                return false;
+            }
+            
+            return copyStream(is, pathTo);
+        } catch (Exception e) {
+            Log.e(TAG, "copy failed: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -704,7 +769,20 @@ public class PFiles {
         return new File(path).isDirectory();
     }
 
+    /**
+     * 判断是否为空目录（支持 SAF 模式）
+     */
     public static boolean isEmptyDir(String path) {
+        IFileProvider provider = FileProviderFactory.getProvider(path);
+        if (provider != null && !(provider instanceof TraditionalFileProvider)) {
+            // SAF 模式
+            if (!provider.isDirectory(path)) {
+                return false;
+            }
+            List<IFileProvider.FileInfo> files = provider.listFiles(path);
+            return files == null || files.isEmpty();
+        }
+        // 传统模式
         File file = new File(path);
         return file.isDirectory() && file.list().length == 0;
     }
