@@ -59,7 +59,7 @@ dependencies {
         exclude group: 'com.android.support'
     })
     api "com.google.android.material:material:$material_version"
-    api 'com.github.hyb1996:EnhancedFloaty:0.31'
+    api 'com.github.clearw5:EnhancedFloaty:0.31'
     api 'com.makeramen:roundedimageview:2.3.0'
     // OpenCv
     api(name: 'opencv-3.4.3', ext: 'aar')
