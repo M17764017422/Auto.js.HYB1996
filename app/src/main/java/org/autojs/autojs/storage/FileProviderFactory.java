@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat;
 
 import com.stardust.app.GlobalAppContext;
 import com.stardust.pio.IFileProvider;
+import com.stardust.pio.SafFileProviderImpl;
 import com.stardust.pio.TraditionalFileProvider;
 import com.stardust.autojs.project.ProjectConfig;
 
@@ -122,7 +123,7 @@ public class FileProviderFactory {
                 
                 if (safUri != null && !safUri.isEmpty()) {
                     Uri treeUri = Uri.parse(safUri);
-                    sInstance = new SafFileProviderImpl(context, treeUri, rootPath);
+                    sInstance = new SafFileProviderImpl(treeUri, rootPath, context);
                     Log.i(TAG, "SafFileProviderImpl created successfully");
                     return sInstance;
                 }

@@ -56,7 +56,7 @@ public class ExplorerFileProvider implements ExplorerProvider {
         })
         .flatMap(files -> Observable.fromIterable(files))
         .map(fileInfo -> {
-            PFile file = new PFile(fileInfo.path);
+            PFile file = new PFile(fileInfo.getPath());
             return file;
         });
     }

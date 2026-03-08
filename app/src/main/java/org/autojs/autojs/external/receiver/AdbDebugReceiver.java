@@ -581,9 +581,9 @@ public class AdbDebugReceiver extends BroadcastReceiver {
             if (files != null) {
                 for (IFileProvider.FileInfo f : files) {
                     JsonObject fileInfo = new JsonObject();
-                    fileInfo.addProperty("name", f.name);
-                    fileInfo.addProperty("isDirectory", f.isDirectory);
-                    fileInfo.addProperty("size", f.size);
+                    fileInfo.addProperty("name", f.getName());
+                    fileInfo.addProperty("isDirectory", f.isDirectory());
+                    fileInfo.addProperty("size", f.getSize());
                     filesArray.add(fileInfo);
                 }
             }
@@ -597,9 +597,9 @@ public class AdbDebugReceiver extends BroadcastReceiver {
         
         StringBuilder sb = new StringBuilder("OK: Files in " + path + ":\n");
         for (IFileProvider.FileInfo f : files) {
-            sb.append("  ").append(f.isDirectory ? "[D] " : "[F] ").append(f.name);
-            if (!f.isDirectory) {
-                sb.append(" (").append(formatSize(f.size)).append(")");
+            sb.append("  ").append(f.isDirectory() ? "[D] " : "[F] ").append(f.getName());
+            if (!f.isDirectory()) {
+                sb.append(" (").append(formatSize(f.getSize())).append(")");
             }
             sb.append("\n");
         }

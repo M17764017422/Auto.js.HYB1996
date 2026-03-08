@@ -650,7 +650,7 @@ public class PFiles {
             List<IFileProvider.FileInfo> files = provider.listFiles(path);
             String[] names = new String[files.size()];
             for (int i = 0; i < files.size(); i++) {
-                names[i] = files.get(i).name;
+                names[i] = files.get(i).getName();
             }
             return names;
         }
@@ -671,8 +671,8 @@ public class PFiles {
             List<IFileProvider.FileInfo> files = provider.listFiles(path);
             List<String> filtered = new ArrayList<>();
             for (IFileProvider.FileInfo info : files) {
-                if (filter.call(info.name)) {
-                    filtered.add(info.name);
+                if (filter.call(info.getName())) {
+                    filtered.add(info.getName());
                 }
             }
             return filtered.toArray(new String[0]);

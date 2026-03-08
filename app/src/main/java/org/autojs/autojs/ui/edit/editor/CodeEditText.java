@@ -93,7 +93,8 @@ public class CodeEditText extends AppCompatEditText {
         setTextColor(Color.TRANSPARENT);
         // 设置字体
         setTypeface(Typeface.MONOSPACE);
-        setHorizontallyScrolling(true);
+        setHorizontallyScrolling(false);
+        setSingleLine(false);
         mTheme = Theme.getDefault(getContext());
         mLineHighlightPaint.setStyle(Paint.Style.FILL);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -166,7 +167,7 @@ public class CodeEditText extends AppCompatEditText {
             drawLineHighlight(canvas, mLineHighlightPaint, getCurrentLine());
         }
         if (debugHighlightLine != -1) {
-            mLineHighlightPaint.setColor(mTheme.getDebuggingLineBackgroundColor());
+            mLineHighlightPaint.setColor(mTheme.getDebuggingLineBackground());
             drawLineHighlight(canvas, mLineHighlightPaint, debugHighlightLine);
         }
 
@@ -210,13 +211,32 @@ public class CodeEditText extends AppCompatEditText {
         if (DEBUG)
             Log.d(LOG_TAG, "draw line: " + (mLastLineForDraw - mFirstLineForDraw + 1));
         mLogger.addSplit("before draw line");
+        int lineStart = 0;
+        int lineEnd = 0;
+        int lineNumber = 1;
+        int lineNumberPrevious = 0;
+        String lineNumberText;
         for (int line = mFirstLineForDraw; line <= mLastLineForDraw && line < lineCount; line++) {
             int lineBottom = layout.getLineTop(line + 1);
             int lineTop = layout.getLineTop(line);
             int lineBaseline = lineBottom - layout.getLineDescent(line);
-
-            //drawLineNumber
-            String lineNumberText = Integer.toString(line + 1);
+            lineStart = layout.getLineStart(line);
+            if (lineStart >= textLength) {
+                return;
+            }
+            lineEnd = Math.min(layout.getLineVisibleEnd(line), highlightTokens == null ? 0 : highlightTokens.colors.length);
+            //drawLineNumber - 使用 split 计算实际行号
+            if (highlightTokens != null && lineStart != lineEnd) {
+                lineNumber = text.toString().substring(0, lineEnd).split("\n").length;
+            } else if (highlightTokens != null) {
+                lineNumber = text.toString().substring(0, lineEnd).split("\n").length + 1;
+            } else {
+                lineNumber = line + 1;
+            }
+            lineNumberText = Integer.toString(lineNumber);
+            if (lineNumberPrevious == lineNumber) {
+                lineNumberText = "";
+            }
             // if there is a breakpoint at this line, draw highlight background for line number
             if (mBreakpoints.containsKey(line)) {
                 paint.setColor(breakPointColor);
@@ -226,15 +246,10 @@ public class CodeEditText extends AppCompatEditText {
             canvas.drawText(lineNumberText, 0, lineNumberText.length(), 10,
                     lineBaseline, paint);
 
-            if (highlightTokens == null)
+            if (highlightTokens == null) {
+                lineNumberPrevious = lineNumber;
                 continue;
-
-            //drawCode
-            int lineStart = layout.getLineStart(line);
-            if (lineStart >= textLength) {
-                return;
             }
-            int lineEnd = Math.min(layout.getLineVisibleEnd(line), highlightTokens.colors.length);
             int visibleCharStart = getVisibleCharIndex(paint, scrollX, lineStart, lineEnd);
             int visibleCharEnd = getVisibleCharIndex(paint, scrollX + mParentScrollView.getWidth(), lineStart, lineEnd) + 1;
             int previousColorPos = visibleCharStart;
@@ -272,7 +287,10 @@ public class CodeEditText extends AppCompatEditText {
                 //postInvalidate();
                 return;
             }
-            // 修复长按删除崩溃
+            // 显式边界检查 + try-catch 双重保护
+            if (visibleCharEnd > text.length()) {
+                visibleCharEnd = text.length();
+            }
             try {
                 canvas.drawText(text, previousColorPos, visibleCharEnd, paddingLeft + offsetX, lineBaseline, paint);
                 if (DEBUG) {
@@ -281,6 +299,7 @@ public class CodeEditText extends AppCompatEditText {
             } catch (Exception e) {
                 Log.e(LOG_TAG, e.toString());
             }
+            lineNumberPrevious = lineNumber;
         }
     }
 
