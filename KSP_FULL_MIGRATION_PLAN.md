@@ -12,16 +12,48 @@
 
 ### 1.2 AndroidAnnotations 使用统计
 
+**注解类型统计**：
+
 | 注解类型 | 使用次数 | 说明 |
 |---------|---------|------|
 | @EActivity | 16 | 增强 Activity |
 | @EFragment | 8 | 增强 Fragment |
-| @EViewGroup | 1 | 增强 ViewGroup |
+| @EViewGroup | 1 | 增强 ViewGroup (EditorView) |
 | @ViewById | 68 | 视图注入 |
 | @AfterViews | 22 | 注入后回调 |
 | @Click | 26 | 点击事件 |
-| @UiThread | 16 | UI 线程执行 |
-| @CheckedChange | 1 | 选中状态变化 |
+| @CheckedChange | 1 | 选中状态变化 (TimedTaskSettingActivity) |
+| 生成类引用 | 28 | `Activity_.class` / `Activity_.intent()` |
+
+**文件清单与复杂度**：
+
+| 复杂度 | 文件 | @ViewById | @Click | @AfterViews | 代码行数 |
+|--------|------|-----------|--------|-------------|----------|
+| 🟢 简单 | AboutActivity | 1 | 6 | 1 | ~100 |
+| 🟢 简单 | LogActivity | 1 | 1 | 1 | ~80 |
+| 🟢 简单 | WebActivity | 1 | 0 | 1 | ~70 |
+| 🟢 简单 | DocumentationActivity | 1 | 0 | 1 | ~60 |
+| 🟢 简单 | ScriptWidgetSettingsActivity | 0 | 0 | 1 | ~80 |
+| 🟢 简单 | TaskerScriptEditActivity | 1 | 0 | 1 | ~100 |
+| 🟢 简单 | TaskPrefEditActivity | 0 | 1 | 1 | ~80 |
+| 🟢 简单 | ShortcutIconSelectActivity | 1 | 0 | 1 | ~120 |
+| 🟢 简单 | SearchToolbarFragment | 0 | 0 | 0 | ~150 |
+| 🟢 简单 | NormalToolbarFragment | 0 | 0 | 0 | ~100 |
+| 🟡 中等 | RegisterActivity | 4 | 1 | 1 | ~150 |
+| 🟡 中等 | LoginActivity | 3 | 2 | 1 | ~150 |
+| 🟡 中等 | CommunityFragment | 1 | 0 | 1 | ~200 |
+| 🟡 中等 | DocsFragment | 1 | 0 | 1 | ~180 |
+| 🟡 中等 | TaskManagerFragment | 3 | 0 | 1 | ~120 |
+| 🟡 中等 | MyScriptListFragment | 1 | 0 | 1 | ~250 |
+| 🟡 中等 | SettingsActivity | 0 | 0 | 1 | ~150 |
+| 🟡 中等 | DebugToolbarFragment | 0 | 5 | 0 | ~200 |
+| 🔴 复杂 | BuildActivity | 8 | 4 | 1 | ~300 |
+| 🔴 复杂 | ProjectConfigActivity | 6 | 2 | 1 | ~280 |
+| 🔴 复杂 | MainActivity | 3 | 2 | 1 | ~400 |
+| 🔴 复杂 | DrawerFragment | 5 | 1 | 1 | ~518 |
+| 🔴 复杂 | EditActivity | 1 | 0 | 1 | ~350 |
+| 🔴 复杂 | TimedTaskSettingActivity | 17 | 2 | 1 | ~438 |
+| 🔴 最复杂 | EditorView (@EViewGroup) | 9 | 0 | 1 | ~788 |
 
 ### 1.3 ButterKnife 使用统计
 
@@ -46,22 +78,158 @@
 
 ## 二、迁移难点分析
 
-### 2.1 AndroidAnnotations（最难）
+### 2.1 AndroidAnnotations → 标准生命周期（最难）
 
-**问题 1：无 KSP 支持**
-- 官方未提供 KSP 支持，无迁移计划
-- 项目处于维护模式，无重大更新
+#### 技术难点分析
 
-**问题 2：架构级注解**
-- `@EActivity`/`@EFragment`/`@EViewGroup` 涉及组件生命周期
-- 需要完全重构代码架构
+**难点 1：架构级注解重构**
 
-**问题 3：生成类引用**
-- 所有代码使用 `Activity_.class`（如 `SettingsActivity_.class`）
-- 需要更新约 50+ 处 Intent 引用
+```java
+// AndroidAnnotations 写法
+@EActivity(R.layout.activity_about)
+public class AboutActivity extends BaseActivity {
+    @ViewById(R.id.version) TextView mVersion;
+    
+    @AfterViews
+    void setUpViews() {
+        mVersion.setText("Version " + BuildConfig.VERSION_NAME);
+    }
+    
+    @Click(R.id.github)
+    void openGitHub() {
+        IntentTool.browse(this, getString(R.string.my_github));
+    }
+}
 
-**问题 4：@UiThread 注解**
-- 16 处使用，需改用 `runOnUiThread`/`View.post`/协程
+// 标准写法
+public class AboutActivity extends BaseActivity {
+    private ActivityAboutBinding binding;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityAboutBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        binding.version.setText("Version " + BuildConfig.VERSION_NAME);
+        binding.github.setOnClickListener(v -> openGitHub());
+    }
+    
+    private void openGitHub() {
+        IntentTool.browse(this, getString(R.string.my_github));
+    }
+}
+```
+
+**难点 2：生成类引用更新（28 处）**
+
+```java
+// AndroidAnnotations 写法
+startActivity(new Intent(this, SettingsActivity_.class));
+LogActivity_.intent(this).start();
+MainActivity_.intent(this).start();
+
+// 标准写法
+startActivity(new Intent(this, SettingsActivity.class));
+startActivity(new Intent(this, LogActivity.class));
+startActivity(new Intent(this, MainActivity.class));
+```
+
+**难点 3：Fragment @EFragment 重构**
+
+```java
+// AndroidAnnotations 写法
+@EFragment(R.layout.fragment_drawer)
+public class DrawerFragment extends Fragment {
+    @ViewById(R.id.username) TextView mUserName;
+    
+    @AfterViews
+    void setUpViews() { ... }
+}
+
+// 标准写法
+public class DrawerFragment extends Fragment {
+    private FragmentDrawerBinding binding;
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, 
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentDrawerBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // setUpViews() 内容移到这里
+    }
+}
+```
+
+**难点 4：@EViewGroup 重构（EditorView.java，788 行）**
+
+```java
+// AndroidAnnotations 写法
+@EViewGroup(R.layout.editor_view)
+public class EditorView extends FrameLayout {
+    @ViewById(R.id.editor) CodeEditor mEditor;
+    @ViewById(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+    // ... 9 个 @ViewById
+    
+    @AfterViews
+    void setupViews() { ... }
+}
+
+// 标准写法
+public class EditorView extends FrameLayout {
+    private EditorViewBinding binding;
+    
+    public EditorView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        binding = EditorViewBinding.inflate(LayoutInflater.from(context), this);
+        initViews();
+    }
+    
+    private void initViews() {
+        // @AfterViews 内容移到这里
+        // 访问视图：binding.editor, binding.drawerLayout
+    }
+}
+```
+
+**难点 5：@CheckedChange 事件处理**
+
+```java
+// AndroidAnnotations 写法 (TimedTaskSettingActivity.java)
+@CheckedChange({R.id.daily_task_radio, R.id.weekly_task_radio, 
+                R.id.disposable_task_radio, R.id.run_on_broadcast})
+void onTimingMethodChanged(CompoundButton button, boolean isChecked) { ... }
+
+// 标准写法
+private void setupCheckedChangeListeners() {
+    CompoundButton.OnCheckedChangeListener listener = (button, isChecked) -> {
+        onTimingMethodChanged(button, isChecked);
+    };
+    binding.dailyTaskRadio.setOnCheckedChangeListener(listener);
+    binding.weeklyTaskRadio.setOnCheckedChangeListener(listener);
+    binding.disposableTaskRadio.setOnCheckedChangeListener(listener);
+    binding.runOnBroadcast.setOnCheckedChangeListener(listener);
+}
+```
+
+#### 文件迁移工作量估算
+
+| 复杂度 | 文件数 | 每个耗时 | 小计 |
+|--------|--------|----------|------|
+| 🟢 简单 | 10 | 30分钟-1小时 | 5-10 小时 |
+| 🟡 中等 | 8 | 1-2小时 | 8-16 小时 |
+| 🔴 复杂 | 6 | 2-4小时 | 12-24 小时 |
+| 🔴 最复杂 (EditorView) | 1 | 4-6小时 | 4-6 小时 |
+| **生成类引用更新** | 28 处 | 5分钟/处 | 2-3 小时 |
+| **测试验证** | - | - | 8-12 小时 |
+
+**AndroidAnnotations 迁移总计：39-71 小时（约 5-9 个工作日）**
 
 ### 2.2 ButterKnife → ViewBinding（中等）
 
@@ -249,46 +417,66 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ 阶段 2: 移除 AndroidAnnotations                              │
-│ 预估工作量：8-12 天                                          │
+│ 预估工作量：39-71 小时（5-9 个工作日）                        │
 ├─────────────────────────────────────────────────────────────┤
 │ 任务清单：                                                   │
-│ □ 重构 16 个 Activity                                       │
-│   - MainActivity                                            │
-│   - EditActivity                                            │
-│   - AboutActivity                                           │
-│   - BuildActivity                                           │
-│   - ProjectConfigActivity                                   │
-│   - TimedTaskSettingActivity                                │
-│   - LogActivity                                             │
-│   - LoginActivity                                           │
-│   - RegisterActivity                                        │
-│   - WebActivity                                             │
-│   - DocumentationActivity                                   │
-│   - SettingsActivity                                        │
-│   - ScriptWidgetSettingsActivity                            │
-│   - ShortcutIconSelectActivity                              │
-│   - TaskPrefEditActivity                                    │
-│   - TaskerScriptEditActivity                                │
 │                                                              │
-│ □ 重构 8 个 Fragment                                        │
-│   - DrawerFragment                                          │
-│   - DocsFragment                                            │
-│   - CommunityFragment                                       │
-│   - MyScriptListFragment                                    │
-│   - TaskManagerFragment                                     │
-│   - DebugToolbarFragment                                    │
-│   - NormalToolbarFragment                                   │
-│   - SearchToolbarFragment                                   │
+│ 🟢 简单文件（5-10小时）：                                     │
+│ □ AboutActivity.java - 1 @ViewById + 6 @Click               │
+│ □ LogActivity.java - 1 @ViewById + 1 @Click                 │
+│ □ WebActivity.java - 1 @ViewById                            │
+│ □ DocumentationActivity.java - 1 @ViewById                  │
+│ □ ScriptWidgetSettingsActivity.java - 1 @AfterViews         │
+│ □ TaskerScriptEditActivity.java - 1 @ViewById               │
+│ □ TaskPrefEditActivity.java - 1 @Click                      │
+│ □ ShortcutIconSelectActivity.java - 1 @ViewById             │
+│ □ SearchToolbarFragment.java - 仅 @EFragment                │
+│ □ NormalToolbarFragment.java - 仅 @EFragment                │
 │                                                              │
-│ □ 重构 1 个 ViewGroup                                       │
-│   - EditorView (@EViewGroup)                                │
+│ 🟡 中等文件（8-16小时）：                                     │
+│ □ RegisterActivity.java - 4 @ViewById + 1 @Click            │
+│ □ LoginActivity.java - 3 @ViewById + 2 @Click               │
+│ □ CommunityFragment.java - @EFragment                       │
+│ □ DocsFragment.java - @EFragment                            │
+│ □ TaskManagerFragment.java - 3 @ViewById                    │
+│ □ MyScriptListFragment.java - @EFragment                    │
+│ □ SettingsActivity.java - @EActivity                        │
+│ □ DebugToolbarFragment.java - 5 @Click                      │
 │                                                              │
-│ □ 更新所有生成类引用                                         │
-│   - SettingsActivity_.class → SettingsActivity.class        │
-│   - 约 50+ 处 Intent 引用                                   │
+│ 🔴 复杂文件（12-24小时）：                                    │
+│ □ BuildActivity.java - 8 @ViewById + 4 @Click (~300行)      │
+│ □ ProjectConfigActivity.java - 6 @ViewById + 2 @Click       │
+│ □ MainActivity.java - 3 @ViewById + 2 @Click (~400行)       │
+│ □ DrawerFragment.java - 5 @ViewById + 1 @Click (~518行)     │
+│ □ EditActivity.java - 1 @ViewById (~350行)                  │
+│ □ TimedTaskSettingActivity.java - 17 @ViewById + 事件 (~438行) │
 │                                                              │
-│ □ 处理 16 处 @UiThread                                      │
-│   - JsDialog.java 全部重写                                  │
+│ 🔴 最复杂文件（4-6小时）：                                    │
+│ □ EditorView.java - @EViewGroup + 9 @ViewById (~788行)      │
+│   - 需要重构自定义 ViewGroup 初始化逻辑                      │
+│   - 涉及代码编辑器核心功能                                   │
+│                                                              │
+│ 📦 引用更新（2-3小时）：                                      │
+│ □ 更新 28 处 Activity_.class / Activity_.intent()           │
+│   - SettingsActivity_ → SettingsActivity                    │
+│   - LogActivity_ → LogActivity                              │
+│   - MainActivity_ → MainActivity                            │
+│   - EditActivity_ → EditActivity                            │
+│   - BuildActivity_ → BuildActivity                          │
+│   - 等其他引用                                               │
+│                                                              │
+│ ✅ 清理工作：                                                 │
+│ □ 移除 androidannotations 依赖                              │
+│ □ 移除 kapt "org.androidannotations:androidannotations"     │
+│ □ 全局搜索确认无遗漏                                         │
+│                                                              │
+│ 🧪 测试验证（8-12小时）：                                     │
+│ □ 所有 Activity 启动测试                                    │
+│ □ Fragment 生命周期测试                                     │
+│ □ EditorView 功能测试                                       │
+│ □ 定时任务功能测试 (TimedTaskSettingActivity)               │
+│ □ 构建打包功能测试 (BuildActivity)                          │
+│ □ 完整回归测试                                              │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -354,7 +542,7 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 - Glide 已成功迁移到 KSP
 
 **理由**：
-- AndroidAnnotations 迁移工作量大（8-12 天）
+- 迁移总工作量大（7-12 天）
 - 风险高，需要全面回归测试
 - 收益有限（主要是构建速度提升）
 
@@ -382,26 +570,35 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 
 | 项目 | 详情 |
 |------|------|
-| 工作量 | 8-12 天 |
+| 工作量 | 39-71 小时（5-9 个工作日） |
 | 风险 | 高 |
 | 收益 | 完全移除 KAPT，构建速度提升 |
 
 **重构内容**：
-1. 16 个 Activity - 移除 @EActivity，改用标准生命周期
+1. 16 个 Activity - 移除 @EActivity，改用 ViewBinding
 2. 8 个 Fragment - 移除 @EFragment
-3. 1 个 ViewGroup - 移除 @EViewGroup
-4. 50+ 处生成类引用 - `Activity_.class` → `Activity.class`
-5. 16 处 @UiThread - 改用 `runOnUiThread`/协程
+3. 1 个 ViewGroup - 重构 EditorView (788行)
+4. 28 处生成类引用 - `Activity_.class` → `Activity.class`
+5. 1 处 @CheckedChange - 改用标准监听器
 
 ### 5.4 总体工作量汇总
 
-| 阶段 | 任务 | 工作量 | 风险 |
-|------|------|--------|------|
-| ✅ 已完成 | Glide → KSP | 已完成 | 无 |
-| 阶段 1 | ButterKnife → ViewBinding | 2-3 天 | 中 |
-| 阶段 2 | AndroidAnnotations 移除 | 8-12 天 | 高 |
-| 阶段 3 | 移除 KAPT 插件 | 1 小时 | 低 |
-| **总计** | **完全迁移到 KSP** | **10-15 天** | **高** |
+| 阶段 | 任务 | 工作量 | 风险 | 收益 |
+|------|------|--------|------|------|
+| ✅ 已完成 | Glide → KSP | 已完成 | 无 | 构建提速 |
+| 阶段 1 | ButterKnife → ViewBinding | 2-3 天 | 中 | 移除废弃依赖 |
+| 阶段 2 | AndroidAnnotations 移除 | 5-9 天 | 高 | 移除 KAPT |
+| 阶段 3 | 移除 KAPT 插件 | 1 小时 | 低 | 构建提速 |
+| **总计** | **完全迁移到 KSP** | **7-12 天** | **高** | **完全移除 KAPT** |
+
+### 5.5 收益分析
+
+| 指标 | 当前 (KAPT) | 迁移后 (KSP) | 提升 |
+|------|-------------|--------------|------|
+| 注解处理时间 | ~30秒 | ~10秒 | ~66% |
+| 增量构建 | 较慢 | 更快 | 显著 |
+| 代码生成 | Java Stub | 直接处理 | 更准确 |
+| 维护成本 | 依赖废弃库 | 现代化架构 | 降低 |
 
 ---
 
@@ -441,6 +638,9 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 | 2026-03-10 | 完善 ButterKnife 迁移分析 | 完成 |
 | 2026-03-10 | 添加文件复杂度分类和迁移示例 | 完成 |
 | 2026-03-10 | 更新工作量估算（15-22小时） | 完成 |
+| 2026-03-10 | 深度分析 AndroidAnnotations 迁移 | 完成 |
+| 2026-03-10 | 统计 25 个文件、28 处生成类引用 | 完成 |
+| 2026-03-10 | 更新总工作量（55-94小时，7-12天） | 完成 |
 
 ---
 
@@ -451,13 +651,14 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 - **Glide KSP 迁移**：✅ 成功（使用正确的 artifact `ksp:4.14.2`）
 - **KAPT + KSP 共存**：✅ 验证可行
 
-### 待完成
+### 待完成工作量汇总
 
-| 阶段 | 任务 | 工作量 | 优先级 |
-|------|------|--------|--------|
-| 阶段 1 | ButterKnife → ViewBinding | 2-3 天 | 中（库已废弃） |
-| 阶段 2 | AndroidAnnotations 移除 | 8-12 天 | 低（维护模式） |
-| 阶段 3 | 移除 KAPT 插件 | 1 小时 | 低 |
+| 阶段 | 任务 | 工作量 | 涉及文件 | 风险 |
+|------|------|--------|----------|------|
+| 阶段 1 | ButterKnife → ViewBinding | 15-22 小时 (2-3天) | 16 文件 | 中 |
+| 阶段 2 | AndroidAnnotations 移除 | 39-71 小时 (5-9天) | 25 文件 | 高 |
+| 阶段 3 | 移除 KAPT 插件 | 1 小时 | build.gradle | 低 |
+| **总计** | **完全迁移到 KSP** | **55-94 小时 (7-12天)** | **41 文件** | **高** |
 
 ### 当前配置
 
@@ -481,6 +682,18 @@ kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 
 ### 风险提示
 
-- ButterKnife 迁移需注意 @Optional 处理
-- AndroidAnnotations 迁移涉及架构重构，需全面测试
-- Dialog 生命周期需注意内存泄漏
+| 风险类型 | 描述 | 缓解措施 |
+|---------|------|----------|
+| 功能回归 | 重构可能引入 bug | 完整测试覆盖 |
+| 生命周期问题 | Fragment/Dialog 内存泄漏 | 代码审查 |
+| 生成类引用遗漏 | Activity_.class 未更新 | 全局搜索验证 |
+| EditorView 复杂性 | 788 行核心代码 | 充分测试编辑器功能 |
+
+### 决策建议
+
+| 场景 | 建议 |
+|------|------|
+| 项目稳定运行中 | 保持现状，暂不迁移 |
+| 计划大规模重构 | 一并迁移，减少技术债 |
+| 构建速度瓶颈 | 优先迁移 ButterKnife，评估收益 |
+| 新功能开发需要 | 完成迁移后使用现代架构 |
