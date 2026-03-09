@@ -373,55 +373,33 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 
 ---
 
-## 三、分阶段迁移路径
+## 三、渐进式迁移路径（简单优先）
+
+### 策略说明
+
+采用**渐进式迁移**策略，每次完成一批简单任务后验证功能，确保项目始终可运行。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 阶段 1: 移除 ButterKnife → ViewBinding                       │
-│ 预估工作量：15-22 小时（2-3 个工作日）                        │
+│ 批次 A: ButterKnife 简单文件（2-3小时）                       │
+│ 目标：熟悉迁移流程，建立信心                                  │
 ├─────────────────────────────────────────────────────────────┤
-│ 任务清单：                                                   │
-│                                                              │
-│ 🟢 简单文件（2-3小时）：                                      │
 │ □ AvatarView.java - 2 @BindView                             │
 │ □ TextSizeSettingDialogBuilder.java - 2 @BindView           │
 │ □ FunctionsKeyboardView.java - 2 @BindView                  │
 │ □ ScriptLoopDialog.java - 3 @BindView                       │
 │ □ DrawerMenuItemViewHolder.java - 4 @BindView               │
-│ □ ExplorerProjectToolbar.java - 1 @BindView + 3 @OnClick    │
 │ □ OptionListView.java - 2 @BindView                         │
 │ □ OperationDialogBuilder.java - 2 @BindView                 │
+│ □ ExplorerProjectToolbar.java - 1 @BindView + 3 @OnClick    │
 │                                                              │
-│ 🟡 中等文件（4-6小时）：                                      │
-│ □ ShortcutCreateActivity.java - 3 @BindView + 1 @OnClick    │
-│ □ TaskListRecyclerView.java - 内部 ViewHolder               │
-│ □ FileChooseListView.java - 7 @BindView + 多事件            │
-│ □ FindOrReplaceDialogBuilder.java - @OnCheckedChanged       │
-│ □ CodeGenerateDialog.java - 内部 ViewHolder + 事件          │
-│                                                              │
-│ 🔴 复杂文件（6-10小时）：                                     │
-│ □ CircularMenu.java - 15 处 @Optional 需判空处理            │
-│ □ ExplorerView.java - 735 行，多内部 ViewHolder             │
-│ □ CommunityWebView.java - @Optional 处理                    │
-│                                                              │
-│ 📦 清理工作：                                                 │
-│ □ 移除 butterknife 依赖                                     │
-│ □ 移除 kapt 'com.jakewharton:butterknife-compiler'         │
-│ □ 全局搜索确认无遗漏                                         │
-│                                                              │
-│ ✅ 测试验证：                                                 │
-│ □ 编译通过                                                   │
-│ □ 功能回归测试                                               │
-│ □ 内存泄漏检查（Dialog 生命周期）                            │
+│ ✅ 验证：编译通过，相关功能测试                               │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 阶段 2: 移除 AndroidAnnotations                              │
-│ 预估工作量：39-71 小时（5-9 个工作日）                        │
+│ 批次 B: AndroidAnnotations 简单文件（3-5小时）                │
+│ 目标：熟悉 AA 迁移模式                                       │
 ├─────────────────────────────────────────────────────────────┤
-│ 任务清单：                                                   │
-│                                                              │
-│ 🟢 简单文件（5-10小时）：                                     │
 │ □ AboutActivity.java - 1 @ViewById + 6 @Click               │
 │ □ LogActivity.java - 1 @ViewById + 1 @Click                 │
 │ □ WebActivity.java - 1 @ViewById                            │
@@ -430,73 +408,131 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 │ □ TaskerScriptEditActivity.java - 1 @ViewById               │
 │ □ TaskPrefEditActivity.java - 1 @Click                      │
 │ □ ShortcutIconSelectActivity.java - 1 @ViewById             │
+│                                                              │
+│ ✅ 验证：Activity 启动测试，基础功能验证                      │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 C: Fragment 简单迁移（2-3小时）                          │
+│ 目标：Fragment 迁移模式                                      │
+├─────────────────────────────────────────────────────────────┤
 │ □ SearchToolbarFragment.java - 仅 @EFragment                │
 │ □ NormalToolbarFragment.java - 仅 @EFragment                │
+│ □ CommunityFragment.java - 1 @ViewById                      │
+│ □ DocsFragment.java - 1 @ViewById                           │
+│ □ TaskManagerFragment.java - 3 @ViewById                    │
 │                                                              │
-│ 🟡 中等文件（8-16小时）：                                     │
+│ ✅ 验证：Fragment 切换测试，UI 显示验证                       │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 D: ButterKnife 中等文件（4-6小时）                       │
+│ 目标：处理事件监听器迁移                                     │
+├─────────────────────────────────────────────────────────────┤
+│ □ ShortcutCreateActivity.java - 3 @BindView + 1 @OnClick    │
+│ □ TaskListRecyclerView.java - 内部 ViewHolder               │
+│ □ FileChooseListView.java - 7 @BindView + 多事件            │
+│ □ FindOrReplaceDialogBuilder.java - @OnCheckedChanged       │
+│ □ CodeGenerateDialog.java - 内部 ViewHolder + 事件          │
+│                                                              │
+│ ✅ 验证：文件选择、查找替换、代码生成功能                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 E: AndroidAnnotations 中等文件（6-10小时）               │
+│ 目标：用户认证和设置相关                                     │
+├─────────────────────────────────────────────────────────────┤
 │ □ RegisterActivity.java - 4 @ViewById + 1 @Click            │
 │ □ LoginActivity.java - 3 @ViewById + 2 @Click               │
-│ □ CommunityFragment.java - @EFragment                       │
-│ □ DocsFragment.java - @EFragment                            │
-│ □ TaskManagerFragment.java - 3 @ViewById                    │
 │ □ MyScriptListFragment.java - @EFragment                    │
 │ □ SettingsActivity.java - @EActivity                        │
 │ □ DebugToolbarFragment.java - 5 @Click                      │
 │                                                              │
-│ 🔴 复杂文件（12-24小时）：                                    │
-│ □ BuildActivity.java - 8 @ViewById + 4 @Click (~300行)      │
-│ □ ProjectConfigActivity.java - 6 @ViewById + 2 @Click       │
-│ □ MainActivity.java - 3 @ViewById + 2 @Click (~400行)       │
-│ □ DrawerFragment.java - 5 @ViewById + 1 @Click (~518行)     │
-│ □ EditActivity.java - 1 @ViewById (~350行)                  │
-│ □ TimedTaskSettingActivity.java - 17 @ViewById + 事件 (~438行) │
-│                                                              │
-│ 🔴 最复杂文件（4-6小时）：                                    │
-│ □ EditorView.java - @EViewGroup + 9 @ViewById (~788行)      │
-│   - 需要重构自定义 ViewGroup 初始化逻辑                      │
-│   - 涉及代码编辑器核心功能                                   │
-│                                                              │
-│ 📦 引用更新（2-3小时）：                                      │
+│ ✅ 验证：登录注册、设置功能测试                               │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 F: 引用更新（2-3小时）                                   │
+│ 目标：更新所有生成类引用                                     │
+├─────────────────────────────────────────────────────────────┤
 │ □ 更新 28 处 Activity_.class / Activity_.intent()           │
 │   - SettingsActivity_ → SettingsActivity                    │
 │   - LogActivity_ → LogActivity                              │
 │   - MainActivity_ → MainActivity                            │
 │   - EditActivity_ → EditActivity                            │
 │   - BuildActivity_ → BuildActivity                          │
-│   - 等其他引用                                               │
+│   - 其他引用                                                 │
 │                                                              │
-│ ✅ 清理工作：                                                 │
-│ □ 移除 androidannotations 依赖                              │
-│ □ 移除 kapt "org.androidannotations:androidannotations"     │
-│ □ 全局搜索确认无遗漏                                         │
-│                                                              │
-│ 🧪 测试验证（8-12小时）：                                     │
-│ □ 所有 Activity 启动测试                                    │
-│ □ Fragment 生命周期测试                                     │
-│ □ EditorView 功能测试                                       │
-│ □ 定时任务功能测试 (TimedTaskSettingActivity)               │
-│ □ 构建打包功能测试 (BuildActivity)                          │
-│ □ 完整回归测试                                              │
+│ ✅ 验证：所有页面跳转正常                                     │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 阶段 3: 移除 KAPT，迁移 Glide 到 KSP                         │
-│ 预估工作量：✅ 已完成                                        │
+│ 批次 G: 核心功能文件（8-12小时）                              │
+│ 目标：主要业务逻辑迁移                                       │
 ├─────────────────────────────────────────────────────────────┤
-│ 任务清单：                                                   │
-│ ✅ 升级 Glide                                                │
-│   - implementation 'com.github.bumptech.glide:glide:4.14.2' │
-│   - ksp 'com.github.bumptech.glide:ksp:4.14.2'              │
+│ □ BuildActivity.java - 8 @ViewById + 4 @Click (~300行)      │
+│ □ ProjectConfigActivity.java - 6 @ViewById + 2 @Click       │
+│ □ MainActivity.java - 3 @ViewById + 2 @Click (~400行)       │
+│ □ DrawerFragment.java - 5 @ViewById + 1 @Click (~518行)     │
+│ □ EditActivity.java - 1 @ViewById (~350行)                  │
+│ □ TimedTaskSettingActivity.java - 17 @ViewById + 事件       │
 │                                                              │
-│ ✅ 验证构建                                                   │
-│   - BUILD SUCCESSFUL in 19s                                 │
-│   - KAPT + KSP 共存验证成功                                  │
+│ ✅ 验证：主界面、编辑器、定时任务、打包功能                   │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 H: 复杂文件（8-12小时）                                  │
+│ 目标：处理最复杂的情况                                       │
+├─────────────────────────────────────────────────────────────┤
+│ □ EditorView.java - @EViewGroup + 9 @ViewById (~788行)      │
+│   - 需要重构自定义 ViewGroup 初始化逻辑                      │
+│   - 涉及代码编辑器核心功能                                   │
 │                                                              │
-│ ⏳ 待完成（需先移除 AA 和 ButterKnife）                       │
+│ □ ButterKnife 复杂文件：                                     │
+│   - CircularMenu.java - 15 处 @Optional 需判空处理          │
+│   - ExplorerView.java - 735 行，多内部 ViewHolder           │
+│   - CommunityWebView.java - @Optional 处理                  │
+│                                                              │
+│ ✅ 验证：编辑器完整功能、悬浮窗、文件浏览                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 批次 I: 清理与收尾（2-3小时）                                 │
+│ 目标：移除废弃依赖，完成迁移                                 │
+├─────────────────────────────────────────────────────────────┤
+│ □ 移除 butterknife 依赖                                     │
+│ □ 移除 androidannotations 依赖                              │
+│ □ 移除 kapt 相关配置                                         │
 │ □ 移除 kotlin-kapt 插件                                     │
-│ □ 清理 KAPT 相关配置                                         │
+│ □ 全局搜索确认无遗漏                                         │
+│                                                              │
+│ ✅ 最终验证：完整回归测试                                    │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### 渐进式迁移优势
+
+| 优势 | 说明 |
+|------|------|
+| **低风险** | 每批次独立验证，问题早发现早修复 |
+| **可中断** | 随时可暂停，不影响项目正常使用 |
+| **渐进学习** | 从简单到复杂，逐步掌握迁移技巧 |
+| **信心建立** | 完成简单任务后更有动力继续 |
+
+### 批次工作量汇总
+
+| 批次 | 内容 | 工作量 | 累计 |
+|------|------|--------|------|
+| A | ButterKnife 简单 | 2-3小时 | 2-3小时 |
+| B | AA 简单 Activity | 3-5小时 | 5-8小时 |
+| C | AA 简单 Fragment | 2-3小时 | 7-11小时 |
+| D | ButterKnife 中等 | 4-6小时 | 11-17小时 |
+| E | AA 中等 | 6-10小时 | 17-27小时 |
+| F | 引用更新 | 2-3小时 | 19-30小时 |
+| G | 核心功能 | 8-12小时 | 27-42小时 |
+| H | 复杂文件 | 8-12小时 | 35-54小时 |
+| I | 清理收尾 | 2-3小时 | 37-57小时 |
+| **测试** | 各批次验证 | 8-12小时 | **45-69小时** |
 
 ---
 
@@ -641,6 +677,8 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 | 2026-03-10 | 深度分析 AndroidAnnotations 迁移 | 完成 |
 | 2026-03-10 | 统计 25 个文件、28 处生成类引用 | 完成 |
 | 2026-03-10 | 更新总工作量（55-94小时，7-12天） | 完成 |
+| 2026-03-10 | 调整为渐进式迁移策略（9批次） | 完成 |
+| 2026-03-10 | 简单任务优先，每批次独立验证 | 完成 |
 
 ---
 
@@ -651,14 +689,20 @@ private void setupClickListeners(CircularActionMenuBinding binding) {
 - **Glide KSP 迁移**：✅ 成功（使用正确的 artifact `ksp:4.14.2`）
 - **KAPT + KSP 共存**：✅ 验证可行
 
-### 待完成工作量汇总
+### 渐进式迁移工作量
 
-| 阶段 | 任务 | 工作量 | 涉及文件 | 风险 |
-|------|------|--------|----------|------|
-| 阶段 1 | ButterKnife → ViewBinding | 15-22 小时 (2-3天) | 16 文件 | 中 |
-| 阶段 2 | AndroidAnnotations 移除 | 39-71 小时 (5-9天) | 25 文件 | 高 |
-| 阶段 3 | 移除 KAPT 插件 | 1 小时 | build.gradle | 低 |
-| **总计** | **完全迁移到 KSP** | **55-94 小时 (7-12天)** | **41 文件** | **高** |
+| 批次 | 内容 | 工作量 | 可暂停 |
+|------|------|--------|--------|
+| A | ButterKnife 简单文件 | 2-3小时 | ✅ |
+| B | AA 简单 Activity | 3-5小时 | ✅ |
+| C | AA 简单 Fragment | 2-3小时 | ✅ |
+| D | ButterKnife 中等文件 | 4-6小时 | ✅ |
+| E | AA 中等文件 | 6-10小时 | ✅ |
+| F | 引用更新 | 2-3小时 | ✅ |
+| G | 核心功能文件 | 8-12小时 | ✅ |
+| H | 复杂文件 | 8-12小时 | ✅ |
+| I | 清理收尾 | 2-3小时 | - |
+| **总计** | **渐进式迁移** | **45-69小时 (6-9天)** | - |
 
 ### 当前配置
 
@@ -674,26 +718,37 @@ kapt "org.androidannotations:androidannotations:4.8.0"
 kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 ```
 
-### 推荐执行顺序
+### 推荐执行策略
 
-1. **短期**：保持现状，KAPT + KSP 共存工作正常
-2. **中期**：优先迁移 ButterKnife（工作量小，库已废弃）
-3. **长期**：评估 AndroidAnnotations 迁移收益后再决定
+| 阶段 | 建议 | 理由 |
+|------|------|------|
+| 批次 A-C | **立即可执行** | 简单任务，风险低，建立信心 |
+| 批次 D-E | **条件允许时执行** | 中等难度，需一定经验 |
+| 批次 F-I | **规划后执行** | 核心功能，需完整测试 |
+
+### 渐进式迁移优势
+
+| 优势 | 说明 |
+|------|------|
+| 低风险 | 每批次独立验证，问题早发现 |
+| 可中断 | 随时可暂停，不影响项目使用 |
+| 渐进学习 | 从简单到复杂，逐步掌握 |
+| 信心建立 | 完成简单任务后更有动力 |
 
 ### 风险提示
 
 | 风险类型 | 描述 | 缓解措施 |
 |---------|------|----------|
-| 功能回归 | 重构可能引入 bug | 完整测试覆盖 |
+| 功能回归 | 重构可能引入 bug | 每批次验证 |
 | 生命周期问题 | Fragment/Dialog 内存泄漏 | 代码审查 |
-| 生成类引用遗漏 | Activity_.class 未更新 | 全局搜索验证 |
-| EditorView 复杂性 | 788 行核心代码 | 充分测试编辑器功能 |
+| 生成类引用遗漏 | Activity_.class 未更新 | 批次 F 集中处理 |
+| EditorView 复杂性 | 788 行核心代码 | 批次 H 单独处理 |
 
 ### 决策建议
 
 | 场景 | 建议 |
 |------|------|
-| 项目稳定运行中 | 保持现状，暂不迁移 |
+| 项目稳定运行中 | 保持现状，或执行批次 A-C |
+| 有空闲时间 | 按批次渐进迁移 |
 | 计划大规模重构 | 一并迁移，减少技术债 |
-| 构建速度瓶颈 | 优先迁移 ButterKnife，评估收益 |
-| 新功能开发需要 | 完成迁移后使用现代架构 |
+| 构建速度瓶颈 | 完成全部迁移后移除 KAPT |
