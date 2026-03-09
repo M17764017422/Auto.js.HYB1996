@@ -8,7 +8,7 @@
 |-----------|------|---------|---------|--------|------|
 | AndroidAnnotations | 4.8.0 | ❌ 不支持 | ~158 | 25 | 维护模式 |
 | ButterKnife | 10.2.3 | ❌ 已废弃 | ~100 | 16 | 已停止维护 |
-| Glide | 4.12.0 | ✅ 4.16+ | 无自定义 | - | 活跃开发 |
+| Glide | 4.14.2 | ✅ **已迁移** | 无自定义 | - | KSP ✅ |
 
 ### 1.2 AndroidAnnotations 使用统计
 
@@ -68,18 +68,21 @@
 - 6 个 Dialog 类需要手动管理 ViewBinding
 - 需要在 dismiss 时释放引用避免内存泄漏
 
-### 2.3 Glide（简单但受阻）
+### 2.3 Glide（✅ 已完成）
 
-**问题 1：KAPT+KSP 共存冲突**
-```
-e: [ksp] No providers found in processor classpath.
-```
-- 之前的测试表明两者共存会导致处理器发现失败
-- 需要先完全移除 KAPT 才能迁移
+**状态：已成功迁移到 KSP**
 
-**问题 2：版本升级**
-- 需要从 4.12.0 升级到 4.16.0+
-- 可能存在 API 变更
+~~**问题 1：KAPT+KSP 共存冲突**~~
+- ~~之前的测试表明两者共存会导致处理器发现失败~~
+- **已解决**：使用正确的 artifact `com.github.bumptech.glide:ksp:4.14.2`
+
+~~**问题 2：版本升级**~~
+- **已完成**：从 4.12.0 升级到 4.14.2
+- API 无变更，平滑升级
+
+**关键发现**：之前迁移失败是因为使用了错误的 artifact 名称：
+- 错误：`ksp 'com.github.bumptech.glide:compiler:4.16.0'`
+- 正确：`ksp 'com.github.bumptech.glide:ksp:4.14.2'`
 
 ---
 
@@ -169,23 +172,20 @@ e: [ksp] No providers found in processor classpath.
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ 阶段 3: 移除 KAPT，迁移 Glide 到 KSP                         │
-│ 预估工作量：1-2 天                                           │
+│ 预估工作量：✅ 已完成                                        │
 ├─────────────────────────────────────────────────────────────┤
 │ 任务清单：                                                   │
+│ ✅ 升级 Glide                                                │
+│   - implementation 'com.github.bumptech.glide:glide:4.14.2' │
+│   - ksp 'com.github.bumptech.glide:ksp:4.14.2'              │
+│                                                              │
+│ ✅ 验证构建                                                   │
+│   - BUILD SUCCESSFUL in 19s                                 │
+│   - KAPT + KSP 共存验证成功                                  │
+│                                                              │
+│ ⏳ 待完成（需先移除 AA 和 ButterKnife）                       │
 │ □ 移除 kotlin-kapt 插件                                     │
-│   - app/build.gradle: apply plugin: 'kotlin-kapt'           │
-│                                                              │
-│ □ 升级 Glide                                                │
-│   - implementation 'com.github.bumptech.glide:glide:4.16.0' │
-│   - ksp 'com.github.bumptech.glide:compiler:4.16.0'         │
-│                                                              │
 │ □ 清理 KAPT 相关配置                                         │
-│   - gradle.properties: 移除 kapt.* 配置                     │
-│   - build.gradle: 移除 kapt 依赖                            │
-│                                                              │
-│ □ 验证构建                                                   │
-│   - ./gradlew clean                                         │
-│   - ./gradlew assembleCoolapkDebug                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -195,12 +195,12 @@ e: [ksp] No providers found in processor classpath.
 
 ### 4.1 技术问题
 
-| 问题 | 影响 | 解决方案 |
-|------|------|----------|
-| KAPT+KSP 共存 | 处理器发现失败 | 必须完全移除 KAPT 后再迁移 |
-| @Optional 无替代 | 15 处需要处理 | 运行时判空或多布局方案 |
-| 生成类引用 | 50+ 处需要更新 | 全局搜索替换 |
-| Dialog 生命周期 | 内存泄漏风险 | 手动管理 ViewBinding |
+| 问题 | 影响 | 解决方案 | 状态 |
+|------|------|----------|------|
+| ~~KAPT+KSP 共存~~ | ~~处理器发现失败~~ | ~~必须完全移除 KAPT 后再迁移~~ | ✅ 已解决（可共存） |
+| @Optional 无替代 | 15 处需要处理 | 运行时判空或多布局方案 | 待处理 |
+| 生成类引用 | 50+ 处需要更新 | 全局搜索替换 | 待处理 |
+| Dialog 生命周期 | 内存泄漏风险 | 手动管理 ViewBinding | 待处理 |
 
 ### 4.2 代码变更
 
@@ -290,14 +290,35 @@ e: [ksp] No providers found in processor classpath.
 
 | 日期 | 操作 | 结果 |
 |------|------|------|
-| 2026-03-09 | Glide 4.15.1 → KSP | 失败 |
-| 2026-03-09 | Glide 4.16.0 → KSP | 失败 |
+| 2026-03-09 | Glide 4.15.1 → KSP (错误 artifact) | 失败 |
+| 2026-03-09 | Glide 4.16.0 → KSP (错误 artifact) | 失败 |
 | 2026-03-09 | 创建完整迁移计划 | 完成 |
+| 2026-03-09 | Glide 4.14.2 → KSP (正确 artifact) | **成功** ✅ |
+| 2026-03-09 | 发布 v0.85.3-alpha 测试版 | **成功** ✅ |
 
 ---
 
 ## 九、结论
 
-完全迁移到 KSP 需要移除 AndroidAnnotations 和 ButterKnife 两个不支持 KSP 的库。这是一个较大的重构工作，预估需要 20-30 天的开发时间加上完整的回归测试。
+### 已完成
+
+- **Glide KSP 迁移**：✅ 成功（使用正确的 artifact `ksp:4.14.2`）
+- **KAPT + KSP 共存**：✅ 验证可行
+
+### 待完成
+
+完全迁移到 KSP 还需要移除 AndroidAnnotations 和 ButterKnife 两个不支持 KSP 的库。这是一个较大的重构工作，预估需要 20-30 天的开发时间加上完整的回归测试。
+
+### 当前配置
+
+```groovy
+// Glide - KSP ✅
+implementation 'com.github.bumptech.glide:glide:4.14.2'
+ksp 'com.github.bumptech.glide:ksp:4.14.2'
+
+// AndroidAnnotations/ButterKnife - KAPT (保留)
+kapt "org.androidannotations:androidannotations:4.8.0"
+kapt 'com.jakewharton:butterknife-compiler:10.2.3'
+```
 
 **建议**：短期内保持现状，中期可考虑先迁移 ButterKnife，长期规划完全重构。
