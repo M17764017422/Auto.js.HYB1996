@@ -1,8 +1,14 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: ✅ PFiles.java SAF 适配完善
+## 当前状态: ✅ GitHub Packages CI 构建修复
 
 ### 最近完成
+- **第二十六阶段**: GitHub Packages CI 构建修复 ✅ (2026-03-09)
+  - 将本地 AAR 发布到 GitHub Packages Maven 仓库
+  - 修复 AGP 8.x 本地 AAR 依赖限制
+  - 配置 CI 工作流 GitHub Packages 认证
+  - 发布版本 v0.85.2
+
 - **第二十五阶段**: PFiles.java SAF 适配完善 ✅ (2026-03-08)
   - **新增 SAF 支持**: `copy()`, `copyStream()`, `ensureDir()`, `isEmptyDir()`
   - **SAF 方法总数**: 23 个核心方法全部支持
@@ -56,14 +62,11 @@
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
-| v2.0.0-rhino2-agp8 | ✅ 已发布 | Rhino 2.0.0 + AGP 8.2.2 升级 |
-| v0.86.0 | ✅ 已发布 | 编辑器与调试器移植升级 |
-| v0.81.6-alpha | ✅ 已发布 | 堆栈帧跳转功能 |
-|------|------|------|
+| v0.85.2 | ✅ 已发布 | GitHub Packages CI 构建修复 |
+| v0.85.1 | ✅ 已发布 | Rhino 2.0.0 + AGP 8.2.2 升级 |
 | v0.86.0 | ✅ 已发布 | 编辑器与调试器移植升级 |
 | v0.81.6-alpha | ✅ 已发布 | 堆栈帧跳转功能 |
 | v4.1.1-alpha13 | ✅ 已发布 | 编辑器功能增强 (第二阶段) |
-| v4.1.1-alpha12 | ✅ 已发布 | 编辑器 Bug 修复 (第一阶段) |
 
 ---
 
@@ -2885,4 +2888,174 @@ public static boolean isEmptyDir(String path) {
 | `BUILD_FIX_PROGRESS.md` | 修改 | 更新重构状态为已完成 |
 
 ---
-更新时间: 2026-03-08 21:30
+
+## 第二十六阶段: GitHub Packages CI 构建修复 ✅
+
+### 问题背景
+
+升级 Rhino 2.0.0 和 AGP 8.2.2 后，CI 构建持续失败，涉及多个层面的问题。
+
+### 问题 1: JitPack 依赖不可用
+
+**错误信息**：
+```
+Could not resolve com.github.clearw5:EnhancedFloaty:0.31
+Could not GET 'https://jitpack.io/...' Received status code 401
+```
+
+**临时修复**：使用本地 aar 文件替代
+```groovy
+// autojs/build.gradle
+api files('libs/EnhancedFloaty-0.31.aar')
+```
+
+### 问题 2: AGP 8.x 本地 AAR 限制
+
+**错误信息**：
+```
+Direct local .aar file dependencies are not supported when building an AAR
+```
+
+**原因**：AGP 8.x 禁止在构建 AAR 库时使用本地 .aar 文件依赖
+
+**解决方案**：将本地 AAR 发布到 GitHub Packages Maven 仓库
+
+**发布脚本** (`publish-aars/build.gradle`):
+```groovy
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/M17764017422/Auto.js.HYB1996")
+            credentials {
+                username = System.getenv('GITHUB_USERNAME')
+                password = System.getenv('GITHUB_TOKEN')
+            }
+        }
+    }
+}
+```
+
+**成功发布的包**：
+
+| 包名 | 坐标 | 版本 |
+|------|------|------|
+| enhanced-floaty | `com.github.hyb1996:enhanced-floaty` | 0.31 |
+| opencv | `org.autojs.opencv:opencv` | 3.4.3 |
+| libtermexec | `org.autojs.terminal:libtermexec` | 1.0.0 |
+| emulatorview | `org.autojs.terminal:emulatorview` | 1.0.0 |
+| term-debug | `org.autojs.terminal:term-debug` | 1.0.0 |
+
+### 问题 3: 项目依赖配置
+
+**修改 `build.gradle`**：添加 GitHub Packages 仓库
+```groovy
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/M17764017422/Auto.js.HYB1996")
+            credentials {
+                username = System.getenv('GITHUB_ACTOR') ?: System.getenv('GITHUB_USERNAME') ?: ''
+                password = System.getenv('GITHUB_TOKEN') ?: ''
+            }
+        }
+    }
+}
+```
+
+**修改 `settings.gradle`**：配置 PREFER_PROJECT 模式
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+}
+```
+
+**修改 `autojs/build.gradle`**：使用 Maven 依赖
+```groovy
+// 替换本地 aar 为 Maven 依赖
+api 'com.github.hyb1996:enhanced-floaty:0.31'
+api 'org.autojs.opencv:opencv:3.4.3'
+api 'org.autojs.terminal:libtermexec:1.0.0'
+api 'org.autojs.terminal:emulatorview:1.0.0'
+api 'org.autojs.terminal:term-debug:1.0.0'
+```
+
+### 问题 4: CI 工作流缺少认证
+
+**错误信息**：
+```
+Could not get resource 'https://maven.pkg.github.com/...'
+Received status code 401 from server: Unauthorized
+```
+
+**原因**：`android-test.yml` 缺少 GitHub Packages 认证配置
+
+**修复**：添加认证步骤 (`.github/workflows/android-test.yml`)
+```yaml
+- name: Configure GitHub Packages
+  env:
+    GITHUB_USERNAME: ${{ github.actor }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  run: |
+    echo "GITHUB_USERNAME=${{ github.actor }}" >> $GITHUB_ENV
+    echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+```
+
+### 问题 5: 版本标签格式修正
+
+**问题**：使用了旧版本格式 `v4.1.1-alpha13`
+
+**修复**：
+- 删除错误的旧格式标签 `v4.1.1`
+- 更新 `project-versions.json`：`0.81.6` → `0.85.2`
+- 创建正确格式的标签 `v0.85.2`
+
+### 修复文件清单
+
+| 文件 | 修改内容 |
+|------|----------|
+| `build.gradle` | 添加 GitHub Packages 仓库 |
+| `settings.gradle` | 配置 PREFER_PROJECT 模式 |
+| `autojs/build.gradle` | 本地 aar 改为 Maven 依赖 |
+| `.github/workflows/android.yml` | 添加 GitHub Packages 认证 |
+| `.github/workflows/android-test.yml` | 添加 GitHub Packages 认证 |
+| `project-versions.json` | 版本号更新至 0.85.2 |
+
+### 构建结果
+
+| 工作流 | 状态 | 耗时 |
+|--------|------|------|
+| Android CI Test | ✅ 成功 | 4m22s |
+| Android CI build | ✅ 成功 | 7m45s |
+
+### 发布产物
+
+**版本**: v0.85.2  
+**Release URL**: https://github.com/M17764017422/Auto.js.HYB1996/releases/tag/v0.85.2
+
+| APK 文件 | 架构 |
+|----------|------|
+| app-coolapk-armeabi-v7a-release.apk | ARM 32位 |
+| app-coolapk-x86-release.apk | x86 |
+
+### 技术要点总结
+
+1. **AGP 8.x 限制**：禁止 AAR 库使用本地 .aar 依赖，需通过 Maven 仓库分发
+2. **GitHub Packages**：私有 Maven 仓库，需要 token 认证
+3. **Gradle 仓库模式**：`PREFER_PROJECT` 允许在项目级别覆盖 settings 中的仓库配置
+4. **CI 认证**：通过 `GITHUB_TOKEN` 环境变量访问 GitHub Packages
+
+### 提交记录
+
+| Commit | 说明 |
+|--------|------|
+| `4724d49a` | ci: add GitHub Packages authentication for CI builds |
+| `96c8c9db` | chore: bump version to 0.85.2 |
+| `v0.85.2` | 发布正式版 |
+
+---
+更新时间: 2026-03-09 17:20
