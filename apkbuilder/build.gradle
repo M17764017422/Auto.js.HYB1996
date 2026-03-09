@@ -38,11 +38,3 @@ dependencies {
     api 'commons-io:commons-io:2.11.0'
     implementation "androidx.core:core-ktx:1.8.0"
 }
-
-repositories {
-    google()
-    mavenCentral()
-    maven { url "https://maven.aliyun.com/repository/central" }
-    maven { url "https://maven.aliyun.com/repository/google" }
-    maven { url "https://maven.aliyun.com/repository/public" }
-}

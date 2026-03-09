@@ -48,11 +48,11 @@ dependencies {
         exclude group: 'com.android.support'
     })
     api "com.google.android.material:material:$material_version"
-    // Local AAR dependencies
-    api files('libs/EnhancedFloaty-0.31.aar')
+    // GitHub Packages dependencies (published from local aar files)
+    api 'com.github.hyb1996:enhanced-floaty:0.31'
     api 'com.makeramen:roundedimageview:2.3.0'
-    // OpenCv
-    api files('libs/opencv-3.4.3.aar')
+    // OpenCv from GitHub Packages
+    api 'org.autojs.opencv:opencv:3.4.3'
     // OkHttp
     api 'com.squareup.okhttp3:okhttp:3.10.0'
     // JDeferred
@@ -64,10 +64,10 @@ dependencies {
     // log4j
     api group: 'de.mindpipe.android', name: 'android-logging-log4j', version: '1.0.3'
     api group: 'log4j', name: 'log4j', version: '1.2.17'
-    // Terminal emulator
-    api files('libs/libtermexec-release.aar')
-    api files('libs/emulatorview-release.aar')
-    api files('libs/term-debug.aar')
+    // Terminal emulator from GitHub Packages
+    api 'org.autojs.terminal:libtermexec:1.0.0'
+    api 'org.autojs.terminal:emulatorview:1.0.0'
+    api 'org.autojs.terminal:term-debug:1.0.0'
     // Rhino JavaScript Engine - upgraded to 2.0.0-SNAPSHOT for ES6+ features
     // Using custom build from Rhino-For-AutoJs (Java 11 bytecode, Android compatible)
     // Includes: optional chaining, nullish coalescing, globalThis, debugger, etc.
