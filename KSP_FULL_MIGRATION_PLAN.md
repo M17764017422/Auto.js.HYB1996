@@ -25,13 +25,22 @@
 
 ### 1.3 ButterKnife 使用统计
 
-| 注解类型 | 使用次数 | 说明 |
-|---------|---------|------|
-| @BindView | 47 | 视图绑定 |
-| @OnClick | 33 | 点击事件 |
-| @Optional | 15 | 可选绑定 |
-| @OnCheckedChanged | 4 | 选中变化 |
-| @OnTextChanged | 1 | 文本变化 |
+| 注解类型 | 使用次数 | 涉及文件 | 说明 |
+|---------|---------|----------|------|
+| @BindView | 57 | 16 | 视图绑定 |
+| @OnClick | 34 | 10 | 点击事件 |
+| @Optional | 15 | 2 | 可选绑定（无 ViewBinding 替代） |
+| @OnCheckedChanged | 3 | 3 | 选中变化 |
+| @OnTextChanged | 1 | 1 | 文本变化 |
+| ButterKnife.bind() | 37 | 16 | 绑定调用 |
+
+**按文件复杂度分类**：
+
+| 复杂度 | 文件数 | 文件列表 | 预估时间 |
+|--------|--------|----------|----------|
+| 🟢 简单 | 8 | AvatarView, TextSizeSettingDialogBuilder, FunctionsKeyboardView, ScriptLoopDialog, DrawerMenuItemViewHolder, ExplorerProjectToolbar, OptionListView, OperationDialogBuilder | 2-3小时 |
+| 🟡 中等 | 5 | ShortcutCreateActivity, TaskListRecyclerView, FileChooseListView, FindOrReplaceDialogBuilder, CodeGenerateDialog | 4-6小时 |
+| 🔴 复杂 | 3 | **CircularMenu** (15 @Optional), **ExplorerView** (735行, 多ViewHolder), CommunityWebView | 6-10小时 |
 
 ---
 
@@ -54,19 +63,129 @@
 **问题 4：@UiThread 注解**
 - 16 处使用，需改用 `runOnUiThread`/`View.post`/协程
 
-### 2.2 ButterKnife（中等）
+### 2.2 ButterKnife → ViewBinding（中等）
 
-**问题 1：@Optional 可选绑定**
-- ViewBinding 所有视图都必须存在于布局中
-- 15 处 `@Optional` 需要运行时判空或多布局方案
+#### 文件清单与工作量
 
-**问题 2：ViewHolder 重构**
-- 10 个 ViewHolder 需要修改构造函数签名
-- 需要持有 ViewBinding 引用
+| 文件 | 注解数 | 复杂度 | 迁移要点 |
+|------|--------|--------|----------|
+| AvatarView.java | 2 @BindView | 🟢 | 自定义View，`binding = XxxBinding.inflate()` |
+| TextSizeSettingDialogBuilder.java | 2 @BindView | 🟢 | Dialog，`binding = XxxBinding.bind(view)` |
+| FunctionsKeyboardView.java | 2 @BindView | 🟢 | 自定义View，同上 |
+| ScriptLoopDialog.java | 3 @BindView | 🟢 | Dialog，同上 |
+| DrawerMenuItemViewHolder.java | 4 @BindView | 🟢 | ViewHolder，`XxxBinding.bind(itemView)` |
+| ExplorerProjectToolbar.java | 1 @BindView + 3 @OnClick | 🟢 | 自定义View，手动设置点击监听 |
+| OptionListView.java | 2 @BindView | 🟢 | ViewHolder |
+| OperationDialogBuilder.java | 2 @BindView | 🟢 | ViewHolder |
+| ShortcutCreateActivity.java | 3 @BindView + 1 @OnClick | 🟡 | Dialog 中绑定 |
+| TaskListRecyclerView.java | 3 @BindView + 1 @OnClick | 🟡 | 内部 ViewHolder 类 |
+| FileChooseListView.java | 7 @BindView + 2 @OnClick + 1 @OnCheckedChanged | 🟡 | 多 ViewHolder + 事件监听 |
+| FindOrReplaceDialogBuilder.java | 5 @BindView + 2 事件 | 🟡 | @OnCheckedChanged + @OnTextChanged |
+| CodeGenerateDialog.java | 3 @BindView + 1 @OnCheckedChanged | 🟡 | 内部 ViewHolder + 事件 |
+| **CircularMenu.java** | 13 @OnClick + 15 @Optional | 🔴 | 悬浮窗绑定，@Optional 无直接替代 |
+| **ExplorerView.java** | 19 @BindView + 10 @OnClick | 🔴 | 多内部 ViewHolder，735 行代码 |
+| CommunityWebView.java | 2 @OnClick + 2 @Optional | 🔴 | @Optional 处理 |
 
-**问题 3：Dialog 生命周期**
-- 6 个 Dialog 类需要手动管理 ViewBinding
-- 需要在 dismiss 时释放引用避免内存泄漏
+#### 技术难点与解决方案
+
+**难点 1：@Optional 可选绑定（最大难点）**
+
+```java
+// ButterKnife 写法
+@Optional
+@OnClick(R.id.script_list)
+void showScriptList() { ... }
+
+// ViewBinding 替代方案
+View scriptList = binding.getRoot().findViewById(R.id.script_list);
+if (scriptList != null) {
+    scriptList.setOnClickListener(v -> showScriptList());
+}
+```
+
+**影响范围**：
+- CircularMenu.java：15 处 @Optional
+- CommunityWebView.java：2 处 @Optional
+
+**难点 2：事件监听器迁移**
+
+```java
+// ButterKnife 写法
+@OnCheckedChanged(R.id.checkbox_replace_all)
+void syncWithReplaceCheckBox() { ... }
+
+// ViewBinding 替代方案
+binding.checkboxReplaceAll.setOnCheckedChangeListener((btn, isChecked) -> {
+    syncWithReplaceCheckBox();
+});
+```
+
+**难点 3：悬浮窗特殊绑定**
+
+```java
+// CircularMenu.java 特殊情况
+ButterKnife.bind(CircularMenu.this, menu); // 在非 Activity/Fragment 中绑定
+
+// ViewBinding 替代方案
+CircularActionMenuBinding binding = CircularActionMenuBinding.bind(menu);
+```
+
+#### 迁移示例对比
+
+**简单案例：AvatarView.java**
+
+```java
+// 迁移前
+@BindView(R.id.icon_text) TextView mIconText;
+@BindView(R.id.icon) RoundedImageView mIcon;
+
+private void init() {
+    inflate(getContext(), R.layout.avatar_view, this);
+    ButterKnife.bind(this);
+}
+
+// 迁移后
+private AvatarViewBinding binding;
+
+private void init() {
+    binding = AvatarViewBinding.inflate(LayoutInflater.from(getContext()), this);
+    // 字段访问：mIconText → binding.iconText
+    //          mIcon → binding.icon
+}
+```
+
+**复杂案例：CircularMenu.java**
+
+```java
+// 迁移前 (15个 @Optional 方法)
+@Optional @OnClick(R.id.script_list) void showScriptList() { ... }
+@Optional @OnClick(R.id.record) void startRecord() { ... }
+// ... 还有 13 个
+
+// 迁移后
+private void setupClickListeners(CircularActionMenuBinding binding) {
+    View scriptList = binding.getRoot().findViewById(R.id.script_list);
+    if (scriptList != null) {
+        scriptList.setOnClickListener(v -> showScriptList());
+    }
+    // ... 逐个设置，共 15 处判空
+}
+```
+
+#### 工作量估算
+
+| 阶段 | 任务 | 时间 |
+|------|------|------|
+| 准备 | 启用 ViewBinding，分析布局文件 | 30分钟 |
+| 简单文件 | 8 个文件迁移 | 2-3小时 |
+| 中等文件 | 5 个文件迁移 + 事件监听 | 4-6小时 |
+| 复杂文件 | ExplorerView (735行) | 3-4小时 |
+| 复杂文件 | CircularMenu (@Optional处理) | 2-3小时 |
+| 复杂文件 | CommunityWebView | 1小时 |
+| 测试 | 编译验证 + 功能回归测试 | 2-4小时 |
+| 清理 | 移除 ButterKnife 依赖 | 30分钟 |
+
+**ButterKnife 迁移总计：15-22 小时（约 2-3 个工作日）**
 
 ### 2.3 Glide（✅ 已完成）
 
@@ -90,40 +209,42 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 阶段 1: 移除 ButterKnife                                     │
-│ 预估工作量：10-15 天                                         │
+│ 阶段 1: 移除 ButterKnife → ViewBinding                       │
+│ 预估工作量：15-22 小时（2-3 个工作日）                        │
 ├─────────────────────────────────────────────────────────────┤
 │ 任务清单：                                                   │
-│ □ 迁移 10 个 RecyclerView.ViewHolder                        │
-│   - ExplorerItemViewHolder (ExplorerView.java)              │
-│   - ExplorerPageViewHolder (ExplorerView.java)              │
-│   - CategoryViewHolder (ExplorerView.java)                  │
-│   - DrawerMenuItemViewHolder                                │
-│   - TaskViewHolder (TaskListRecyclerView.java)              │
-│   - FileChooseListView ViewHolder x2                        │
-│   - CodeGenerateDialog ViewHolder                           │
-│   - OperationDialogBuilder ViewHolder                       │
-│   - OptionListView ViewHolder                               │
 │                                                              │
-│ □ 迁移 6 个 Dialog/DialogBuilder 类                         │
-│   - ScriptLoopDialog                                        │
-│   - FindOrReplaceDialogBuilder                              │
-│   - TextSizeSettingDialogBuilder                            │
-│   - ManualDialog                                            │
-│   - CodeGenerateDialog                                      │
-│   - OperationDialogBuilder                                  │
+│ 🟢 简单文件（2-3小时）：                                      │
+│ □ AvatarView.java - 2 @BindView                             │
+│ □ TextSizeSettingDialogBuilder.java - 2 @BindView           │
+│ □ FunctionsKeyboardView.java - 2 @BindView                  │
+│ □ ScriptLoopDialog.java - 3 @BindView                       │
+│ □ DrawerMenuItemViewHolder.java - 4 @BindView               │
+│ □ ExplorerProjectToolbar.java - 1 @BindView + 3 @OnClick    │
+│ □ OptionListView.java - 2 @BindView                         │
+│ □ OperationDialogBuilder.java - 2 @BindView                 │
 │                                                              │
-│ □ 处理 15 处 @Optional 可选绑定                              │
-│   - CircularMenu.java (13 处)                               │
-│   - CommunityWebView.java (2 处)                            │
+│ 🟡 中等文件（4-6小时）：                                      │
+│ □ ShortcutCreateActivity.java - 3 @BindView + 1 @OnClick    │
+│ □ TaskListRecyclerView.java - 内部 ViewHolder               │
+│ □ FileChooseListView.java - 7 @BindView + 多事件            │
+│ □ FindOrReplaceDialogBuilder.java - @OnCheckedChanged       │
+│ □ CodeGenerateDialog.java - 内部 ViewHolder + 事件          │
 │                                                              │
-│ □ 迁移 4 个自定义 View                                       │
-│   - AvatarView                                              │
-│   - FunctionsKeyboardView                                   │
-│   - ExplorerProjectToolbar                                  │
-│   - OptionListView                                          │
+│ 🔴 复杂文件（6-10小时）：                                     │
+│ □ CircularMenu.java - 15 处 @Optional 需判空处理            │
+│ □ ExplorerView.java - 735 行，多内部 ViewHolder             │
+│ □ CommunityWebView.java - @Optional 处理                    │
 │                                                              │
-│ □ 处理 33 处 @OnClick 事件                                   │
+│ 📦 清理工作：                                                 │
+│ □ 移除 butterknife 依赖                                     │
+│ □ 移除 kapt 'com.jakewharton:butterknife-compiler'         │
+│ □ 全局搜索确认无遗漏                                         │
+│                                                              │
+│ ✅ 测试验证：                                                 │
+│ □ 编译通过                                                   │
+│ □ 功能回归测试                                               │
+│ □ 内存泄漏检查（Dialog 生命周期）                            │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -230,35 +351,57 @@
 **保持现状**
 - KAPT 可以正常工作
 - AndroidAnnotations 和 ButterKnife 无安全风险
-- Glide KAPT 版本稳定
+- Glide 已成功迁移到 KSP
 
 **理由**：
-- 迁移工作量大（20-30 天）
+- AndroidAnnotations 迁移工作量大（8-12 天）
 - 风险高，需要全面回归测试
 - 收益有限（主要是构建速度提升）
 
 ### 5.2 中期方案
 
-**渐进迁移**
-1. 先迁移 ButterKnife 到 ViewBinding
-   - 工作量：10-15 天
-   - 风险：中
-   - 收益：移除废弃依赖
+**渐进迁移 - 先迁移 ButterKnife**
 
-2. 评估 AndroidAnnotations 替代方案
-   - 考虑使用 Hilt/Dagger 依赖注入
-   - 考虑使用协程替代 @UiThread
+| 项目 | 详情 |
+|------|------|
+| 工作量 | 15-22 小时（2-3 个工作日） |
+| 风险 | 中 |
+| 收益 | 移除废弃依赖，减少 KAPT 处理量 |
+| 前置条件 | ViewBinding 已启用 |
+
+**迁移步骤**：
+1. 启用 ViewBinding（已启用）
+2. 按复杂度分批迁移文件
+3. 处理 @Optional 可选绑定
+4. 移除 ButterKnife 依赖
+5. 功能回归测试
 
 ### 5.3 长期方案
 
-**完全重构**
-1. 移除 AndroidAnnotations
-   - 使用 ViewBinding + 标准生命周期
-   - 重构所有 Activity/Fragment
+**完全重构 - 移除 AndroidAnnotations**
 
-2. 移除 KAPT
-   - 迁移 Glide 到 KSP
-   - 清理所有 KAPT 配置
+| 项目 | 详情 |
+|------|------|
+| 工作量 | 8-12 天 |
+| 风险 | 高 |
+| 收益 | 完全移除 KAPT，构建速度提升 |
+
+**重构内容**：
+1. 16 个 Activity - 移除 @EActivity，改用标准生命周期
+2. 8 个 Fragment - 移除 @EFragment
+3. 1 个 ViewGroup - 移除 @EViewGroup
+4. 50+ 处生成类引用 - `Activity_.class` → `Activity.class`
+5. 16 处 @UiThread - 改用 `runOnUiThread`/协程
+
+### 5.4 总体工作量汇总
+
+| 阶段 | 任务 | 工作量 | 风险 |
+|------|------|--------|------|
+| ✅ 已完成 | Glide → KSP | 已完成 | 无 |
+| 阶段 1 | ButterKnife → ViewBinding | 2-3 天 | 中 |
+| 阶段 2 | AndroidAnnotations 移除 | 8-12 天 | 高 |
+| 阶段 3 | 移除 KAPT 插件 | 1 小时 | 低 |
+| **总计** | **完全迁移到 KSP** | **10-15 天** | **高** |
 
 ---
 
@@ -295,6 +438,9 @@
 | 2026-03-09 | 创建完整迁移计划 | 完成 |
 | 2026-03-09 | Glide 4.14.2 → KSP (正确 artifact) | **成功** ✅ |
 | 2026-03-09 | 发布 v0.85.3-alpha 测试版 | **成功** ✅ |
+| 2026-03-10 | 完善 ButterKnife 迁移分析 | 完成 |
+| 2026-03-10 | 添加文件复杂度分类和迁移示例 | 完成 |
+| 2026-03-10 | 更新工作量估算（15-22小时） | 完成 |
 
 ---
 
@@ -307,7 +453,11 @@
 
 ### 待完成
 
-完全迁移到 KSP 还需要移除 AndroidAnnotations 和 ButterKnife 两个不支持 KSP 的库。这是一个较大的重构工作，预估需要 20-30 天的开发时间加上完整的回归测试。
+| 阶段 | 任务 | 工作量 | 优先级 |
+|------|------|--------|--------|
+| 阶段 1 | ButterKnife → ViewBinding | 2-3 天 | 中（库已废弃） |
+| 阶段 2 | AndroidAnnotations 移除 | 8-12 天 | 低（维护模式） |
+| 阶段 3 | 移除 KAPT 插件 | 1 小时 | 低 |
 
 ### 当前配置
 
@@ -316,9 +466,21 @@
 implementation 'com.github.bumptech.glide:glide:4.14.2'
 ksp 'com.github.bumptech.glide:ksp:4.14.2'
 
-// AndroidAnnotations/ButterKnife - KAPT (保留)
+// AndroidAnnotations - KAPT (保留)
 kapt "org.androidannotations:androidannotations:4.8.0"
+
+// ButterKnife - KAPT (建议迁移)
 kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 ```
 
-**建议**：短期内保持现状，中期可考虑先迁移 ButterKnife，长期规划完全重构。
+### 推荐执行顺序
+
+1. **短期**：保持现状，KAPT + KSP 共存工作正常
+2. **中期**：优先迁移 ButterKnife（工作量小，库已废弃）
+3. **长期**：评估 AndroidAnnotations 迁移收益后再决定
+
+### 风险提示
+
+- ButterKnife 迁移需注意 @Optional 处理
+- AndroidAnnotations 迁移涉及架构重构，需全面测试
+- Dialog 生命周期需注意内存泄漏
