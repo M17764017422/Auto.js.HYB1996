@@ -88,7 +88,7 @@ public class FunctionsKeyboardView extends FrameLayout {
     }
 
     private void init() {
-        binding = FunctionsKeyboardViewBinding.inflate(LayoutInflater.from(getContext()), this);
+        binding = FunctionsKeyboardViewBinding.inflate(LayoutInflater.from(getContext()), this, true);
         initModulesView();
         initPropertiesView();
     }

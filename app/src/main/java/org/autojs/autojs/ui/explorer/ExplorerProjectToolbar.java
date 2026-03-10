@@ -44,7 +44,7 @@ public class ExplorerProjectToolbar extends CardView {
     }
 
     private void init() {
-        binding = ExplorerProjectToolbarBinding.inflate(LayoutInflater.from(getContext()), this);
+        binding = ExplorerProjectToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true);
         setOnClickListener(view -> edit());
         binding.run.setOnClickListener(v -> run());
         binding.build.setOnClickListener(v -> build());

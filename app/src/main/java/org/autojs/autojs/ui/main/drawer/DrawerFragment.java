@@ -49,6 +49,7 @@ import org.autojs.autojs.tool.SimpleObserver;
 import org.autojs.autojs.ui.main.MainActivity;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.user.LoginActivity;
+import org.autojs.autojs.ui.widget.BackgroundTarget;
 import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
 import org.autojs.autojs.ui.user.WebActivity;

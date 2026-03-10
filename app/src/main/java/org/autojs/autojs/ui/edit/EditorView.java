@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseBooleanArray;
 import android.view.Gravity;
@@ -205,7 +206,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     private void init(Context context) {
-        binding = EditorViewBinding.inflate(LayoutInflater.from(context), this);
+        binding = EditorViewBinding.inflate(LayoutInflater.from(context), this, true);
         
         //setTheme(Theme.getDefault(getContext()));
         setUpEditor();

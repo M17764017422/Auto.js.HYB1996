@@ -1,10 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'com.jakewharton.butterknife'
 apply plugin: 'com.google.devtools.ksp'
-
-def AAVersion = '4.8.0'
 def SupportLibVersion = '28.0.0'
 
 // Signing configuration from environment or GitHub secrets
@@ -76,14 +72,6 @@ android {
         versionName versions.appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
-        // 固定 resourcePackageName 为 namespace，解决 KAPT R 类问题
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                    "resourcePackageName": "org.autojs.autojs"
-                ]
-            }
-        }
     }
     buildTypes {
         debug {
@@ -200,14 +188,6 @@ dependencies {
     
     // Kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
-    // Android Annotations
-    kapt "org.androidannotations:androidannotations:$AAVersion"
-    implementation "org.androidannotations:androidannotations-api:$AAVersion"
-    // ButterKnife
-    implementation('com.jakewharton:butterknife:10.2.3', {
-        exclude group: 'com.android.support'
-    })
-    kapt 'com.jakewharton:butterknife-compiler:10.2.3'
     // Android supports
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation 'androidx.cardview:cardview:1.0.0'
