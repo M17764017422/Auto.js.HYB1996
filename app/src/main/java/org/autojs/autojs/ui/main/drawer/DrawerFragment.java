@@ -160,6 +160,23 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         
         // 设置头像点击监听器
         binding.avatar.setOnClickListener(v -> loginOrShowUserInfo());
+        
+        // 设置底部按钮点击监听器
+        binding.setting.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), SettingsActivity.class));
+            closeDrawer();
+        });
+        binding.exit.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).exitCompletely();
+            }
+        });
+    }
+
+    private void closeDrawer() {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).closeDrawer();
+        }
     }
 
     private void initMenuItems() {

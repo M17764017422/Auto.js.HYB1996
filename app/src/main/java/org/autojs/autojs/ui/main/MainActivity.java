@@ -112,16 +112,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
                 EventBus.getDefault().post(DrawerOpenEvent.SINGLETON);
             }
         });
-        
-        // 设置侧边栏底部按钮点击监听器（在 fragment_drawer 布局中）
-        View settingBtn = findViewById(R.id.setting);
-        View exitBtn = findViewById(R.id.exit);
-        if (settingBtn != null) {
-            settingBtn.setOnClickListener(v -> startSettingActivity());
-        }
-        if (exitBtn != null) {
-            exitBtn.setOnClickListener(v -> exitCompletely());
-        }
+        // 设置按钮和退出按钮的点击监听器在 DrawerFragment 中设置
     }
 
     private void showAnnunciationIfNeeded() {
@@ -251,6 +242,10 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
         ForegroundService.stop(this);
         stopService(new Intent(this, FloatyService.class));
         AutoJs.getInstance().getScriptEngineService().stopAll();
+    }
+
+    public void closeDrawer() {
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     @Override
