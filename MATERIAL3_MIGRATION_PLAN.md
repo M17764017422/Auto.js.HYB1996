@@ -122,11 +122,26 @@ ScriptEngineService (脚本执行日志)
 
 ## 三、实施阶段
 
-### 阶段一：基础环境配置 (1-2天)
+### 阶段一：基础环境配置
 
 **目标**: 为 HYB1996 添加 Compose 支持，不破坏现有功能
 
-**修改文件**: `app/build.gradle`
+#### 1.1 详细工作量分析
+
+| 任务 | 文件 | 行数 | 耗时 | 风险 |
+|------|------|------|------|------|
+| 添加 Compose 依赖 | `app/build.gradle` | ~20行 | 15分钟 | 低 |
+| Gradle Sync | - | - | 5分钟 | 低 |
+| 创建目录结构 | - | - | 5分钟 | 无 |
+| 移植 Theme.kt | 新建 | ~105行 | 20分钟 | 低 |
+| 移植 Color.kt | 新建 | ~210行 | 20分钟 | 低 |
+| 移植 Type.kt | 新建 | ~5行 | 5分钟 | 低 |
+| 调整包名导入 | 3个文件 | - | 10分钟 | 低 |
+| 编译验证 | - | - | 10分钟 | 低 |
+
+**阶段一总计：1.5 小时**
+
+#### 1.2 build.gradle 修改
 
 ```groovy
 android {
@@ -157,33 +172,123 @@ dependencies {
 }
 ```
 
-**新建目录结构**:
+#### 1.3 新建目录结构
+
 ```
 app/src/main/java/org/autojs/autojs/ui/material3/
 ├── theme/
-│   ├── Theme.kt       # AppTheme Composable
-│   ├── Color.kt       # 颜色定义
-│   └── Type.kt        # 排版系统
+│   ├── Theme.kt       # ~105行，直接复制自 AutoX
+│   ├── Color.kt       # ~210行，直接复制自 AutoX
+│   └── Type.kt        # ~5行，直接复制自 AutoX
 └── components/
-    ├── DialogController.kt   # 对话框组件
-    └── LogSheet.kt           # 日志面板组件
+    └── (阶段二添加)
 ```
+
+#### 1.4 源文件分析（AutoX）
+
+| 文件 | 路径 | 行数 | 复杂度 |
+|------|------|------|--------|
+| Theme.kt | `AutoX/common/.../theme/Theme.kt` | 105 | 简单，纯配置 |
+| Color.kt | `AutoX/common/.../theme/Color.kt` | 210 | 简单，颜色定义 |
+| Type.kt | `AutoX/common/.../theme/Type.kt` | 5 | 极简单 |
+
+**关键发现**：主题文件可直接复制，仅需修改包名
 
 ---
 
-### 阶段二：悬浮日志面板移植 (3-5天)
+### 阶段二：悬浮日志面板移植
 
 **目标**: 在编辑器中实现 Material3 悬浮日志面板
 
-**需要修改的文件**:
+#### 2.1 现有代码分析
+
+**HYB1996 EditActivity 现状**：
+- 文件：`app/src/main/java/org/autojs/autojs/ui/edit/EditActivity.java`
+- 代码量：~250 行 Java
+- 框架：AndroidAnnotations `@EActivity`
+- 核心依赖：EditorView（788行），EditorMenu
+
+**AutoX EditActivity 参考**：
+- 文件：`AutoX/codeeditor/.../EditActivity.kt`
+- 代码量：~220 行 Kotlin
+- 框架：Compose + Material3
+- 核心组件：EditorAppManager，LogSheet
+
+**好消息**：ConsoleView 已存在于 HYB1996
+- 路径：`autojs/src/main/java/com/stardust/autojs/core/console/ConsoleView.java`
+- 代码量：~239 行
+- 可直接复用，无需移植
+
+#### 2.2 详细工作量分析
+
+| 任务 | 文件 | 工作量 | 风险 | 说明 |
+|------|------|--------|------|------|
+| 创建 EditorModel.kt | 新建 | 30分钟 | 低 | ~40行，简单 ViewModel |
+| 创建 LogSheet.kt | 新建 | 1小时 | 中 | ~70行，复制自 AutoX |
+| 添加菜单项 | `menu_editor.xml` | 10分钟 | 低 | 1行 XML |
+| 修改 EditorMenu.java | 现有 | 30分钟 | 低 | 添加菜单处理逻辑 |
+| **EditActivity 重构** | 现有 | **3-5小时** | **高** | 见下方分析 |
+| 集成测试 | - | 1小时 | 中 | 功能验证 |
+
+**阶段二总计：6-8 小时**
+
+#### 2.3 关键技术难点：EditActivity 重构
+
+**问题**：EditActivity 使用 `@EActivity` 注解
+
+```java
+// 现状：AndroidAnnotations 注解
+@EActivity(R.layout.activity_edit)
+public class EditActivity extends BaseActivity {
+    @ViewById(R.id.editor_view) EditorView mEditorView;
+    @AfterViews void setUpViews() { ... }
+}
+```
+
+**方案 A：完全重构为 Kotlin（推荐）**
+- 工作量：3-5 小时
+- 风险：中
+- 收益：代码现代化，便于后续维护
+- 步骤：
+  1. Java → Kotlin 转换
+  2. 移除 @EActivity，改用 ViewBinding
+  3. 添加 Compose setContent 入口
+  4. 集成 LogSheet 组件
+
+**方案 B：混合方案（快速）**
+- 工作量：1-2 小时
+- 风险：低
+- 限制：保留 @EActivity，Compose 作为叠加层
+- 实现：在 `activity_edit.xml` 中添加 `ComposeView`
+
+```xml
+<!-- activity_edit.xml 添加 -->
+<androidx.compose.ui.platform.ComposeView
+    android:id="@+id/compose_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+```
+
+```java
+// EditActivity.java 添加
+ComposeView composeView = findViewById(R.id.compose_view);
+composeView.setContent(() -> {
+    AppTheme.INSTANCE.invoke(() -> {
+        LogSheet(consoleImpl, viewModel);
+        return null;
+    });
+});
+```
+
+#### 2.4 需要修改的文件清单
 
 | 文件 | 改动类型 | 说明 |
 |------|----------|------|
-| `EditActivity.java` → `EditActivity.kt` | 重构 | 启用 Compose |
-| `EditorMenu.java` | 修改 | 添加"显示日志"菜单 |
+| `EditActivity.java` | 重构/修改 | 方案A完全重构，方案B添加ComposeView |
+| `EditorMenu.java` | 修改 | 添加"显示日志"菜单处理 |
 | `menu_editor.xml` | 修改 | 添加菜单项 |
-| `LogSheet.kt` | 新建 | Compose 日志面板 |
-| `EditorModel.kt` | 新建 | ViewModel 状态管理 |
+| `LogSheet.kt` | 新建 | Compose 日志面板（~70行） |
+| `EditorModel.kt` | 新建 | ViewModel 状态管理（~40行） |
 
 **核心实现 LogSheet.kt**:
 
@@ -302,22 +407,34 @@ class EditorModel : ViewModel() {
 
 ---
 
-### 阶段三：主题系统升级 (2-3天)
+### 阶段三：主题系统升级
 
 **目标**: 升级到 Material3 主题系统
 
-**移植文件**:
+#### 3.1 详细工作量分析
 
-| 源文件 | 目标路径 |
-|--------|----------|
-| `AutoX/app/res/values/m3_colors.xml` | `HYB1996/app/res/values/m3_colors.xml` |
-| `AutoX/app/res/values-night/m3_colors.xml` | `HYB1996/app/res/values-night/m3_colors.xml` |
-| `AutoX/app/res/values/theme_overlays.xml` | `HYB1996/app/res/values/theme_overlays.xml` |
-| `AutoX/common/.../theme/Theme.kt` | `HYB1996/app/.../material3/theme/Theme.kt` |
-| `AutoX/common/.../theme/Color.kt` | `HYB1996/app/.../material3/theme/Color.kt` |
-| `AutoX/common/.../theme/Type.kt` | `HYB1996/app/.../material3/theme/Type.kt` |
+| 任务 | 文件 | 工作量 | 风险 |
+|------|------|--------|------|
+| 移植 m3_colors.xml | 新建 | 20分钟 | 低 |
+| 移植 m3_colors.xml (night) | 新建 | 10分钟 | 低 |
+| 移植 theme_overlays.xml | 新建 | 10分钟 | 低 |
+| 修改主题继承 | `themes.xml` | 15分钟 | 中 |
+| 测试亮色主题 | - | 30分钟 | 低 |
+| 测试暗色主题 | - | 30分钟 | 低 |
+| 测试所有界面 | - | 1小时 | 中 |
+| 修复兼容性问题 | - | 1-2小时 | 中 |
 
-**修改主题继承**:
+**阶段三总计：4-5 小时**
+
+#### 3.2 移植文件清单
+
+| 源文件 | 目标路径 | 说明 |
+|--------|----------|------|
+| `AutoX/app/res/values/m3_colors.xml` | `HYB1996/app/res/values/m3_colors.xml` | 亮色颜色资源 |
+| `AutoX/app/res/values-night/m3_colors.xml` | `HYB1996/app/res/values-night/m3_colors.xml` | 暗色颜色资源 |
+| `AutoX/app/res/values/theme_overlays.xml` | `HYB1996/app/res/values/theme_overlays.xml` | 对比度变体 |
+
+#### 3.3 主题继承修改
 
 ```xml
 <!-- res/values/themes.xml -->
@@ -327,6 +444,15 @@ class EditorModel : ViewModel() {
 <!-- 改为 -->
 <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
 ```
+
+#### 3.4 兼容性风险点
+
+| 问题 | 影响 | 解决方案 |
+|------|------|----------|
+| ThemeColor 组件冲突 | 现有主题色管理失效 | 保持 ThemeColorManager 兼容 |
+| MaterialDialogs 库 | 样式不一致 | 渐进替换为 M3 Dialog |
+| 状态栏颜色 | 部分页面异常 | 逐个 Activity 测试 |
+| 深色模式 | 颜色对比度问题 | 手动调整颜色值 |
 
 **Theme.kt 核心实现**:
 
@@ -379,6 +505,56 @@ fun AppTheme(
 | 中 | 设置页面 | RecyclerView + XML | LazyColumn + Compose |
 | 中 | 文件列表 | RecyclerView | LazyColumn |
 | 低 | 主界面 | XML Layout | Compose Scaffold |
+
+---
+
+## 三、工作量汇总
+
+### 3.1 各阶段工作量
+
+| 阶段 | 任务 | 工作量 | 风险 | 前置条件 |
+|------|------|--------|------|----------|
+| 阶段一 | Compose 环境配置 | 1.5 小时 | 低 | 无 |
+| 阶段二 | 悬浮日志面板 | 6-8 小时 | 中高 | 阶段一完成 |
+| 阶段三 | 主题系统升级 | 4-5 小时 | 中 | 阶段一完成 |
+| **总计** | **核心功能** | **11.5-14.5 小时** | **中** | - |
+
+### 3.2 方案对比
+
+| 方案 | 工作量 | 风险 | 收益 | 推荐场景 |
+|------|--------|------|------|----------|
+| 方案 A（完全重构） | 11.5-14.5 小时 | 中高 | 代码现代化 | 计划长期维护 |
+| 方案 B（混合方案） | 8-11 小时 | 低 | 快速实现 | 快速验证功能 |
+
+### 3.3 简单任务优先执行顺序
+
+| 批次 | 任务 | 工作量 | 可独立验证 |
+|------|------|--------|-----------|
+| 1 | 添加 Compose 依赖 | 15分钟 | ✅ 编译通过 |
+| 2 | 移植主题文件 | 1小时 | ✅ 编译通过 |
+| 3 | 创建 EditorModel.kt | 30分钟 | ✅ 编译通过 |
+| 4 | 创建 LogSheet.kt | 1小时 | ✅ 编译通过 |
+| 5 | 添加菜单项 | 10分钟 | ✅ 菜单显示 |
+| 6 | 修改 EditorMenu | 30分钟 | ✅ 菜单响应 |
+| 7 | EditActivity 集成 | 3-5小时 | ✅ 日志面板显示 |
+| 8 | 主题升级 | 4-5小时 | ✅ 界面样式 |
+| 9 | 测试验证 | 2小时 | ✅ 功能正常 |
+
+### 3.4 APK 体积影响
+
+| 组件 | 增量 |
+|------|------|
+| Compose Runtime | ~1.5 MB |
+| Material3 | ~0.5 MB |
+| Compose UI | ~0.8 MB |
+| 其他依赖 | ~0.5 MB |
+| **总计增量** | **~3-4 MB** |
+
+**缓解措施**：启用 R8 代码压缩和资源压缩
+
+---
+
+## 四、关键技术决策
 
 ---
 
@@ -549,6 +725,18 @@ class ComposeFragment : Fragment() {
 - [ ] 设置页面 Compose 化
 - [ ] 文件列表优化
 - [ ] 全面测试
+
+---
+
+## 十、变更记录
+
+| 日期 | 操作 | 说明 |
+|------|------|------|
+| 2026-03-08 | 创建计划 | 初始版本 |
+| 2026-03-10 | 深度分析工作量 | 添加详细任务分解 |
+| 2026-03-10 | 添加源码分析 | AutoX EditActivity、ConsoleView 分析 |
+| 2026-03-10 | 更新工作量估算 | 总计 11.5-14.5 小时 |
+| 2026-03-10 | 添加方案对比 | 方案A完全重构 vs 方案B混合 |
 
 ---
 
