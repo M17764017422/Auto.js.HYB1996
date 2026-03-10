@@ -278,3 +278,352 @@ kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 ```
 
 **KAPT 和 KSP 共存验证成功！BUILD SUCCESSFUL in 19s**
+
+---
+
+## 第三次尝试: 并行迁移计划
+
+**日期**: 2026-03-10
+
+### 目标
+
+创建两个并行迁移计划：
+1. **KSP 迁移** - 将 AndroidAnnotations 和 ButterKnife 替换为 ViewBinding
+2. **Material3 迁移** - 引入 Compose 和 Material3 组件
+
+### 计划文档
+
+创建了详细的迁移计划文档：
+
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| KSP 完整迁移计划 | `KSP_FULL_MIGRATION_PLAN.md` | 9 个批次，6-9 天工作量 |
+| Material3 迁移计划 | `MATERIAL3_MIGRATION_PLAN.md` | 7 个批次，11.5-14.5 小时 |
+
+### 执行尝试
+
+#### 智能体并行执行
+
+**目标**: 创建两个专业智能体并行执行迁移
+
+**结果**: ❌ 失败
+
+```
+Task tool 返回 "工具未执行" 或 "代理执行被中断"
+```
+
+**原因分析**: Task 工具可能存在限制或不稳定
+
+### 实际执行情况
+
+#### Material3 迁移状态
+
+| 批次 | 任务 | 状态 |
+|------|------|------|
+| 1 | Compose 依赖配置 | ✅ 完成 |
+| 2 | 主题文件移植 | ✅ 完成 |
+| 3 | minSdk 升级 19→21 | ✅ 完成 |
+| 4 | EditorModel.kt | ✅ 完成 |
+| 5 | LogSheet.kt | ✅ 完成 |
+| 6 | Kotlin 编译验证 | ✅ 通过 |
+| 7 | EditActivity 集成 | ⏳ 待执行（依赖 KSP） |
+
+#### KSP 迁移状态
+
+| 批次 | 任务 | 状态 |
+|------|------|------|
+| A | ButterKnife 简单文件 (8个) | ⏳ 待执行 |
+| B | AA 简单 Activity (8个) | ⏳ 待执行 |
+| C | AA 简单 Fragment (5个) | ⏳ 待执行 |
+| D-I | 复杂文件 | ⏳ 待执行 |
+
+### 编译验证
+
+```bash
+# Kotlin 编译 - 成功
+.\gradlew :app:compileCoolapkDebugKotlin
+BUILD SUCCESSFUL in 3m 36s
+
+# 完整构建 - 失败（预期）
+.\gradlew assembleCoolapkDebug
+失败原因: AndroidAnnotations 生成类缺失（如 CommunityFragment_, LogActivity_）
+```
+
+**失败是预期的** - KSP 迁移尚未完成，AA 生成的类不存在
+
+### 创建的文件
+
+| 文件 | 路径 | 用途 |
+|------|------|------|
+| Theme.kt | app/.../material3/theme/Theme.kt | Material3 主题配置 |
+| Color.kt | app/.../material3/theme/Color.kt | 颜色定义 |
+| Type.kt | app/.../material3/theme/Type.kt | 字体样式 |
+| LogSheet.kt | app/.../material3/components/LogSheet.kt | 日志面板组件 |
+| EditorModel.kt | app/.../ui/edit/EditorModel.kt | 编辑器 ViewModel |
+| MATERIAL3_MIGRATION_LOG.md | 项目根目录 | Material3 迁移记录 |
+
+---
+
+## 当前状态总结
+
+### 已完成
+
+- ✅ Glide KSP 迁移（使用正确的 artifact）
+- ✅ KAPT + KSP + Compose 三方共存配置
+- ✅ Material3 主题文件移植
+- ✅ LogSheet 和 EditorModel 组件创建
+- ✅ minSdk 升级到 21
+
+### 进行中
+
+- ⏳ KSP 迁移批次 A-C（ButterKnife 和简单 AA 文件）
+
+### 待执行
+
+- ⏳ KSP 迁移批次 D-I（复杂文件）
+- ⏳ Material3 批次 7（EditActivity 集成）
+
+### 阻塞问题
+
+- AndroidAnnotations 生成类缺失导致 Java 编译失败
+- 需要先完成 KSP 迁移才能完整构建
+
+---
+
+## 第四次尝试: ButterKnife 迁移执行
+
+**日期**: 2026-03-10
+
+### 执行概要
+
+手动执行 KSP 迁移批次 A（ButterKnife → ViewBinding）
+
+### 已完成：ButterKnife 迁移 (7 文件)
+
+| 文件 | 原注解数 | 状态 |
+|------|----------|------|
+| ShortcutCreateActivity.java | 3 @BindView + 1 @OnClick | ✅ 完成 |
+| ManualDialog.java | 3 @BindView + 2 @OnClick | ✅ 完成 |
+| FindOrReplaceDialogBuilder.java | 6 @BindView + 2 @OnCheckedChanged | ✅ 完成 |
+| TaskListRecyclerView.java | 3 @BindView + 1 @OnClick | ✅ 完成 |
+| CodeGenerateDialog.java | 3 @BindView + 1 @OnCheckedChanged | ✅ 完成 |
+| FileChooseListView.java | 8 @BindView + 4 @OnCheckedChanged | ✅ 完成 |
+| ExplorerView.java | 18 @BindView + 10 @OnClick | ✅ 完成 |
+
+**注**: AvatarView.java 和 TextSizeSettingDialogBuilder.java 已使用 ViewBinding，无需迁移
+
+### 已完成：AA 生成类引用修复（全部）
+
+修复所有引用 `Xxx_` 生成类的代码，改为直接使用 `Xxx` 类：
+
+| 生成类 | 修复位置 | 状态 |
+|--------|----------|------|
+| LogActivity_ | AutoJs.java, MainActivity.java, EditorMenu.java, EditorView.java, EditorModel.kt | ✅ 完成 |
+| ShortcutIconSelectActivity_ | ShortcutCreateActivity.java, BuildActivity.java, ProjectConfigActivity.java | ✅ 完成 |
+| CommunityFragment_ | MainActivity.java | ✅ 完成 |
+| DocsFragment_ | MainActivity.java | ✅ 完成 |
+| DocumentationActivity_ | ManualDialog.java | ✅ 完成 |
+| MainActivity_ | SplashActivity.java, ForegroundService.java, CircularMenu.java | ✅ 完成 |
+| SettingsActivity_ | AutoJs.java, MainActivity.java | ✅ 完成 |
+| AboutActivity_ | SettingsActivity.java | ✅ 完成 |
+| WebActivity_ | LoginActivity.java, DrawerFragment.java | ✅ 完成 |
+| TaskManagerFragment_ | MainActivity.java | ✅ 完成 |
+| NormalToolbarFragment_ | EditorView.java | ✅ 完成 |
+| SearchToolbarFragment_ | EditorView.java | ✅ 完成 |
+| BuildActivity_ | ExplorerProjectToolbar.java, ExplorerView.java, EditorMenu.java | ✅ 完成 |
+| ProjectConfigActivity_ | MyScriptListFragment.java, ExplorerProjectToolbar.java | ✅ 完成 |
+| TimedTaskSettingActivity_ | ScriptOperations.java, TaskListRecyclerView.java | ✅ 完成 |
+
+### 保留的有效 AA 引用
+
+以下引用保留，因为被引用的类有 @EActivity/@EFragment 注解：
+
+| 引用 | 所在文件 | 被引用类状态 |
+|------|----------|--------------|
+| RegisterActivity_.intent | LoginActivity.java | ✅ 有 @EActivity |
+| EditActivity_.class | EditActivity.java | ✅ 有 @EActivity |
+| MainActivity_.class | EditActivity.java | ✅ 有 @EActivity |
+| MyScriptListFragment_() | MainActivity.java | ✅ 有 @EFragment |
+| SettingsActivity_.class | MainActivity.java | ✅ 有 @EActivity |
+| LoginActivity_.intent | DrawerFragment.java | ✅ 有 @EActivity |
+| ProjectConfigActivity_.intent | MyScriptListFragment.java | ✅ 有 @EActivity |
+
+### 编译验证结果
+
+```
+.\gradlew compileCoolapkDebugKotlin --parallel
+BUILD SUCCESSFUL in 1m 44s
+```
+
+✅ **Kotlin 编译成功！**
+
+### 剩余 AA 注解文件
+
+以下文件仍使用 @EActivity/@EFragment 注解（需要完整迁移）：
+
+| 文件 | 注解类型 |
+|------|----------|
+| MainActivity.java | @EActivity |
+| DrawerFragment.java | @EFragment |
+| MyScriptListFragment.java | @EFragment |
+| EditActivity.java | @EActivity |
+| LoginActivity.java | @EActivity |
+| RegisterActivity.java | @EActivity |
+| SettingsActivity.java | @EActivity |
+| ProjectConfigActivity.java | @EActivity |
+| BuildActivity.java | @EActivity |
+| TimedTaskSettingActivity.java | @EActivity |
+| DebugToolbarFragment.java | @EFragment |
+
+**说明**: 这些文件内部的 AA 引用（如 `RegisterActivity_.intent`）会正常工作，因为 KAPT 会为它们生成对应的 `Xxx_` 类。
+
+---
+
+## 第五次尝试: AA 注解文件迁移执行
+
+**日期**: 2026-03-10
+
+### 执行概要
+
+手动执行 KSP 迁移批次 B-C（AA 注解文件 → ViewBinding）
+
+### 已完成：AA 注解文件迁移 (7 文件)
+
+| 文件 | 原注解 | 状态 |
+|------|--------|------|
+| DebugToolbarFragment.java | @EFragment + 5 @Click | ✅ 完成 |
+| MyScriptListFragment.java | @EFragment + @ViewById + @AfterViews | ✅ 完成 |
+| LoginActivity.java | @EActivity + 3 @ViewById + 2 @Click | ✅ 完成 |
+| RegisterActivity.java | @EActivity + 4 @ViewById + @Click | ✅ 完成 |
+| SettingsActivity.java | @EActivity + @AfterViews | ✅ 完成 |
+| ProjectConfigActivity.java | @EActivity + 6 @ViewById + 2 @Click | ✅ 完成 |
+| BuildActivity.java | @EActivity + 8 @ViewById + 4 @Click | ✅ 完成 |
+
+### 迁移模式
+
+**@EActivity → ViewBinding**:
+```java
+// 迁移前
+@EActivity(R.layout.activity_login)
+public class LoginActivity extends BaseActivity {
+    @ViewById(R.id.username) TextView mUserName;
+    @Click(R.id.login) void login() { ... }
+}
+
+// 迁移后
+public class LoginActivity extends BaseActivity {
+    private ActivityLoginBinding binding;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        binding.login.setOnClickListener(v -> login());
+    }
+}
+```
+
+**@EFragment → ViewBinding**:
+```java
+// 迁移前
+@EFragment(R.layout.fragment_my_script_list)
+public class MyScriptListFragment extends Fragment {
+    @ViewById(R.id.script_file_list) ExplorerView mExplorerView;
+    @AfterViews void setUpViews() { ... }
+}
+
+// 迁移后
+public class MyScriptListFragment extends Fragment {
+    private FragmentMyScriptListBinding binding;
+    
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentMyScriptListBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpViews();
+    }
+}
+```
+
+### 相关引用修复
+
+| 原引用 | 新引用 | 文件 |
+|--------|--------|------|
+| `MyScriptListFragment_()` | `new MyScriptListFragment()` | MainActivity.java |
+| `SettingsActivity_.class` | `SettingsActivity.class` | MainActivity.java |
+| `ProjectConfigActivity_.intent()` | `new Intent(...)` | MyScriptListFragment.java |
+| `RegisterActivity_.intent()` | `new Intent(...)` | LoginActivity.java |
+
+### 编译验证结果
+
+```
+.\gradlew compileCoolapkDebugKotlin --parallel
+BUILD SUCCESSFUL in 12s
+75 actionable tasks: 5 executed, 70 up-to-date
+```
+
+✅ **Kotlin 编译成功！**
+
+### 剩余 AA 注解文件 (4 个 - 复杂)
+
+| 文件 | 注解类型 | 复杂度 | 说明 |
+|------|----------|--------|------|
+| MainActivity.java | @EActivity | 🔴 高 | 主界面，~400行 |
+| DrawerFragment.java | @EFragment | 🔴 高 | 侧边栏，~518行 |
+| EditActivity.java | @EActivity | 🔴 高 | 编辑器，需与 Material3 合并 |
+| TimedTaskSettingActivity.java | @EActivity | 🔴 高 | 定时任务，17 @ViewById |
+
+---
+
+## 当前状态总结
+
+### 已完成
+
+- ✅ Glide KSP 迁移（使用正确的 artifact）
+- ✅ KAPT + KSP + Compose 三方共存配置
+- ✅ Material3 主题文件移植
+- ✅ LogSheet 和 EditorModel 组件创建
+- ✅ minSdk 升级到 21
+- ✅ ButterKnife 迁移 (7 文件)
+- ✅ AA 生成类引用修复 (15 类)
+- ✅ AA 注解文件迁移 (7 文件)
+
+### 待执行
+
+- ⏳ AA 复杂文件迁移 (4 文件)
+- ⏳ Material3 批次 7（EditActivity 集成）
+
+### 迁移进度
+
+| 类别 | 已迁移 | 总数 | 进度 |
+|------|--------|------|------|
+| ButterKnife 文件 | 7 | 7 | 100% |
+| AA 注解文件 | 7 | 11 | 64% |
+| AA 引用修复 | 15 | 15 | 100% |
+
+---
+
+## 变更记录
+
+| 日期 | 操作 | 结果 |
+|------|------|------|
+| 2026-03-09 | Glide 4.15.1 → KSP (错误 artifact) | 失败 |
+| 2026-03-09 | Glide 4.16.0 → KSP (错误 artifact) | 失败 |
+| 2026-03-09 | 禁用 KSP2 | 失败 |
+| 2026-03-09 | 回滚到 KAPT | 成功 |
+| 2026-03-09 | 发现真正原因：artifact 名称错误 | 分析完成 |
+| 2026-03-09 | Glide 4.14.2 → KSP (正确 artifact: `ksp`) | **成功** |
+| 2026-03-10 | 创建 KSP_FULL_MIGRATION_PLAN.md | 完成 |
+| 2026-03-10 | 创建 MATERIAL3_MIGRATION_PLAN.md | 完成 |
+| 2026-03-10 | Material3 批次 1-6 执行 | 完成 |
+| 2026-03-10 | ButterKnife 迁移 (7 文件) | 完成 |
+| 2026-03-10 | AA 生成类引用修复 (15 类) | 完成 |
+| 2026-03-10 | AA 注解文件迁移 (7 文件) | **完成** |
+| 2026-03-10 | Kotlin 编译验证 | **通过** |

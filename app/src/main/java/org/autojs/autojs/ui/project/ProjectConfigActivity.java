@@ -19,11 +19,8 @@ import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
 import com.stardust.pio.FileProviderFactory;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.ActivityProjectConfigBinding;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.ExplorerFileItem;
 import org.autojs.autojs.model.explorer.Explorers;
@@ -31,7 +28,6 @@ import org.autojs.autojs.model.project.ProjectTemplate;
 import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.shortcut.ShortcutIconSelectActivity;
-import org.autojs.autojs.ui.shortcut.ShortcutIconSelectActivity_;
 import org.autojs.autojs.ui.widget.SimpleTextWatcher;
 
 import java.io.File;
@@ -43,7 +39,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-@EActivity(R.layout.activity_project_config)
 public class ProjectConfigActivity extends BaseActivity {
 
     public static final String EXTRA_PARENT_DIRECTORY = "parent_directory";
@@ -55,27 +50,7 @@ public class ProjectConfigActivity extends BaseActivity {
     private static final int REQUEST_CODE = 12477;
     private static final Pattern REGEX_PACKAGE_NAME = Pattern.compile("^([A-Za-z][A-Za-z\\d_]*\\.)+([A-Za-z][A-Za-z\\d_]*)$");
 
-
-    @ViewById(R.id.project_location)
-    EditText mProjectLocation;
-
-    @ViewById(R.id.app_name)
-    EditText mAppName;
-
-    @ViewById(R.id.package_name)
-    EditText mPackageName;
-
-    @ViewById(R.id.version_name)
-    EditText mVersionName;
-
-    @ViewById(R.id.version_code)
-    EditText mVersionCode;
-
-    @ViewById(R.id.main_file_name)
-    EditText mMainFileName;
-
-    @ViewById(R.id.icon)
-    ImageView mIcon;
+    private ActivityProjectConfigBinding binding;
 
     private File mDirectory;
     private File mParentDirectory;
@@ -86,6 +61,9 @@ public class ProjectConfigActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityProjectConfigBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
         mNewProject = getIntent().getBooleanExtra(EXTRA_NEW_PROJECT, false);
         String parentDirectory = getIntent().getStringExtra(EXTRA_PARENT_DIRECTORY);
         if (mNewProject) {
@@ -111,36 +89,39 @@ public class ProjectConfigActivity extends BaseActivity {
                         .show();
             }
         }
+        
+        setupViews();
     }
 
-    @AfterViews
-    void setupViews() {
+    private void setupViews() {
         if (mProjectConfig == null) {
             return;
         }
         setToolbarAsBack(mNewProject ? getString(R.string.text_new_project) : mProjectConfig.getName());
         if (mNewProject) {
-            mAppName.addTextChangedListener(new SimpleTextWatcher(s ->
-                    mProjectLocation.setText(new File(mParentDirectory, s.toString()).getPath()))
+            binding.appName.addTextChangedListener(new SimpleTextWatcher(s ->
+                    binding.projectLocation.setText(new File(mParentDirectory, s.toString()).getPath()))
             );
         } else {
-            mAppName.setText(mProjectConfig.getName());
-            mVersionCode.setText(String.valueOf(mProjectConfig.getVersionCode()));
-            mPackageName.setText(mProjectConfig.getPackageName());
-            mVersionName.setText(mProjectConfig.getVersionName());
-            mMainFileName.setText(mProjectConfig.getMainScriptFile());
-            mProjectLocation.setVisibility(View.GONE);
+            binding.appName.setText(mProjectConfig.getName());
+            binding.versionCode.setText(String.valueOf(mProjectConfig.getVersionCode()));
+            binding.packageName.setText(mProjectConfig.getPackageName());
+            binding.versionName.setText(mProjectConfig.getVersionName());
+            binding.mainFileName.setText(mProjectConfig.getMainScriptFile());
+            binding.projectLocation.setVisibility(View.GONE);
             String icon = mProjectConfig.getIcon();
             if (icon != null) {
                 Glide.with(this)
                         .load(new File(mDirectory, icon))
-                        .into(mIcon);
+                        .into(binding.icon);
             }
         }
+        
+        binding.fab.setOnClickListener(v -> commit());
+        binding.icon.setOnClickListener(v -> selectIcon());
     }
 
     @SuppressLint("CheckResult")
-    @Click(R.id.fab)
     void commit() {
         if (!checkInputs()) {
             return;
@@ -189,20 +170,18 @@ public class ProjectConfigActivity extends BaseActivity {
         }
     }
 
-    @Click(R.id.icon)
     void selectIcon() {
-        ShortcutIconSelectActivity_.intent(this)
-                .startForResult(REQUEST_CODE);
+        startActivityForResult(new Intent(this, ShortcutIconSelectActivity.class), REQUEST_CODE);
     }
 
     private void syncProjectConfig() {
-        mProjectConfig.setName(mAppName.getText().toString());
-        mProjectConfig.setVersionCode(Integer.parseInt(mVersionCode.getText().toString()));
-        mProjectConfig.setVersionName(mVersionName.getText().toString());
-        mProjectConfig.setMainScriptFile(mMainFileName.getText().toString());
-        mProjectConfig.setPackageName(mPackageName.getText().toString());
+        mProjectConfig.setName(binding.appName.getText().toString());
+        mProjectConfig.setVersionCode(Integer.parseInt(binding.versionCode.getText().toString()));
+        mProjectConfig.setVersionName(binding.versionName.getText().toString());
+        mProjectConfig.setMainScriptFile(binding.mainFileName.getText().toString());
+        mProjectConfig.setPackageName(binding.packageName.getText().toString());
         if (mNewProject) {
-            String location = mProjectLocation.getText().toString();
+            String location = binding.projectLocation.getText().toString();
             mDirectory = new File(location);
         }
         //mProjectConfig.getLaunchConfig().setHideLogs(true);
@@ -210,10 +189,10 @@ public class ProjectConfigActivity extends BaseActivity {
 
     private boolean checkInputs() {
         boolean inputValid = true;
-        inputValid &= checkNotEmpty(mAppName);
-        inputValid &= checkNotEmpty(mVersionCode);
-        inputValid &= checkNotEmpty(mVersionName);
-        inputValid &= checkPackageNameValid(mPackageName);
+        inputValid &= checkNotEmpty(binding.appName);
+        inputValid &= checkNotEmpty(binding.versionCode);
+        inputValid &= checkNotEmpty(binding.versionName);
+        inputValid &= checkPackageNameValid(binding.packageName);
         return inputValid;
     }
 
@@ -252,7 +231,7 @@ public class ProjectConfigActivity extends BaseActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(bitmap -> {
-                            mIcon.setImageBitmap(bitmap);
+                            binding.icon.setImageBitmap(bitmap);
                             mIconBitmap = bitmap;
                         },
                         Throwable::printStackTrace);

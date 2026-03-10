@@ -28,10 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.recyclerview.widget.SimpleItemAnimator;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
+import org.autojs.autojs.databinding.FileChooseListDirectoryBinding;
+import org.autojs.autojs.databinding.FileChooseListFileBinding;
 
 /**
  * Created by Stardust on 2017/10/19.
@@ -98,91 +96,66 @@ public class FileChooseListView extends ExplorerView {
 
     class ExplorerItemViewHolder extends BindableViewHolder<ExplorerItem> {
 
-        @BindView(R.id.name)
-        TextView mName;
-        @BindView(R.id.first_char)
-        TextView mFirstChar;
-        @BindView(R.id.checkbox)
-        CheckBoxCompat mCheckBox;
-        @BindView(R.id.desc)
-        TextView mDesc;
+        private FileChooseListFileBinding binding;
         GradientDrawable mFirstCharBackground;
 
         private ExplorerItem mExplorerItem;
 
         ExplorerItemViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
-            mFirstCharBackground = (GradientDrawable) mFirstChar.getBackground();
+            binding = FileChooseListFileBinding.bind(itemView);
+            mFirstCharBackground = (GradientDrawable) binding.firstChar.getBackground();
+            
+            binding.item.setOnClickListener(v -> binding.checkbox.toggle());
+            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    check(mExplorerItem.toScriptFile(), getAdapterPosition());
+                } else {
+                    mSelectedFiles.remove(mExplorerItem.toScriptFile());
+                }
+            });
         }
 
         @Override
         public void bind(ExplorerItem item, int position) {
             mExplorerItem = item;
-            mName.setText(ExplorerViewHelper.getDisplayName(item));
-            mDesc.setText(PFiles.getHumanReadableSize(item.getSize()));
-            mFirstChar.setText(ExplorerViewHelper.getIconText(item));
+            binding.name.setText(ExplorerViewHelper.getDisplayName(item));
+            binding.desc.setText(PFiles.getHumanReadableSize(item.getSize()));
+            binding.firstChar.setText(ExplorerViewHelper.getIconText(item));
             mFirstCharBackground.setColor(ExplorerViewHelper.getIconColor(item));
-            mCheckBox.setChecked(mSelectedFiles.containsKey(mExplorerItem.toScriptFile()), false);
+            binding.checkbox.setChecked(mSelectedFiles.containsKey(mExplorerItem.toScriptFile()), false);
         }
-
-        @OnClick(R.id.item)
-        void onItemClick() {
-            mCheckBox.toggle();
-        }
-
-        @OnCheckedChanged(R.id.checkbox)
-        void onCheckedChanged() {
-            if (mCheckBox.isChecked()) {
-                check(mExplorerItem.toScriptFile(), getAdapterPosition());
-            } else {
-                mSelectedFiles.remove(mExplorerItem.toScriptFile());
-            }
-        }
-
 
     }
 
     class ExplorerPageViewHolder extends BindableViewHolder<ExplorerPage> {
 
-        @BindView(R.id.name)
-        TextView mName;
-
-        @BindView(R.id.checkbox)
-        CheckBoxCompat mCheckBox;
-
-        @BindView(R.id.icon)
-        ImageView mIcon;
+        private FileChooseListDirectoryBinding binding;
 
         private ExplorerPage mExplorerPage;
 
         ExplorerPageViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
-            mCheckBox.setVisibility(mCanChooseDir ? VISIBLE : GONE);
+            binding = FileChooseListDirectoryBinding.bind(itemView);
+            binding.checkbox.setVisibility(mCanChooseDir ? VISIBLE : GONE);
+            
+            binding.item.setOnClickListener(v -> enterDirectChildPage(mExplorerPage));
+            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    check(mExplorerPage.toScriptFile(), getAdapterPosition());
+                } else {
+                    mSelectedFiles.remove(mExplorerPage.toScriptFile());
+                }
+            });
         }
 
         @Override
         public void bind(ExplorerPage data, int position) {
             mExplorerPage = data;
-            mName.setText(ExplorerViewHelper.getDisplayName(data));
-            mIcon.setImageResource(ExplorerViewHelper.getIcon(data));
+            binding.name.setText(ExplorerViewHelper.getDisplayName(data));
+            binding.icon.setImageResource(ExplorerViewHelper.getIcon(data));
             if (mCanChooseDir) {
-                mCheckBox.setChecked(mSelectedFiles.containsKey(data.toScriptFile()), false);
-            }
-        }
-
-        @OnClick(R.id.item)
-        void onItemClick() {
-            enterDirectChildPage(mExplorerPage);
-        }
-
-        @OnCheckedChanged(R.id.checkbox)
-        void onCheckedChanged() {
-            if (mCheckBox.isChecked()) {
-                check(mExplorerPage.toScriptFile(), getAdapterPosition());
-            } else {
-                mSelectedFiles.remove(mExplorerPage.toScriptFile());
+                binding.checkbox.setChecked(mSelectedFiles.containsKey(data.toScriptFile()), false);
             }
         }
 

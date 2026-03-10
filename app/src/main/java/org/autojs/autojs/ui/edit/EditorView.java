@@ -68,11 +68,9 @@ import org.autojs.autojs.ui.edit.theme.Themes;
 import org.autojs.autojs.ui.edit.toolbar.DebugToolbarFragment;
 import org.autojs.autojs.ui.edit.toolbar.DebugToolbarFragment_;
 import org.autojs.autojs.ui.edit.toolbar.NormalToolbarFragment;
-import org.autojs.autojs.ui.edit.toolbar.NormalToolbarFragment_;
 import org.autojs.autojs.ui.edit.toolbar.SearchToolbarFragment;
-import org.autojs.autojs.ui.edit.toolbar.SearchToolbarFragment_;
 import org.autojs.autojs.ui.edit.toolbar.ToolbarFragment;
-import org.autojs.autojs.ui.log.LogActivity_;
+import org.autojs.autojs.ui.log.LogActivity;
 import org.autojs.autojs.ui.widget.EWebView;
 import org.autojs.autojs.ui.widget.SimpleTextWatcher;
 
@@ -95,6 +93,13 @@ import static org.autojs.autojs.model.script.Scripts.EXTRA_STACK_TRACE;
  */
 @EViewGroup(R.layout.editor_view)
 public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintClickListener, FunctionsKeyboardView.ClickCallback, ToolbarFragment.OnMenuItemClickListener {
+
+    /**
+     * Callback interface for Material3 LogSheet integration
+     */
+    public interface LogPanelCallback {
+        void onShowLogPanel();
+    }
 
     public static final String EXTRA_PATH = "path";
     public static final String EXTRA_NAME = "name";
@@ -137,6 +142,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     private AutoCompletion mAutoCompletion;
     private Theme mEditorTheme;
     private FunctionsKeyboardHelper mFunctionsKeyboardHelper;
+    private LogPanelCallback mLogPanelCallback;
     private BroadcastReceiver mOnRunFinishedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -214,7 +220,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     private SparseBooleanArray mMenuItemStatus = new SparseBooleanArray();
     private String mRestoredText;
-    private NormalToolbarFragment mNormalToolbar = new NormalToolbarFragment_();
+    private NormalToolbarFragment mNormalToolbar = new NormalToolbarFragment();
     private boolean mDebugging = false;
 
     public EditorView(Context context) {
@@ -583,6 +589,24 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
         doWithCurrentEngine(engine -> ((JavaScriptEngine) engine).getRuntime().console.show());
     }
 
+    /**
+     * Set callback for Material3 LogSheet integration
+     * This should be called from EditActivity to enable log panel functionality
+     */
+    public void setLogPanelCallback(LogPanelCallback callback) {
+        mLogPanelCallback = callback;
+    }
+
+    /**
+     * Show the Material3 log panel (LogSheet)
+     * This triggers the callback to show the ModalBottomSheet
+     */
+    public void showLogPanel() {
+        if (mLogPanelCallback != null) {
+            mLogPanelCallback.onShowLogPanel();
+        }
+    }
+
     public void openByOtherApps() {
         if (mUri != null) {
             Scripts.INSTANCE.openByOtherApps(mUri);
@@ -642,9 +666,10 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     private void showSearchToolbar(boolean showReplaceItem) {
-        SearchToolbarFragment searchToolbarFragment = SearchToolbarFragment_.builder()
-                .arg(SearchToolbarFragment.ARGUMENT_SHOW_REPLACE_ITEM, showReplaceItem)
-                .build();
+        SearchToolbarFragment searchToolbarFragment = new SearchToolbarFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(SearchToolbarFragment.ARGUMENT_SHOW_REPLACE_ITEM, showReplaceItem);
+        searchToolbarFragment.setArguments(args);
         searchToolbarFragment.setOnMenuItemClickListener(this);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.toolbar_menu, searchToolbarFragment)
@@ -687,7 +712,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     private void showErrorMessage(String msg) {
         Snackbar.make(EditorView.this, getResources().getString(R.string.text_error) + ": " + msg, Snackbar.LENGTH_LONG)
-                .setAction(R.string.text_detail, v -> LogActivity_.intent(getContext()).start())
+                .setAction(R.string.text_detail, v -> getContext().startActivity(new Intent(getContext(), LogActivity.class)))
                 .show();
     }
 

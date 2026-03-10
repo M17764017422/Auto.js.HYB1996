@@ -28,9 +28,8 @@ import com.stardust.view.accessibility.NodeInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
+import org.autojs.autojs.databinding.DialogCodeGenerateBinding;
+import org.autojs.autojs.databinding.DialogCodeGenerateOptionBinding;
 
 /**
  * Created by Stardust on 2017/11/6.
@@ -56,9 +55,7 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
                     .addOption(R.string.text_scroll_backward))
             .list();
 
-    @BindView(R.id.options)
-    RecyclerView mOptionsRecyclerView;
-
+    private DialogCodeGenerateBinding binding;
     private NodeInfo mRootNode;
     private NodeInfo mTargetNode;
     private Adapter mAdapter;
@@ -133,12 +130,11 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
     }
 
     private void setupViews() {
-        View view = View.inflate(context, R.layout.dialog_code_generate, null);
-        ButterKnife.bind(this, view);
-        customView(view, false);
-        mOptionsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding = DialogCodeGenerateBinding.inflate(LayoutInflater.from(context));
+        customView(binding.getRoot(), false);
+        binding.options.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new Adapter(mOptionGroups);
-        mOptionsRecyclerView.setAdapter(mAdapter);
+        binding.options.setAdapter(mAdapter);
     }
 
 
@@ -180,22 +176,17 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
 
     class OptionViewHolder extends ChildViewHolder<Option> {
 
-        @BindView(R.id.title)
-        TextView title;
-        @BindView(R.id.checkbox)
-        CheckBoxCompat checkBox;
+        private DialogCodeGenerateOptionBinding binding;
 
         OptionViewHolder(@NonNull View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(view -> checkBox.toggle());
-        }
-
-        @OnCheckedChanged(R.id.checkbox)
-        void onCheckedChanged() {
-            getChild().checked = checkBox.isChecked();
-            if (checkBox.isChecked() && getChild().group.titleRes != R.string.text_options)
-                uncheckOthers(getParentAdapterPosition(), getChild());
+            binding = DialogCodeGenerateOptionBinding.bind(itemView);
+            itemView.setOnClickListener(view -> binding.checkbox.toggle());
+            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                getChild().checked = isChecked;
+                if (isChecked && getChild().group.titleRes != R.string.text_options)
+                    uncheckOthers(getParentAdapterPosition(), getChild());
+            });
         }
 
     }
@@ -299,8 +290,8 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
 
         @Override
         public void onBindChildViewHolder(@NonNull OptionViewHolder viewHolder, int parentPosition, int childPosition, @NonNull Option option) {
-            viewHolder.title.setText(option.titleRes);
-            viewHolder.checkBox.setChecked(option.checked, false);
+            viewHolder.binding.title.setText(option.titleRes);
+            viewHolder.binding.checkbox.setChecked(option.checked, false);
         }
     }
 

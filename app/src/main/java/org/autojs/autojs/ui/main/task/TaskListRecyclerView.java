@@ -1,6 +1,7 @@
 package org.autojs.autojs.ui.main.task;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,15 +29,12 @@ import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.storage.database.ModelChange;
 import org.autojs.autojs.timing.TimedTaskManager;
 import org.autojs.autojs.ui.timing.TimedTaskSettingActivity;
-import org.autojs.autojs.ui.timing.TimedTaskSettingActivity_;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.ThemeColorRecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import org.autojs.autojs.databinding.TaskListRecyclerViewItemBinding;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
@@ -205,41 +203,32 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
 
     class TaskViewHolder extends ChildViewHolder<Task> {
 
-        @BindView(R.id.first_char)
-        TextView mFirstChar;
-        @BindView(R.id.name)
-        TextView mName;
-        @BindView(R.id.desc)
-        TextView mDesc;
-
+        private TaskListRecyclerViewItemBinding binding;
         private Task mTask;
         private GradientDrawable mFirstCharBackground;
 
         TaskViewHolder(View itemView) {
             super(itemView);
+            binding = TaskListRecyclerViewItemBinding.bind(itemView);
             itemView.setOnClickListener(this::onItemClick);
-            ButterKnife.bind(this, itemView);
-            mFirstCharBackground = (GradientDrawable) mFirstChar.getBackground();
+            mFirstCharBackground = (GradientDrawable) binding.firstChar.getBackground();
+            binding.stop.setOnClickListener(v -> {
+                if (mTask != null) {
+                    mTask.cancel();
+                }
+            });
         }
 
         public void bind(Task task) {
             mTask = task;
-            mName.setText(task.getName());
-            mDesc.setText(task.getDesc());
+            binding.name.setText(task.getName());
+            binding.desc.setText(task.getDesc());
             if (AutoFileSource.ENGINE.equals(mTask.getEngineName())) {
-                mFirstChar.setText("R");
+                binding.firstChar.setText("R");
                 mFirstCharBackground.setColor(getResources().getColor(R.color.color_r));
             } else {
-                mFirstChar.setText("J");
+                binding.firstChar.setText("J");
                 mFirstCharBackground.setColor(getResources().getColor(R.color.color_j));
-            }
-        }
-
-
-        @OnClick(R.id.stop)
-        void stop() {
-            if (mTask != null) {
-                mTask.cancel();
             }
         }
 
@@ -248,9 +237,9 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
                 Task.PendingTask task = (Task.PendingTask) mTask;
                 String extra = task.getTimedTask() == null ? TimedTaskSettingActivity.EXTRA_INTENT_TASK_ID
                         : TimedTaskSettingActivity.EXTRA_TASK_ID;
-                TimedTaskSettingActivity_.intent(getContext())
-                        .extra(extra, task.getId())
-                        .start();
+                Intent intent = new Intent(getContext(), TimedTaskSettingActivity.class);
+                intent.putExtra(extra, task.getId());
+                getContext().startActivity(intent);
             }
         }
     }

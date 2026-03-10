@@ -1,18 +1,20 @@
 package org.autojs.autojs.ui.main.scripts;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.stardust.app.GlobalAppContext;
 import com.stardust.util.IntentUtil;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.FragmentMyScriptListBinding;
 import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.Explorers;
@@ -25,7 +27,7 @@ import org.autojs.autojs.ui.main.FloatingActionMenu;
 import org.autojs.autojs.ui.main.QueryEvent;
 import org.autojs.autojs.ui.main.ViewPagerFragment;
 import org.autojs.autojs.ui.project.ProjectConfigActivity;
-import org.autojs.autojs.ui.project.ProjectConfigActivity_;
+import org.autojs.autojs.ui.project.ProjectConfigActivity;
 import org.autojs.autojs.ui.viewmodel.ExplorerItemList;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -35,7 +37,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 /**
  * Created by Stardust on 2017/3/13.
  */
-@EFragment(R.layout.fragment_my_script_list)
 public class MyScriptListFragment extends ViewPagerFragment implements FloatingActionMenu.OnFloatingActionButtonClickListener {
 
     private static final String TAG = "MyScriptListFragment";
@@ -44,9 +45,7 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
         super(0);
     }
 
-    @ViewById(R.id.script_file_list)
-    ExplorerView mExplorerView;
-
+    private FragmentMyScriptListBinding binding;
     private FloatingActionMenu mFloatingActionMenu;
 
     @Override
@@ -55,12 +54,24 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
         EventBus.getDefault().register(this);
     }
 
-    @AfterViews
-    void setUpViews() {
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentMyScriptListBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpViews();
+    }
+
+    private void setUpViews() {
         ExplorerItemList.SortConfig sortConfig = ExplorerItemList.SortConfig.from(PreferenceManager.getDefaultSharedPreferences(getContext()));
-        mExplorerView.setSortConfig(sortConfig);
-        mExplorerView.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(FileProviderFactory.getProvider().getWorkingDirectory()));
-        mExplorerView.setOnItemClickListener((view, item) -> {
+        binding.scriptFileList.setSortConfig(sortConfig);
+        binding.scriptFileList.setExplorer(Explorers.workspace(), ExplorerDirPage.createRoot(FileProviderFactory.getProvider().getWorkingDirectory()));
+        binding.scriptFileList.setOnItemClickListener((v, item) -> {
             if (item.isEditable()) {
                 Scripts.INSTANCE.edit(getActivity(), item.toScriptFile());
             } else {
@@ -104,8 +115,8 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
             mFloatingActionMenu.collapse();
             return true;
         }
-        if (mExplorerView.canGoBack()) {
-            mExplorerView.goBack();
+        if (binding.scriptFileList.canGoBack()) {
+            binding.scriptFileList.goBack();
             return true;
         }
         return false;
@@ -125,17 +136,17 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
             return;
         }
         if (event == QueryEvent.CLEAR) {
-            mExplorerView.setFilter(null);
+            binding.scriptFileList.setFilter(null);
             return;
         }
         String query = event.getQuery();
-        mExplorerView.setFilter((item -> item.getName().contains(query)));
+        binding.scriptFileList.setFilter((item -> item.getName().contains(query)));
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mExplorerView.getSortConfig().saveInto(PreferenceManager.getDefaultSharedPreferences(getContext()));
+        binding.scriptFileList.getSortConfig().saveInto(PreferenceManager.getDefaultSharedPreferences(getContext()));
     }
 
     @Override
@@ -154,26 +165,26 @@ public class MyScriptListFragment extends ViewPagerFragment implements FloatingA
 
     @Override
     public void onClick(FloatingActionButton button, int pos) {
-        if (mExplorerView == null)
+        if (binding.scriptFileList == null)
             return;
         switch (pos) {
             case 0:
-                new ScriptOperations(getContext(), mExplorerView, mExplorerView.getCurrentPage())
+                new ScriptOperations(getContext(), binding.scriptFileList, binding.scriptFileList.getCurrentPage())
                         .newDirectory();
                 break;
             case 1:
-                new ScriptOperations(getContext(), mExplorerView, mExplorerView.getCurrentPage())
+                new ScriptOperations(getContext(), binding.scriptFileList, binding.scriptFileList.getCurrentPage())
                         .newFile();
                 break;
             case 2:
-                new ScriptOperations(getContext(), mExplorerView, mExplorerView.getCurrentPage())
+                new ScriptOperations(getContext(), binding.scriptFileList, binding.scriptFileList.getCurrentPage())
                         .importFile();
                 break;
             case 3:
-                ProjectConfigActivity_.intent(getContext())
-                        .extra(ProjectConfigActivity.EXTRA_PARENT_DIRECTORY, mExplorerView.getCurrentPage().getPath())
-                        .extra(ProjectConfigActivity.EXTRA_NEW_PROJECT, true)
-                        .start();
+                Intent intent = new Intent(getContext(), ProjectConfigActivity.class);
+                intent.putExtra(ProjectConfigActivity.EXTRA_PARENT_DIRECTORY, binding.scriptFileList.getCurrentPage().getPath());
+                intent.putExtra(ProjectConfigActivity.EXTRA_NEW_PROJECT, true);
+                startActivity(intent);
                 break;
 
         }

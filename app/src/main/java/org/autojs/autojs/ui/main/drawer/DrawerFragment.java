@@ -49,7 +49,6 @@ import org.autojs.autojs.ui.user.LoginActivity_;
 import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
 import org.autojs.autojs.ui.user.WebActivity;
-import org.autojs.autojs.ui.user.WebActivity_;
 import org.autojs.autojs.ui.widget.AvatarView;
 
 import com.stardust.theme.ThemeColorManager;
@@ -195,10 +194,10 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                 .subscribe(user -> {
                             if (getActivity() == null)
                                 return;
-                            WebActivity_.intent(this)
-                                    .extra(WebActivity.EXTRA_URL, NodeBB.url("user/" + user.getUserslug()))
-                                    .extra(Intent.EXTRA_TITLE, user.getUsername())
-                                    .start();
+                            Intent webIntent = new Intent(getActivity(), WebActivity.class);
+                            webIntent.putExtra(WebActivity.EXTRA_URL, NodeBB.url("user/" + user.getUserslug()));
+                            webIntent.putExtra(Intent.EXTRA_TITLE, user.getUsername());
+                            startActivity(webIntent);
                         },
                         error -> {
                             if (getActivity() == null)

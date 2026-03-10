@@ -3,17 +3,18 @@ package org.autojs.autojs.ui.main.community;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.snackbar.Snackbar;
 import android.util.AttributeSet;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.autojs.autojs.R;
-import org.autojs.autojs.network.NodeBB;
 import org.autojs.autojs.model.script.Scripts;
+import org.autojs.autojs.network.NodeBB;
 import org.autojs.autojs.network.download.DownloadManager;
 import org.autojs.autojs.storage.FileProviderFactory;
 import org.autojs.autojs.ui.common.OptionListView;
@@ -23,8 +24,6 @@ import org.autojs.autojs.ui.widget.EWebView;
 
 import java.util.regex.Pattern;
 
-import butterknife.OnClick;
-import butterknife.Optional;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -59,14 +58,20 @@ public class CommunityWebView extends EWebView {
                 .title(fileName)
                 .item(R.id.save, R.drawable.ic_file_download_black_48dp, R.string.text_download)
                 .item(R.id.run, R.drawable.ic_play_arrow_white_48dp, R.string.text_run)
-                .bindItemClick(this)
                 .build());
+        // Set click listeners manually
+        View contentView = mBottomSheetDialog.findViewById(R.id.save);
+        if (contentView != null) {
+            contentView.setOnClickListener(v -> save());
+        }
+        contentView = mBottomSheetDialog.findViewById(R.id.run);
+        if (contentView != null) {
+            contentView.setOnClickListener(v -> run());
+        }
         mBottomSheetDialog.show();
     }
 
     @SuppressLint("CheckResult")
-    @Optional
-    @OnClick(R.id.save)
     void save() {
         dismissBottomSheetDialog();
         new ScriptOperations(getContext(), CommunityWebView.this)
@@ -84,8 +89,6 @@ public class CommunityWebView extends EWebView {
     }
 
     @SuppressLint("CheckResult")
-    @Optional
-    @OnClick(R.id.run)
     void run() {
         dismissBottomSheetDialog();
         new ScriptOperations(getContext(), CommunityWebView.this)

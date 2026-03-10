@@ -2,14 +2,20 @@ package org.autojs.autojs.ui.doc;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.FragmentOnlineDocsBinding;
 import org.autojs.autojs.ui.main.QueryEvent;
 import org.autojs.autojs.ui.main.ViewPagerFragment;
 
@@ -17,23 +23,19 @@ import com.stardust.util.BackPressedHandler;
 
 import org.autojs.autojs.ui.widget.EWebView;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Created by Stardust on 2017/8/22.
  */
-@EFragment(R.layout.fragment_online_docs)
 public class DocsFragment extends ViewPagerFragment implements BackPressedHandler {
 
     public static final String ARGUMENT_URL = "url";
 
-    @ViewById(R.id.eweb_view)
-    EWebView mEWebView;
-    WebView mWebView;
+    private FragmentOnlineDocsBinding binding;
+    private EWebView mEWebView;
+    private WebView mWebView;
 
     private String mIndexUrl;
     private String mPreviousQuery;
@@ -50,11 +52,24 @@ public class DocsFragment extends ViewPagerFragment implements BackPressedHandle
         EventBus.getDefault().register(this);
     }
 
-    @AfterViews
-    void setUpViews() {
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentOnlineDocsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpViews();
+    }
+
+    private void setUpViews() {
+        mEWebView = binding.ewebView;
         mWebView = mEWebView.getWebView();
         mEWebView.getSwipeRefreshLayout().setOnRefreshListener(() -> {
-            if (TextUtils.equals(mWebView.getUrl(), mIndexUrl)) {
+            if (android.text.TextUtils.equals(mWebView.getUrl(), mIndexUrl)) {
                 loadUrl();
             } else {
                 mEWebView.onRefresh();

@@ -8,16 +8,14 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.OptionListViewBinding;
+import org.autojs.autojs.databinding.OperationDialogItemBinding;
 
 import java.util.ArrayList;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by Stardust on 2017/10/20.
@@ -47,11 +45,6 @@ public class OptionListView extends LinearLayout {
             return this;
         }
 
-        public Builder bindItemClick(Object target) {
-            mOptionListView.mOnItemClickTarget = target;
-            return this;
-        }
-
         public Builder title(String title) {
             mOptionListView.mTitleView.setVisibility(VISIBLE);
             mOptionListView.mTitleView.setText(title);
@@ -71,9 +64,9 @@ public class OptionListView extends LinearLayout {
     private ArrayList<Integer> mIds = new ArrayList<>();
     private ArrayList<Integer> mIcons = new ArrayList<>();
     private ArrayList<String> mTexts = new ArrayList<>();
-    private Object mOnItemClickTarget;
     private RecyclerView mOptionList;
     private TextView mTitleView;
+    private OptionListViewBinding binding;
 
     public OptionListView(Context context) {
         super(context);
@@ -86,8 +79,9 @@ public class OptionListView extends LinearLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mTitleView = (TextView) findViewById(R.id.title);
-        mOptionList = (RecyclerView) findViewById(R.id.list);
+        binding = OptionListViewBinding.bind(this);
+        mTitleView = binding.title;
+        mOptionList = binding.list;
         mOptionList.setLayoutManager(new LinearLayoutManager(getContext()));
         mOptionList.setAdapter(new Adapter());
     }
@@ -95,17 +89,14 @@ public class OptionListView extends LinearLayout {
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.operation_dialog_item, parent, false));
+            return new ViewHolder(OperationDialogItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.itemView.setId(mIds.get(position));
-            holder.text.setText(mTexts.get(position));
-            holder.icon.setImageResource(mIcons.get(position));
-            if (mOnItemClickTarget != null) {
-                ButterKnife.bind(mOnItemClickTarget, holder.itemView);
-            }
+            holder.binding.text.setText(mTexts.get(position));
+            holder.binding.icon.setImageResource(mIcons.get(position));
         }
 
         @Override
@@ -117,15 +108,11 @@ public class OptionListView extends LinearLayout {
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.icon)
-        ImageView icon;
-        @BindView(R.id.text)
-        TextView text;
+        OperationDialogItemBinding binding;
 
-        public ViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        public ViewHolder(OperationDialogItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
-
     }
 }

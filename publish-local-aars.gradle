@@ -1,0 +1,59 @@
+// 发布本地 AAR 到 GitHub Packages 的脚本
+// 使用方法: ./gradlew -b publish-local-aars.gradle publishAllPublicationsToGitHubPackagesRepository
+
+apply plugin: 'maven-publish'
+
+ext {
+    githubRepo = 'M17764017422/Auto.js.HYB1996'
+    aarFiles = [
+        // [文件路径, groupId, artifactId, version]
+        ['autojs/libs/EnhancedFloaty-0.31.aar', 'com.github.hyb1996', 'enhanced-floaty', '0.31'],
+        ['autojs/libs/opencv-3.4.3.aar', 'org.autojs.opencv', 'opencv', '3.4.3'],
+        ['autojs/libs/libtermexec-release.aar', 'org.autojs.terminal', 'libtermexec', '1.0.0'],
+        ['autojs/libs/emulatorview-release.aar', 'org.autojs.terminal', 'emulatorview', '1.0.0'],
+        ['autojs/libs/term-debug.aar', 'org.autojs.terminal', 'term-debug', '1.0.0'],
+    ]
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/${githubRepo}")
+            credentials {
+                username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR') ?: System.getenv('GITHUB_USERNAME')
+                password = project.findProperty('gpr.token') ?: System.getenv('GITHUB_TOKEN') ?: System.getenv('GITHUB_PASSWORD')
+            }
+        }
+        // 本地 Maven 仓库（用于测试）
+        maven {
+            name = "Local"
+            url = uri("${rootProject.projectDir}/local-maven-repo")
+        }
+    }
+    
+    publications {
+        aarFiles.each { aarConfig ->
+            def (filePath, groupId, artifactId, version) = aarConfig
+            def aarFile = file("${rootProject.projectDir}/${filePath}")
+            
+            if (aarFile.exists()) {
+                "${artifactId.replaceAll('-', '')}"(MavenPublication) {
+                    this.groupId = groupId
+                    this.artifactId = artifactId
+                    this.version = version
+                    
+                    artifact(aarFile)
+                    
+                    pom {
+                        name = artifactId
+                        description = "Local AAR: ${artifactId}"
+                        packaging = 'aar'
+                    }
+                }
+            } else {
+                println "WARNING: AAR file not found: ${aarFile}"
+            }
+        }
+    }
+}

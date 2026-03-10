@@ -2,6 +2,7 @@ package org.autojs.autojs.ui.edit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import com.google.android.material.snackbar.Snackbar;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -16,10 +17,9 @@ import org.autojs.autojs.R;
 import org.autojs.autojs.model.indices.AndroidClass;
 import org.autojs.autojs.model.indices.ClassSearchingItem;
 import org.autojs.autojs.ui.project.BuildActivity;
-import org.autojs.autojs.ui.project.BuildActivity_;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
 import org.autojs.autojs.ui.edit.editor.CodeEditor;
-import org.autojs.autojs.ui.log.LogActivity_;
+import org.autojs.autojs.ui.log.LogActivity;
 import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 
 import com.stardust.util.ClipboardUtil;
@@ -51,6 +51,9 @@ public class EditorMenu {
         switch (item.getItemId()) {
             case R.id.action_log:
                 showLog();
+                return true;
+            case R.id.action_show_log:
+                showLogPanel();
                 return true;
             case R.id.action_force_stop:
                 forceStop();
@@ -207,9 +210,9 @@ public class EditorMenu {
     }
 
     private void startBuildApkActivity() {
-        BuildActivity_.intent(mContext)
-                .extra(BuildActivity.EXTRA_SOURCE, mEditorView.getUri().getPath())
-                .start();
+        Intent intent = new Intent(mContext, BuildActivity.class);
+        intent.putExtra(BuildActivity.EXTRA_SOURCE, mEditorView.getUri().getPath());
+        mContext.startActivity(intent);
     }
 
 
@@ -310,7 +313,11 @@ public class EditorMenu {
 
 
     private void showLog() {
-        LogActivity_.intent(mContext).start();
+        mContext.startActivity(new Intent(mContext, LogActivity.class));
+    }
+
+    private void showLogPanel() {
+        mEditorView.showLogPanel();
     }
 
     private void showConsole() {

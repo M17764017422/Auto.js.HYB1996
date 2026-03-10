@@ -2,6 +2,7 @@ package org.autojs.autojs.ui.explorer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
@@ -38,7 +39,6 @@ import org.autojs.autojs.model.script.ScriptFile;
 import org.autojs.autojs.model.script.Scripts;
 import org.autojs.autojs.tool.Observers;
 import org.autojs.autojs.ui.project.BuildActivity;
-import org.autojs.autojs.ui.project.BuildActivity_;
 import org.autojs.autojs.ui.common.ScriptLoopDialog;
 import org.autojs.autojs.ui.common.ScriptOperations;
 import org.autojs.autojs.ui.viewmodel.ExplorerItemList;
@@ -50,9 +50,10 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Stack;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import org.autojs.autojs.databinding.ScriptFileListFileBinding;
+import org.autojs.autojs.databinding.ScriptFileListDirectoryBinding;
+import org.autojs.autojs.databinding.ScriptFileListCategoryBinding;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
@@ -352,9 +353,9 @@ public class ExplorerView extends ThemeColorSwipeRefreshLayout implements SwipeR
                 notifyOperated();
                 break;
             case R.id.action_build_apk:
-                BuildActivity_.intent(getContext())
-                        .extra(BuildActivity.EXTRA_SOURCE, mSelectedItem.getPath())
-                        .start();
+                Intent buildIntent = new Intent(getContext(), BuildActivity.class);
+                buildIntent.putExtra(BuildActivity.EXTRA_SOURCE, mSelectedItem.getPath());
+                getContext().startActivity(buildIntent);
                 notifyOperated();
                 break;
             case R.id.action_sort_by_date:
@@ -508,63 +509,46 @@ public class ExplorerView extends ThemeColorSwipeRefreshLayout implements SwipeR
 
     protected class ExplorerItemViewHolder extends BindableViewHolder<ExplorerItem> {
 
-        @BindView(R.id.name)
-        TextView mName;
-        @BindView(R.id.first_char)
-        TextView mFirstChar;
-        @BindView(R.id.desc)
-        TextView mDesc;
-        @BindView(R.id.more)
-        View mOptions;
-        @BindView(R.id.edit)
-        View mEdit;
-        @BindView(R.id.run)
-        View mRun;
-
+        private ScriptFileListFileBinding binding;
         GradientDrawable mFirstCharBackground;
         private ExplorerItem mExplorerItem;
 
         ExplorerItemViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
-            mFirstCharBackground = (GradientDrawable) mFirstChar.getBackground();
+            binding = ScriptFileListFileBinding.bind(itemView);
+            mFirstCharBackground = (GradientDrawable) binding.firstChar.getBackground();
+            
+            binding.item.setOnClickListener(v -> {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(itemView, mExplorerItem);
+                }
+                notifyOperated();
+            });
+            binding.run.setOnClickListener(v -> {
+                Scripts.INSTANCE.run(new ScriptFile(mExplorerItem.getPath()));
+                notifyOperated();
+            });
+            binding.edit.setOnClickListener(v -> {
+                Scripts.INSTANCE.edit(getContext(), new ScriptFile(mExplorerItem.getPath()));
+                notifyOperated();
+            });
+            binding.more.setOnClickListener(v -> showOptionMenu());
         }
 
         @Override
         public void bind(ExplorerItem item, int position) {
             mExplorerItem = item;
-            mName.setText(ExplorerViewHelper.getDisplayName(item));
-            mDesc.setText(PFiles.getHumanReadableSize(item.getSize()));
-            mFirstChar.setText(ExplorerViewHelper.getIconText(item));
+            binding.name.setText(ExplorerViewHelper.getDisplayName(item));
+            binding.desc.setText(PFiles.getHumanReadableSize(item.getSize()));
+            binding.firstChar.setText(ExplorerViewHelper.getIconText(item));
             mFirstCharBackground.setColor(ExplorerViewHelper.getIconColor(item));
-            mEdit.setVisibility(item.isEditable() ? VISIBLE : GONE);
-            mRun.setVisibility(item.isExecutable() ? VISIBLE : GONE);
+            binding.edit.setVisibility(item.isEditable() ? VISIBLE : GONE);
+            binding.run.setVisibility(item.isExecutable() ? VISIBLE : GONE);
         }
 
-        @OnClick(R.id.item)
-        void onItemClick() {
-            if (mOnItemClickListener != null) {
-                mOnItemClickListener.onItemClick(itemView, mExplorerItem);
-            }
-            notifyOperated();
-        }
-
-        @OnClick(R.id.run)
-        void run() {
-            Scripts.INSTANCE.run(new ScriptFile(mExplorerItem.getPath()));
-            notifyOperated();
-        }
-
-        @OnClick(R.id.edit)
-        void edit() {
-            Scripts.INSTANCE.edit(getContext(), new ScriptFile(mExplorerItem.getPath()));
-            notifyOperated();
-        }
-
-        @OnClick(R.id.more)
         void showOptionMenu() {
             mSelectedItem = mExplorerItem;
-            PopupMenu popupMenu = new PopupMenu(getContext(), mOptions);
+            PopupMenu popupMenu = new PopupMenu(getContext(), binding.more);
             popupMenu.inflate(R.menu.menu_script_options);
             Menu menu = popupMenu.getMenu();
             if (!mExplorerItem.isExecutable()) {
@@ -587,40 +571,30 @@ public class ExplorerView extends ThemeColorSwipeRefreshLayout implements SwipeR
 
     protected class ExplorerPageViewHolder extends BindableViewHolder<ExplorerPage> {
 
-        @BindView(R.id.name)
-        public TextView mName;
-
-        @BindView(R.id.more)
-        public View mOptions;
-
-        @BindView(R.id.icon)
-        public ImageView mIcon;
+        private ScriptFileListDirectoryBinding binding;
 
         private ExplorerPage mExplorerPage;
 
         ExplorerPageViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            binding = ScriptFileListDirectoryBinding.bind(itemView);
+            
+            binding.item.setOnClickListener(v -> enterDirectChildPage(mExplorerPage));
+            binding.more.setOnClickListener(v -> showOptionMenu());
         }
 
         @Override
         public void bind(ExplorerPage data, int position) {
-            mName.setText(ExplorerViewHelper.getDisplayName(data));
-            mIcon.setImageResource(ExplorerViewHelper.getIcon(data));
-            mOptions.setVisibility(data instanceof ExplorerSamplePage ? GONE : VISIBLE);
+            binding.name.setText(ExplorerViewHelper.getDisplayName(data));
+            binding.icon.setImageResource(ExplorerViewHelper.getIcon(data));
+            binding.more.setVisibility(data instanceof ExplorerSamplePage ? GONE : VISIBLE);
             mExplorerPage = data;
 
         }
 
-        @OnClick(R.id.item)
-        void onItemClick() {
-            enterDirectChildPage(mExplorerPage);
-        }
-
-        @OnClick(R.id.more)
         void showOptionMenu() {
             mSelectedItem = mExplorerPage;
-            PopupMenu popupMenu = new PopupMenu(getContext(), mOptions);
+            PopupMenu popupMenu = new PopupMenu(getContext(), binding.more);
             popupMenu.inflate(R.menu.menu_dir_options);
             popupMenu.setOnMenuItemClickListener(ExplorerView.this);
             popupMenu.show();
@@ -629,66 +603,60 @@ public class ExplorerView extends ThemeColorSwipeRefreshLayout implements SwipeR
 
     class CategoryViewHolder extends BindableViewHolder<Boolean> {
 
-        @BindView(R.id.title)
-        TextView mTitle;
-
-        @BindView(R.id.sort)
-        ImageView mSort;
-
-        @BindView(R.id.order)
-        ImageView mSortOrder;
-
-        @BindView(R.id.back)
-        ImageView mGoBack;
-
-        @BindView(R.id.collapse)
-        ImageView mArrow;
+        private ScriptFileListCategoryBinding binding;
 
         private boolean mIsDir;
 
         CategoryViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            binding = ScriptFileListCategoryBinding.bind(itemView);
+            
+            binding.order.setOnClickListener(v -> changeSortOrder());
+            binding.sort.setOnClickListener(v -> showSortOptions());
+            binding.back.setOnClickListener(v -> {
+                if (canGoBack()) {
+                    goBack();
+                }
+            });
+            binding.titleContainer.setOnClickListener(v -> collapseOrExpand());
         }
 
         @Override
         public void bind(Boolean isDirCategory, int position) {
-            mTitle.setText(isDirCategory ? R.string.text_directory : R.string.text_file);
+            binding.title.setText(isDirCategory ? R.string.text_directory : R.string.text_file);
             mIsDir = isDirCategory;
             if (isDirCategory && canGoBack()) {
-                mGoBack.setVisibility(VISIBLE);
+                binding.back.setVisibility(VISIBLE);
             } else {
-                mGoBack.setVisibility(GONE);
+                binding.back.setVisibility(GONE);
             }
             if (isDirCategory) {
-                mArrow.setRotation(mCurrentPageState.dirsCollapsed ? -90 : 0);
-                mSortOrder.setImageResource(mExplorerItemList.isDirSortedAscending() ?
+                binding.collapse.setRotation(mCurrentPageState.dirsCollapsed ? -90 : 0);
+                binding.order.setImageResource(mExplorerItemList.isDirSortedAscending() ?
                         R.drawable.ic_ascending_order : R.drawable.ic_descending_order);
             } else {
-                mArrow.setRotation(mCurrentPageState.filesCollapsed ? -90 : 0);
-                mSortOrder.setImageResource(mExplorerItemList.isFileSortedAscending() ?
+                binding.collapse.setRotation(mCurrentPageState.filesCollapsed ? -90 : 0);
+                binding.order.setImageResource(mExplorerItemList.isFileSortedAscending() ?
                         R.drawable.ic_ascending_order : R.drawable.ic_descending_order);
             }
         }
 
-        @OnClick(R.id.order)
         void changeSortOrder() {
             if (mIsDir) {
-                mSortOrder.setImageResource(mExplorerItemList.isDirSortedAscending() ?
+                binding.order.setImageResource(mExplorerItemList.isDirSortedAscending() ?
                         R.drawable.ic_ascending_order : R.drawable.ic_descending_order);
                 mExplorerItemList.setDirSortedAscending(!mExplorerItemList.isDirSortedAscending());
                 sort(mExplorerItemList.getDirSortType(), mIsDir);
             } else {
-                mSortOrder.setImageResource(mExplorerItemList.isFileSortedAscending() ?
+                binding.order.setImageResource(mExplorerItemList.isFileSortedAscending() ?
                         R.drawable.ic_ascending_order : R.drawable.ic_descending_order);
                 mExplorerItemList.setFileSortedAscending(!mExplorerItemList.isFileSortedAscending());
                 sort(mExplorerItemList.getFileSortType(), mIsDir);
             }
         }
 
-        @OnClick(R.id.sort)
         void showSortOptions() {
-            PopupMenu popupMenu = new PopupMenu(getContext(), mSort);
+            PopupMenu popupMenu = new PopupMenu(getContext(), binding.sort);
             popupMenu.inflate(R.menu.menu_sort_options);
             popupMenu.setOnMenuItemClickListener(ExplorerView.this);
             mDirSortMenuShowing = mIsDir;
@@ -696,14 +664,6 @@ public class ExplorerView extends ThemeColorSwipeRefreshLayout implements SwipeR
 
         }
 
-        @OnClick(R.id.back)
-        void back() {
-            if (canGoBack()) {
-                goBack();
-            }
-        }
-
-        @OnClick(R.id.title_container)
         void collapseOrExpand() {
             if (mIsDir) {
                 mCurrentPageState.dirsCollapsed = !mCurrentPageState.dirsCollapsed;

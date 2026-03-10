@@ -9,17 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.ActivityShortcutIconSelectBinding;
+import org.autojs.autojs.databinding.AppIconListItemBinding;
 import org.autojs.autojs.tool.BitmapTool;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.workground.WrapContentGridLayoutManger;
@@ -35,29 +34,33 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Stardust on 2017/10/25.
  */
-@EActivity(R.layout.activity_shortcut_icon_select)
 public class ShortcutIconSelectActivity extends BaseActivity {
 
     public static final String EXTRA_PACKAGE_NAME = "extra_package_name";
 
-    @ViewById(R.id.apps)
-    RecyclerView mApps;
-
+    private ActivityShortcutIconSelectBinding binding;
     private PackageManager mPackageManager;
     private List<AppItem> mAppList = new ArrayList<>();
 
-    @AfterViews
-    void setupViews() {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityShortcutIconSelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setupViews();
+    }
+
+    private void setupViews() {
         mPackageManager = getPackageManager();
         setToolbarAsBack(getString(R.string.text_select_icon));
         setupApps();
     }
 
     private void setupApps() {
-        mApps.setAdapter(new AppsAdapter());
+        binding.apps.setAdapter(new AppsAdapter());
         WrapContentGridLayoutManger manager = new WrapContentGridLayoutManger(this, 5);
         manager.setDebugInfo("IconSelectView");
-        mApps.setLayoutManager(manager);
+        binding.apps.setLayoutManager(manager);
         loadApps();
     }
 
@@ -71,7 +74,7 @@ public class ShortcutIconSelectActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(icon -> {
                     mAppList.add(icon);
-                    mApps.getAdapter().notifyItemInserted(mAppList.size() - 1);
+                    binding.apps.getAdapter().notifyItemInserted(mAppList.size() - 1);
                 });
 
     }
@@ -134,9 +137,9 @@ public class ShortcutIconSelectActivity extends BaseActivity {
 
         ImageView icon;
 
-        public AppIconViewHolder(View itemView) {
-            super(itemView);
-            icon = (ImageView) itemView;
+        public AppIconViewHolder(AppIconListItemBinding itemBinding) {
+            super(itemBinding.getRoot());
+            icon = (ImageView) itemBinding.getRoot();
             icon.setOnClickListener(v -> selectApp(mAppList.get(getAdapterPosition())));
         }
     }
@@ -146,8 +149,7 @@ public class ShortcutIconSelectActivity extends BaseActivity {
 
         @Override
         public AppIconViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new AppIconViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.app_icon_list_item, parent, false));
+            return new AppIconViewHolder(AppIconListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
         }
 
         @Override
@@ -160,6 +162,4 @@ public class ShortcutIconSelectActivity extends BaseActivity {
             return mAppList.size();
         }
     }
-
-
 }

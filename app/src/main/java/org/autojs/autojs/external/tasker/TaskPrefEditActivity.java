@@ -11,10 +11,8 @@ import android.view.MenuItem;
 
 import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractAppCompatPluginActivity;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.ActivityTaskerEditBinding;
 import org.autojs.autojs.external.ScriptIntents;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.Explorers;
@@ -27,30 +25,37 @@ import static org.autojs.autojs.ui.edit.EditorView.EXTRA_CONTENT;
 /**
  * Created by Stardust on 2017/3/27.
  */
-@EActivity(R.layout.activity_tasker_edit)
 public class TaskPrefEditActivity extends AbstractAppCompatPluginActivity {
 
     private String mSelectedScriptFilePath;
     private String mPreExecuteScript;
+    private ActivityTaskerEditBinding binding;
 
-    @AfterViews
-    void setUpViews() {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityTaskerEditBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setUpViews();
+    }
+
+    private void setUpViews() {
         BaseActivity.setToolbarAsBack(this, R.id.toolbar, getString(R.string.text_please_choose_a_script));
         initScriptListRecyclerView();
+        
+        binding.editScript.setOnClickListener(v -> editPreExecuteScript());
     }
 
 
     private void initScriptListRecyclerView() {
-        ExplorerView explorerView = (ExplorerView) findViewById(R.id.script_list);
-        explorerView.setExplorer(Explorers.external(), ExplorerDirPage.createRoot(Environment.getExternalStorageDirectory()));
-        explorerView.setOnItemClickListener((view, item) -> {
+        binding.scriptList.setExplorer(Explorers.external(), ExplorerDirPage.createRoot(Environment.getExternalStorageDirectory()));
+        binding.scriptList.setOnItemClickListener((view, item) -> {
             mSelectedScriptFilePath = item.getPath();
             finish();
         });
     }
 
 
-    @Click(R.id.edit_script)
     void editPreExecuteScript() {
         TaskerScriptEditActivity.edit(this, getString(R.string.text_pre_execute_script), getString(R.string.summary_pre_execute_script), mPreExecuteScript == null ? "" : mPreExecuteScript);
     }

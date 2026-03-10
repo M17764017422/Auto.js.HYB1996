@@ -2,7 +2,7 @@
   "appVersionCode": 850200,
   "baseVersionName": "0.85.2",
   "target": 34,
-  "mini": 19,
+  "mini": 21,
   "compile": 34,
   "buildTool": "36.1.0"
 }

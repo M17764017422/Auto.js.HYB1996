@@ -22,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.FunctionsKeyboardViewBinding;
+import org.autojs.autojs.databinding.ItemModuleBinding;
+import org.autojs.autojs.databinding.ItemPropertyBinding;
 import org.autojs.autojs.model.indices.Module;
 import org.autojs.autojs.model.indices.Modules;
 import org.autojs.autojs.model.indices.Property;
@@ -33,8 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -52,12 +53,8 @@ public class FunctionsKeyboardView extends FrameLayout {
     }
 
     private static final int SPAN_COUNT = 4;
-    @BindView(R.id.module_list)
-    RecyclerView mModulesView;
-
-    @BindView(R.id.properties)
-    RecyclerView mPropertiesView;
-
+    
+    private FunctionsKeyboardViewBinding binding;
     private List<Module> mModules;
     private Map<Module, List<Integer>> mSpanSizes = new HashMap<>();
     private Module mSelectedModule;
@@ -91,8 +88,7 @@ public class FunctionsKeyboardView extends FrameLayout {
     }
 
     private void init() {
-        inflate(getContext(), R.layout.functions_keyboard_view, this);
-        ButterKnife.bind(this);
+        binding = FunctionsKeyboardViewBinding.inflate(LayoutInflater.from(getContext()), this);
         initModulesView();
         initPropertiesView();
     }
@@ -100,8 +96,8 @@ public class FunctionsKeyboardView extends FrameLayout {
     private void initPropertiesView() {
         WrapContentGridLayoutManger manager = new WrapContentGridLayoutManger(getContext(), SPAN_COUNT);
         manager.setDebugInfo("FunctionsKeyboardView");
-        mPropertiesView.setLayoutManager(manager);
-        mPropertiesView.setAdapter(new PropertiesAdapter());
+        binding.properties.setLayoutManager(manager);
+        binding.properties.setAdapter(new PropertiesAdapter());
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
 
             @Override
@@ -111,7 +107,7 @@ public class FunctionsKeyboardView extends FrameLayout {
         });
         Drawable divider = ContextCompat.getDrawable(getContext(), R.drawable.divider_functions_view);
         GridDividerDecoration dividerItemDecoration = new GridDividerDecoration(getContext(), divider);
-        mPropertiesView.addItemDecoration(dividerItemDecoration);
+        binding.properties.addItemDecoration(dividerItemDecoration);
 
     }
 
@@ -165,8 +161,8 @@ public class FunctionsKeyboardView extends FrameLayout {
     }
 
     private void initModulesView() {
-        mModulesView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false));
-        mModulesView.setAdapter(new ModulesAdapter());
+        binding.moduleList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false));
+        binding.moduleList.setAdapter(new ModulesAdapter());
     }
 
     private void loadModules() {
@@ -177,8 +173,8 @@ public class FunctionsKeyboardView extends FrameLayout {
                     if (modules.size() > 0) {
                         setSelectedModule(modules.get(0), null);
                     }
-                    mModulesView.getAdapter().notifyDataSetChanged();
-                    mPropertiesView.getAdapter().notifyDataSetChanged();
+                    binding.moduleList.getAdapter().notifyDataSetChanged();
+                    binding.properties.getAdapter().notifyDataSetChanged();
                 });
     }
 
@@ -192,7 +188,7 @@ public class FunctionsKeyboardView extends FrameLayout {
         if (mSelectedModuleView != null)
             mSelectedModuleView.setSelected(true);
         initSpanSizes(mSelectedModule);
-        mPropertiesView.getAdapter().notifyDataSetChanged();
+        binding.properties.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -204,19 +200,18 @@ public class FunctionsKeyboardView extends FrameLayout {
 
     private class ModuleViewHolder extends RecyclerView.ViewHolder {
 
-
-        private TextView mTextView;
+        private final ItemModuleBinding itemBinding;
         private Module mModule;
 
-        ModuleViewHolder(View itemView) {
-            super(itemView);
-            mTextView = (TextView) itemView;
-            mTextView.setOnClickListener(v -> {
+        ModuleViewHolder(ItemModuleBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.itemBinding = itemBinding;
+            itemBinding.getRoot().setOnClickListener(v -> {
                 if (mModule == null)
                     return;
-                setSelectedModule(mModule, mTextView);
+                setSelectedModule(mModule, itemBinding.getRoot());
             });
-            mTextView.setOnLongClickListener(v -> {
+            itemBinding.getRoot().setOnLongClickListener(v -> {
                 if (mClickCallback != null) {
                     mClickCallback.onModuleLongClick(mModule);
                     return true;
@@ -228,10 +223,10 @@ public class FunctionsKeyboardView extends FrameLayout {
 
         void bind(Module module) {
             mModule = module;
-            mTextView.setText(module.getSummary());
-            mTextView.setSelected(module == mSelectedModule);
+            itemBinding.getRoot().setText(module.getSummary());
+            itemBinding.getRoot().setSelected(module == mSelectedModule);
             if (module == mSelectedModule) {
-                mSelectedModuleView = mTextView;
+                mSelectedModuleView = itemBinding.getRoot();
             }
         }
     }
@@ -239,20 +234,20 @@ public class FunctionsKeyboardView extends FrameLayout {
 
     private class PropertyViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView mTextView;
+        private final ItemPropertyBinding itemBinding;
         private Property mProperty;
 
-        PropertyViewHolder(View itemView) {
-            super(itemView);
-            mTextView = (TextView) itemView;
-            mTextView.setOnLongClickListener(v -> {
+        PropertyViewHolder(ItemPropertyBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.itemBinding = itemBinding;
+            itemBinding.getRoot().setOnLongClickListener(v -> {
                 if (mClickCallback != null) {
                     mClickCallback.onPropertyLongClick(mSelectedModule, mProperty);
                     return true;
                 }
                 return false;
             });
-            mTextView.setOnClickListener(v -> {
+            itemBinding.getRoot().setOnClickListener(v -> {
                 if (mClickCallback != null) {
                     mClickCallback.onPropertyClick(mSelectedModule, mProperty);
                 }
@@ -261,7 +256,7 @@ public class FunctionsKeyboardView extends FrameLayout {
 
         void bind(Property property) {
             mProperty = property;
-            mTextView.setText(getDisplayText(property));
+            itemBinding.getRoot().setText(getDisplayText(property));
         }
     }
 
@@ -269,8 +264,7 @@ public class FunctionsKeyboardView extends FrameLayout {
 
         @Override
         public ModuleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ModuleViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_module, parent, false));
+            return new ModuleViewHolder(ItemModuleBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
         }
 
         @Override
@@ -288,8 +282,7 @@ public class FunctionsKeyboardView extends FrameLayout {
 
         @Override
         public PropertyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new PropertyViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_property, parent, false));
+            return new PropertyViewHolder(ItemPropertyBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
         }
 
         @Override
@@ -302,6 +295,4 @@ public class FunctionsKeyboardView extends FrameLayout {
             return mSelectedModule == null ? 0 : mSelectedModule.getProperties().size();
         }
     }
-
-
 }

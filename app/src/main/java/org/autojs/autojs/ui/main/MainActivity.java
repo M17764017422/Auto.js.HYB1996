@@ -49,15 +49,15 @@ import org.autojs.autojs.storage.StoragePermissionHelper;
 import org.autojs.autojs.tool.AccessibilityServiceTool;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
-import org.autojs.autojs.ui.doc.DocsFragment_;
+import org.autojs.autojs.ui.doc.DocsFragment;
 import org.autojs.autojs.ui.floating.FloatyWindowManger;
-import org.autojs.autojs.ui.log.LogActivity_;
+import org.autojs.autojs.ui.log.LogActivity;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
-import org.autojs.autojs.ui.main.community.CommunityFragment_;
+import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.main.market.MarketFragment;
-import org.autojs.autojs.ui.main.scripts.MyScriptListFragment_;
-import org.autojs.autojs.ui.main.task.TaskManagerFragment_;
-import org.autojs.autojs.ui.settings.SettingsActivity_;
+import org.autojs.autojs.ui.main.scripts.MyScriptListFragment;
+import org.autojs.autojs.ui.main.task.TaskManagerFragment;
+import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.VersionGuard;
 import org.autojs.autojs.ui.widget.CommonMarkdownView;
 import org.autojs.autojs.ui.widget.SearchViewItem;
@@ -202,11 +202,11 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     private void setUpTabViewPager() {
         TabLayout tabLayout = $(R.id.tab);
         mPagerAdapter = new FragmentPagerAdapterBuilder(this)
-                .add(new MyScriptListFragment_(), R.string.text_file)
-                .add(new DocsFragment_(), R.string.text_tutorial)
-                .add(new CommunityFragment_(), R.string.text_community)
+                .add(new MyScriptListFragment(), R.string.text_file)
+                .add(new DocsFragment(), R.string.text_tutorial)
+                .add(new CommunityFragment(), R.string.text_community)
                 .add(new MarketFragment(), R.string.text_market)
-                .add(new TaskManagerFragment_(), R.string.text_manage)
+                .add(new TaskManagerFragment(), R.string.text_manage)
                 .build();
         mViewPager.setAdapter(mPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
@@ -240,7 +240,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     @Click(R.id.setting)
     void startSettingActivity() {
-        startActivity(new Intent(this, SettingsActivity_.class));
+        startActivity(new Intent(this, SettingsActivity.class));
     }
 
     @Click(R.id.exit)
@@ -364,7 +364,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
             if (mDocsSearchItemExpanded) {
                 submitForwardQuery();
             } else {
-                LogActivity_.intent(this).start();
+                startActivity(new Intent(this, LogActivity.class));
             }
             return true;
         }
