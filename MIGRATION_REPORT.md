@@ -919,4 +919,323 @@ app/build.gradle
 
 ---
 
+## 附录 C. 迁移历史记录
+
+> 本节整合自 `KSP_MIGRATION_LOG.md` 和 `MATERIAL3_MIGRATION_LOG.md`，记录迁移过程中的尝试与演进。
+
+### C.1 Glide KSP 迁移尝试历程
+
+#### 第一次尝试 (2026-03-09): 直接替换 - 失败
+
+**目标**: 将 Glide 注解处理器从 KAPT 迁移到 KSP
+
+**初始配置**:
+```groovy
+// app/build.gradle
+kapt 'com.github.bumptech.glide:compiler:4.15.1'
+```
+
+**尝试方案**:
+```groovy
+ksp 'com.github.bumptech.glide:compiler:4.15.1'
+```
+
+**结果**: ❌ 失败
+
+```
+e: [ksp] No providers found in processor classpath.
+```
+
+**分析**: Glide 4.15.1 不支持 KSP
+
+#### 第二次尝试 (2026-03-09): 升级版本 - 失败
+
+查阅 Glide 官方文档，4.14+ 版本开始支持 KSP。
+
+```groovy
+implementation 'com.github.bumptech.glide:glide:4.16.0'
+ksp 'com.github.bumptech.glide:compiler:4.16.0'
+```
+
+**结果**: ❌ 失败
+
+```
+e: [ksp] No providers found in processor classpath.
+e: Error occurred in KSP, check log for detail
+```
+
+#### 第三次尝试 (2026-03-09): 禁用 KSP2 - 失败
+
+在 `gradle.properties` 中添加：
+
+```properties
+ksp.useKSP2=false
+```
+
+**结果**: ❌ 失败，同样的错误
+
+#### 问题根因发现 (2026-03-09)
+
+经过对 AutoX 项目的分析，发现了**失败的真正原因**：
+
+| 配置 | 说明 | 结果 |
+|------|------|------|
+| `ksp 'com.github.bumptech.glide:compiler:4.16.0'` | 错误的 artifact | ❌ |
+| `ksp 'com.github.bumptech.glide:ksp:4.14.2'` | 正确的 artifact | ✅ |
+
+**关键发现**: Glide 的 KSP 支持使用**独立的 artifact**（`ksp`），而不是复用 `compiler` artifact。
+
+#### 第四次尝试 (2026-03-09): 正确配置 - 成功
+
+```groovy
+implementation 'com.github.bumptech.glide:glide:4.14.2'
+ksp 'com.github.bumptech.glide:ksp:4.14.2'
+```
+
+**结果**: ✅ 成功
+
+```
+BUILD SUCCESSFUL in 19s
+```
+
+**关键结论**:
+- KAPT 和 KSP 可以共存
+- Glide KSP 需要使用正确的 artifact 名称
+- 从 AutoX 验证了 KAPT + KSP + Compose 三方共存可行
+
+---
+
+### C.2 Material3 迁移尝试历程
+
+#### 批次 1-6 执行记录 (2026-03-10)
+
+**批次 1: Compose 依赖配置**
+
+修改 `app/build.gradle`：
+
+```groovy
+android {
+    buildFeatures {
+        compose true
+        viewBinding true
+        buildConfig true
+    }
+    
+    composeOptions {
+        kotlinCompilerExtensionVersion = '1.5.15'
+    }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2024.10.01')
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.activity:activity-compose:1.9.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+}
+```
+
+**状态**: ✅ 完成
+
+**批次 2: 主题文件移植**
+
+从 AutoX 移植主题文件：
+
+| 文件 | 源路径 | 目标路径 |
+|------|--------|----------|
+| Theme.kt | AutoX/common/.../theme/Theme.kt | app/.../material3/theme/Theme.kt |
+| Color.kt | AutoX/common/.../theme/Color.kt | app/.../material3/theme/Color.kt |
+| Type.kt | AutoX/common/.../theme/Type.kt | app/.../material3/theme/Type.kt |
+
+**包名修改**: `com.aiselp.autox.ui.material3.theme` → `org.autojs.autojs.ui.material3.theme`
+
+**状态**: ✅ 完成
+
+**批次 3: minSdk 升级**
+
+修改 `project-versions.json`：
+
+```json
+{
+  "mini": 21,  // 从 19 升级到 21
+  "target": 34,
+  "compile": 34
+}
+```
+
+**原因**: Compose 要求 minSdk >= 21
+
+**状态**: ✅ 完成
+
+**批次 4: EditorModel.kt 创建**
+
+创建 ViewModel 管理编辑器状态，适配 HYB1996 API：
+
+- `ScriptExecutionListener` 来自 `com.stardust.autojs.execution`
+- `AutoJs.getInstance().scriptEngineService` 用于执行脚本
+
+**状态**: ✅ 完成
+
+**批次 5: LogSheet.kt 创建**
+
+创建 Material3 ModalBottomSheet 日志面板，适配 HYB1996 API：
+
+- `ConsoleView` 来自 `com.stardust.autojs.core.console.ConsoleView`
+- `ConsoleImpl` 来自 `com.stardust.autojs.core.console.ConsoleImpl`
+
+**状态**: ✅ 完成
+
+**批次 6: Kotlin 编译验证**
+
+```bash
+.\gradlew :app:compileCoolapkDebugKotlin
+BUILD SUCCESSFUL in 3m 36s
+```
+
+**状态**: ✅ 完成
+
+**批次 7: EditActivity 集成**
+
+**状态**: ⏳ 阻塞（依赖 KSP 迁移）
+
+**阻塞原因**: EditActivity 使用 AndroidAnnotations 注解，需要先完成 KSP 迁移
+
+---
+
+### C.3 KSP 完整迁移执行历程
+
+#### 阶段 1: ButterKnife 迁移 (2026-03-10)
+
+**已完成文件** (7 个):
+
+| 文件 | 原注解数 | 状态 |
+|------|----------|------|
+| ShortcutCreateActivity.java | 3 @BindView + 1 @OnClick | ✅ |
+| ManualDialog.java | 3 @BindView + 2 @OnClick | ✅ |
+| FindOrReplaceDialogBuilder.java | 6 @BindView + 2 @OnCheckedChanged | ✅ |
+| TaskListRecyclerView.java | 3 @BindView + 1 @OnClick | ✅ |
+| CodeGenerateDialog.java | 3 @BindView + 1 @OnCheckedChanged | ✅ |
+| FileChooseListView.java | 8 @BindView + 4 @OnCheckedChanged | ✅ |
+| ExplorerView.java | 18 @BindView + 10 @OnClick | ✅ |
+
+#### 阶段 2: AA 生成类引用修复 (2026-03-10)
+
+修复所有引用 `Xxx_` 生成类的代码：
+
+| 生成类 | 修复位置 | 状态 |
+|--------|----------|------|
+| LogActivity_ | AutoJs.java, MainActivity.java, EditorMenu.java 等 | ✅ |
+| ShortcutIconSelectActivity_ | ShortcutCreateActivity.java, BuildActivity.java 等 | ✅ |
+| CommunityFragment_ | MainActivity.java | ✅ |
+| DocsFragment_ | MainActivity.java | ✅ |
+| DocumentationActivity_ | ManualDialog.java | ✅ |
+| MainActivity_ | SplashActivity.java, ForegroundService.java 等 | ✅ |
+| SettingsActivity_ | AutoJs.java, MainActivity.java | ✅ |
+| AboutActivity_ | SettingsActivity.java | ✅ |
+| WebActivity_ | LoginActivity.java, DrawerFragment.java | ✅ |
+| BuildActivity_ | ExplorerProjectToolbar.java, ExplorerView.java 等 | ✅ |
+| ProjectConfigActivity_ | MyScriptListFragment.java 等 | ✅ |
+| TimedTaskSettingActivity_ | ScriptOperations.java, TaskListRecyclerView.java | ✅ |
+
+#### 阶段 3: AA 注解文件迁移 (2026-03-10)
+
+**已完成文件** (7 个):
+
+| 文件 | 原注解 | 状态 |
+|------|--------|------|
+| DebugToolbarFragment.java | @EFragment + 5 @Click | ✅ |
+| MyScriptListFragment.java | @EFragment + @ViewById + @AfterViews | ✅ |
+| LoginActivity.java | @EActivity + 3 @ViewById + 2 @Click | ✅ |
+| RegisterActivity.java | @EActivity + 4 @ViewById + @Click | ✅ |
+| SettingsActivity.java | @EActivity + @AfterViews | ✅ |
+| ProjectConfigActivity.java | @EActivity + 6 @ViewById + 2 @Click | ✅ |
+| BuildActivity.java | @EActivity + 8 @ViewById + 4 @Click | ✅ |
+
+#### 阶段 4: 复杂文件迁移 (2026-03-10)
+
+| 文件 | 注解类型 | 复杂度 | 状态 |
+|------|----------|--------|------|
+| MainActivity.java | @EActivity | 🔴 高 | ✅ |
+| DrawerFragment.java | @EFragment | 🔴 高 | ✅ |
+| EditActivity.java | @EActivity | 🔴 高 | ✅ |
+| EditorView.java | @EViewGroup | 🔴 极高 | ✅ |
+| TimedTaskSettingActivity.java | @EActivity | 🔴 高 | ✅ |
+
+---
+
+### C.4 编译状态演进
+
+| 日期 | 阶段 | Kotlin 编译 | Java 编译 | 完整构建 |
+|------|------|-------------|-----------|----------|
+| 2026-03-09 | Glide KSP 尝试 | ✅ | ✅ | ❌ (artifact 错误) |
+| 2026-03-09 | Glide KSP 成功 | ✅ | ✅ | ✅ |
+| 2026-03-10 | Material3 批次 1-6 | ✅ | ❌ (AA 缺失) | ❌ |
+| 2026-03-10 | ButterKnife 迁移完成 | ✅ | ❌ | ❌ |
+| 2026-03-10 | AA 引用修复完成 | ✅ | ❌ | ❌ |
+| 2026-03-10 | AA 文件迁移完成 | ✅ | ✅ | ✅ |
+
+---
+
+### C.5 迁移时间线
+
+```
+2026-03-09
+├── Glide KSP 第一次尝试 → 失败 (错误 artifact)
+├── Glide KSP 第二次尝试 → 失败 (版本升级)
+├── Glide KSP 第三次尝试 → 失败 (禁用 KSP2)
+├── 发现问题根因 → artifact 名称错误
+└── Glide KSP 第四次尝试 → ✅ 成功
+
+2026-03-10 (上午)
+├── 创建迁移计划文档
+├── Material3 批次 1-6 执行 → ✅ 完成
+├── ButterKnife 迁移 (7 文件) → ✅ 完成
+└── AA 生成类引用修复 (15 类) → ✅ 完成
+
+2026-03-10 (下午)
+├── AA 注解文件迁移 (7 文件) → ✅ 完成
+├── 复杂文件迁移 (5 文件) → ✅ 完成
+├── 编译错误修复 → ✅ 完成
+├── Material3 主题集成 → ✅ 完成
+└── KAPT 移除 → ✅ 完成
+
+版本发布:
+├── v0.85.17-alpha → 批次 1 完成
+├── v0.85.18-alpha → 批次 2 完成
+├── v0.85.19-alpha → 批次 3 完成
+└── v0.85.20 → 最终版本
+```
+
+---
+
+### C.6 API 差异适配记录
+
+在迁移过程中，需要适配 HYB1996 与 AutoX 的 API 差异：
+
+| 功能 | AutoX | HYB1996 | 适配方式 |
+|------|-------|---------|----------|
+| 脚本执行监听 | `BinderScriptListener` | `ScriptExecutionListener` | 实现接口 |
+| 执行器 | `EngineController` | `AutoJs.getInstance().scriptEngineService` | 替换调用 |
+| 任务信息 | `TaskInfo` | `ScriptExecution` | 类型替换 |
+| 控制台 | `BinderConsoleListener` | `ConsoleImpl` | 替换实现 |
+| 日志条目 | `LogEntry` | 直接使用 `ConsoleView` | 简化处理 |
+
+---
+
+### C.7 创建的新文件清单
+
+| 文件 | 路径 | 用途 |
+|------|------|------|
+| Theme.kt | app/.../material3/theme/Theme.kt | Material3 主题配置 |
+| Color.kt | app/.../material3/theme/Color.kt | 颜色定义 |
+| Type.kt | app/.../material3/theme/Type.kt | 字体样式 |
+| LogSheet.kt | app/.../material3/components/LogSheet.kt | 日志面板组件 |
+| EditorModel.kt | app/.../ui/edit/EditorModel.kt | 编辑器 ViewModel |
+| m3_colors.xml | app/res/values/m3_colors.xml | Material3 颜色资源 |
+| m3_colors.xml | app/res/values-night/m3_colors.xml | Material3 暗色资源 |
+
+---
+
 *报告完成于 2026-03-10*
