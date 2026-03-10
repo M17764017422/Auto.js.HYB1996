@@ -97,6 +97,7 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
         mNewTask = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
         
         setUpViews();
+        setUpLogSheet();
     }
 
     @SuppressLint("CheckResult")
@@ -107,6 +108,22 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
                         ex -> onLoadFileError(ex.getMessage()));
         mEditorMenu = new EditorMenu(mEditorView);
         setUpToolbar();
+    }
+    
+    /**
+     * Set up log panel integration using BottomSheetDialogFragment
+     */
+    private void setUpLogSheet() {
+        mEditorView.setLogPanelCallback(() -> {
+            // Get current script name and path
+            String scriptName = mEditorView.getName();
+            String scriptPath = mEditorView.getUri() != null ? mEditorView.getUri().getPath() : null;
+            
+            // Show log bottom sheet
+            org.autojs.autojs.ui.log.LogBottomSheet bottomSheet = 
+                org.autojs.autojs.ui.log.LogBottomSheet.newInstance(scriptName, scriptPath);
+            bottomSheet.show(getSupportFragmentManager(), "LogBottomSheet");
+        });
     }
 
     @Nullable
