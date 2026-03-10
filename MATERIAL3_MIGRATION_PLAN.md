@@ -728,6 +728,128 @@ class ComposeFragment : Fragment() {
 
 ---
 
+## 九、与 KSP 计划并行执行协调
+
+### 9.1 可并行任务
+
+| Material3 批次 | KSP 批次 | 并行状态 | 说明 |
+|---------------|----------|----------|------|
+| 1-2: Compose 配置 | A-F: 全部简单/中等 | ✅ 可并行 | 无文件冲突 |
+| 3-4: 新建文件 | A-F: 全部简单/中等 | ✅ 可并行 | 无文件冲突 |
+| 5-6: 菜单修改 | A-F: 全部简单/中等 | ✅ 可并行 | 无文件冲突 |
+
+### 9.2 需协调任务
+
+| Material3 批次 | KSP 批次 | 冲突文件 | 解决方案 |
+|---------------|----------|----------|----------|
+| 7: EditActivity 集成 | G: EditActivity 重构 | `EditActivity.java` | **合并重构** |
+
+### 9.3 合并重构 EditActivity
+
+**一次性完成以下工作**：
+
+```
+合并任务清单：
+□ Java → Kotlin 转换
+□ 移除 @EActivity 注解
+□ 添加 ViewBinding
+□ 添加 Compose setContent 入口
+□ 创建 EditorModel.kt
+□ 创建 LogSheet.kt
+□ 集成 LogSheet 组件
+□ 测试验证
+
+合并工作量: 8-12小时
+```
+
+**合并后代码结构**：
+
+```kotlin
+// EditActivity.kt - 合并重构后
+class EditActivity : BaseActivity() {
+    private lateinit var binding: ActivityEditBinding
+    private val viewModel: EditorModel by viewModels()
+    private lateinit var consoleImpl: ConsoleImpl
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        // 方案 A: 完全 Compose
+        setContent {
+            AppTheme {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // EditorView 作为 AndroidView 嵌入
+                    AndroidView(factory = { binding.root })
+                    // 悬浮日志面板
+                    LogSheet(consoleImpl, viewModel)
+                }
+            }
+        }
+        
+        // 或者 方案 B: ViewBinding + Compose 叠加
+        // binding = ActivityEditBinding.inflate(layoutInflater)
+        // setContentView(binding.root)
+        // binding.composeView.setContent { AppTheme { LogSheet(...) } }
+    }
+}
+```
+
+### 9.4 并行执行时间对比
+
+| 执行方式 | 总耗时 | 说明 |
+|----------|--------|------|
+| Material3 单独执行 | 11.5-14.5小时 | 不含 KSP 迁移 |
+| KSP 单独执行 | 45-69小时 | 不含 Material3 |
+| 串行执行合计 | 56-83小时 | 两计划依次执行 |
+| 并行执行合计 | 37-57小时 | 独立任务同时进行 |
+| **节省** | **19-26小时** | 约 35% |
+
+### 9.5 推荐执行顺序
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 阶段 1: 并行执行 (19-30小时)                                 │
+├─────────────────────────────────────────────────────────────┤
+│ Material3: 批次 1-6              KSP: 批次 A-F              │
+│ 3.5小时                         19-30小时                   │
+│                                                              │
+│ ⏱️ 实际耗时: max(3.5h, 19-30h) = 19-30小时                  │
+│                                                              │
+│ Material3 任务在此阶段可快速完成，等待 KSP 简单任务          │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 阶段 2: 合并重构 (8-12小时)                                  │
+├─────────────────────────────────────────────────────────────┤
+│ EditActivity 合并重构                                        │
+│ - 移除 @EActivity + ViewBinding (来自 KSP)                  │
+│ - Compose + LogSheet (来自 Material3)                       │
+│                                                              │
+│ 💡 这是两计划唯一冲突点，合并后一次性完成                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 阶段 3: 收尾并行 (10-15小时)                                 │
+├─────────────────────────────────────────────────────────────┤
+│ Material3: 批次 8-9             KSP: 批次 H-I               │
+│ 6-7小时                        10-15小时                    │
+│                                                              │
+│ ⏱️ 实际耗时: max(6-7h, 10-15h) = 10-15小时                  │
+│                                                              │
+│ Material3 主题升级与 KSP 复杂文件处理可并行                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 9.6 协调建议
+
+| 阶段 | 建议执行方式 |
+|------|-------------|
+| 阶段 1 | 可两人并行，或同一人先完成 Material3（快）再做 KSP |
+| 阶段 2 | 必须合并执行，避免重复工作 |
+| 阶段 3 | 可并行，但需确保 EditorView 重构（KSP）先完成 |
+
+---
+
 ## 十、变更记录
 
 | 日期 | 操作 | 说明 |
@@ -737,6 +859,7 @@ class ComposeFragment : Fragment() {
 | 2026-03-10 | 添加源码分析 | AutoX EditActivity、ConsoleView 分析 |
 | 2026-03-10 | 更新工作量估算 | 总计 11.5-14.5 小时 |
 | 2026-03-10 | 添加方案对比 | 方案A完全重构 vs 方案B混合 |
+| 2026-03-10 | 添加与 KSP 并行执行协调 | 合并 EditActivity 重构 |
 
 ---
 
