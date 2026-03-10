@@ -860,6 +860,107 @@ class EditActivity : BaseActivity() {
 | 2026-03-10 | 更新工作量估算 | 总计 11.5-14.5 小时 |
 | 2026-03-10 | 添加方案对比 | 方案A完全重构 vs 方案B混合 |
 | 2026-03-10 | 添加与 KSP 并行执行协调 | 合并 EditActivity 重构 |
+| 2026-03-10 | 添加 Android 兼容性分析 | minSdk 需升级到 21 |
+
+---
+
+## 十一、Android 兼容性分析
+
+### 11.1 当前项目配置
+
+| 配置项 | 当前值 | Compose 要求 | 差距 |
+|--------|--------|-------------|------|
+| minSdk | 19 | **21** | ⚠️ 需升级 |
+| targetSdk | 34 | - | ✅ 满足 |
+| compileSdk | 34 | - | ✅ 满足 |
+
+### 11.2 Compose 组件兼容性
+
+| 组件 | 最低 API | Android 8 (API 26) | 说明 |
+|------|----------|-------------------|------|
+| Jetpack Compose | API 21 | ✅ 兼容 (26 > 21) | 满足要求 |
+| Material3 组件 | API 21 | ✅ 兼容 | 满足要求 |
+| ModalBottomSheet | API 21 | ✅ 兼容 | 满足要求 |
+| AndroidView | API 21 | ✅ 兼容 | 满足要求 |
+| ViewModel Compose | API 21 | ✅ 兼容 | 满足要求 |
+| 动态颜色 (Dynamic Color) | API 31 | ⚠️ 不支持 | 需降级处理 |
+
+### 11.3 必须升级 minSdk
+
+```
+当前: minSdk = 19 (Android 4.4)
+Compose 要求: minSdk >= 21 (Android 5.0)
+
+⚠️ 必须升级才能使用 Compose
+```
+
+**升级配置**：
+
+```json
+// project-versions.json
+{
+  "mini": 21,  // 从 19 升级到 21
+  "target": 34,
+  "compile": 34
+}
+```
+
+### 11.4 动态颜色降级方案
+
+Material3 的动态颜色是 Android 12+ 特性，需要在代码中处理降级：
+
+```kotlin
+// Theme.kt - AutoX 已有的降级处理
+val colorScheme = when {
+    // Android 12+ 动态颜色
+    dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        val context = LocalContext.current
+        if (darkTheme) dynamicDarkColorScheme(context) 
+        else dynamicLightColorScheme(context)
+    }
+    // Android 5-11 使用预设颜色
+    darkTheme -> darkScheme
+    else -> lightScheme
+}
+```
+
+### 11.5 兼容性测试矩阵
+
+| 功能 | Android 5-7 (API 21-25) | Android 8-11 (API 26-30) | Android 12+ (API 31+) |
+|------|-------------------------|--------------------------|----------------------|
+| Compose UI | ✅ 正常 | ✅ 正常 | ✅ 正常 |
+| Material3 主题 | ✅ 预设颜色 | ✅ 预设颜色 | ✅ 动态颜色 |
+| 悬浮日志面板 | ✅ 正常 | ✅ 正常 | ✅ 正常 |
+| ModalBottomSheet | ✅ 正常 | ✅ 正常 | ✅ 正常 |
+| ConsoleView | ✅ 正常 | ✅ 正常 | ✅ 正常 |
+| 动态取色 | ❌ 不支持 | ❌ 不支持 | ✅ 支持 |
+
+### 11.6 升级影响评估
+
+| 指标 | 数据 | 来源 |
+|------|------|------|
+| Android 4.4 (API 19) 市场份额 | ~0.5% | 2024 统计 |
+| Android 5.0 (API 21) 市场份额 | ~1.5% | 2024 统计 |
+| Android 5.0+ 覆盖率 | ~98% | 2024 统计 |
+| **放弃用户比例** | **~0.5%** | 极少 |
+
+### 11.7 结论
+
+| 项目 | 结论 |
+|------|------|
+| **Android 8 兼容性** | ✅ **完全兼容** |
+| minSdk 升级 | 必须（19 → 21） |
+| 功能差异 | 仅动态颜色（Android 12+ 特性） |
+| 用户影响 | ~0.5%（极小） |
+
+**Android 5-11 用户将获得**：
+- 完整的 Material3 主题（预设颜色方案）
+- 悬浮日志面板功能
+- 更现代的 UI 体验
+- 所有核心功能正常工作
+
+**Android 12+ 用户额外获得**：
+- 动态取色（根据壁纸自动调整主题色）
 
 ---
 
