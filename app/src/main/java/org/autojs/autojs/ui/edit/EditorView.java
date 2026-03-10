@@ -10,45 +10,38 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.AttributeSet;
+import android.util.SparseBooleanArray;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.SparseBooleanArray;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.stardust.pio.IFileProvider;
-import com.stardust.pio.FileProviderFactory;
-
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.stardust.autojs.engine.JavaScriptEngine;
 import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.execution.ScriptExecution;
+import com.stardust.pio.FileProviderFactory;
 import com.stardust.pio.IFileProvider;
 import com.stardust.pio.PFiles;
 import com.stardust.util.BackPressedHandler;
 import com.stardust.util.Callback;
 import com.stardust.util.ViewUtils;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EViewGroup;
-import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
+import org.autojs.autojs.databinding.EditorViewBinding;
 import org.autojs.autojs.model.autocomplete.AutoCompletion;
 import org.autojs.autojs.model.autocomplete.CodeCompletion;
 import org.autojs.autojs.model.autocomplete.CodeCompletions;
@@ -66,7 +59,6 @@ import org.autojs.autojs.ui.edit.keyboard.FunctionsKeyboardView;
 import org.autojs.autojs.ui.edit.theme.Theme;
 import org.autojs.autojs.ui.edit.theme.Themes;
 import org.autojs.autojs.ui.edit.toolbar.DebugToolbarFragment;
-import org.autojs.autojs.ui.edit.toolbar.DebugToolbarFragment_;
 import org.autojs.autojs.ui.edit.toolbar.NormalToolbarFragment;
 import org.autojs.autojs.ui.edit.toolbar.SearchToolbarFragment;
 import org.autojs.autojs.ui.edit.toolbar.ToolbarFragment;
@@ -91,7 +83,6 @@ import static org.autojs.autojs.model.script.Scripts.EXTRA_STACK_TRACE;
 /**
  * Created by Stardust on 2017/9/28.
  */
-@EViewGroup(R.layout.editor_view)
 public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintClickListener, FunctionsKeyboardView.ClickCallback, ToolbarFragment.OnMenuItemClickListener {
 
     /**
@@ -108,32 +99,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     public static final String EXTRA_SAVE_ENABLED = "saveEnabled";
     public static final String EXTRA_RUN_ENABLED = "runEnabled";
 
-    @ViewById(R.id.editor)
-    CodeEditor mEditor;
-
-    @ViewById(R.id.code_completion_bar)
-    CodeCompletionBar mCodeCompletionBar;
-
-    @ViewById(R.id.input_method_enhance_bar)
-    View mInputMethodEnhanceBar;
-
-    @ViewById(R.id.symbol_bar)
-    CodeCompletionBar mSymbolBar;
-
-    @ViewById(R.id.functions)
-    ImageView mShowFunctionsButton;
-
-    @ViewById(R.id.functions_keyboard)
-    FunctionsKeyboardView mFunctionsKeyboard;
-
-    @ViewById(R.id.debug_bar)
-    DebugBar mDebugBar;
-
-    @ViewById(R.id.docs)
-    EWebView mDocsWebView;
-
-    @ViewById(R.id.drawer_layout)
-    DrawerLayout mDrawerLayout;
+    private EditorViewBinding binding;
 
     private String mName;
     private Uri mUri;
@@ -159,11 +125,11 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 
                 // 解析堆栈帧
                 java.util.ArrayList<CodeEditor.StackFrame> frames = parseStackTrace(stackTrace, line, col);
-                mEditor.setStackFrames(frames);
+                binding.editor.setStackFrames(frames);
                 
                 // 跳转到第一个错误位置
                 if (line >= 1) {
-                    mEditor.jumpTo(line - 1, col);
+                    binding.editor.jumpTo(line - 1, col);
                 }
                 if (msg != null) {
                     showErrorMessage(msg);
@@ -225,14 +191,33 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     public EditorView(Context context) {
         super(context);
+        init(context);
     }
 
     public EditorView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public EditorView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        binding = EditorViewBinding.inflate(LayoutInflater.from(context), this);
+        
+        //setTheme(Theme.getDefault(getContext()));
+        setUpEditor();
+        setUpInputMethodEnhancedBar();
+        setUpFunctionsKeyboard();
+        setMenuItemStatus(R.id.save, false);
+        binding.docs.getWebView().getSettings().setDisplayZoomControls(true);
+        binding.docs.getWebView().loadUrl(Pref.getDocumentationUrl() + "index.html");
+        Themes.getCurrent(getContext())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setTheme);
+        initNormalToolbar();
     }
 
     @Override
@@ -271,14 +256,14 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                         findViewById(R.id.run).setVisibility(GONE);
                     }
                     if (mReadOnly) {
-                        mEditor.setReadOnly(true);
+                        binding.editor.setReadOnly(true);
                     }
                 });
     }
 
     public void setRestoredText(String text) {
         mRestoredText = text;
-        mEditor.setText(text);
+        binding.editor.setText(text);
     }
 
     private Observable<String> handleText(Intent intent) {
@@ -307,7 +292,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     @SuppressLint("CheckResult")
     private Observable<String> loadUri(final Uri uri) {
-        mEditor.setProgress(true);
+        binding.editor.setProgress(true);
         return Observable.fromCallable(() -> {
                     // 对于 file:// URI，使用 FileProviderFactory 读取文件
                     // 这支持 SAF 模式和完全访问模式
@@ -321,17 +306,17 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(s -> {
                     setInitialText(s);
-                    mEditor.setProgress(false);
+                    binding.editor.setProgress(false);
                 });
     }
 
     private void setInitialText(String text) {
         if (mRestoredText != null) {
-            mEditor.setText(mRestoredText);
+            binding.editor.setText(mRestoredText);
             mRestoredText = null;
             return;
         }
-        mEditor.setInitialText(text);
+        binding.editor.setInitialText(text);
     }
 
 
@@ -348,21 +333,6 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     public boolean getMenuItemStatus(int id, boolean defValue) {
         return mMenuItemStatus.get(id, defValue);
-    }
-
-    @AfterViews
-    void init() {
-        //setTheme(Theme.getDefault(getContext()));
-        setUpEditor();
-        setUpInputMethodEnhancedBar();
-        setUpFunctionsKeyboard();
-        setMenuItemStatus(R.id.save, false);
-        mDocsWebView.getWebView().getSettings().setDisplayZoomControls(true);
-        mDocsWebView.getWebView().loadUrl(Pref.getDocumentationUrl() + "index.html");
-        Themes.getCurrent(getContext())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::setTheme);
-        initNormalToolbar();
     }
 
     private void initNormalToolbar() {
@@ -382,31 +352,31 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
     private void setUpFunctionsKeyboard() {
         mFunctionsKeyboardHelper = FunctionsKeyboardHelper.with((Activity) getContext())
-                .setContent(mEditor)
-                .setFunctionsTrigger(mShowFunctionsButton)
-                .setFunctionsView(mFunctionsKeyboard)
-                .setEditView(mEditor.getCodeEditText())
+                .setContent(binding.editor)
+                .setFunctionsTrigger(binding.functions)
+                .setFunctionsView(binding.functionsKeyboard)
+                .setEditView(binding.editor.getCodeEditText())
                 .build();
-        mFunctionsKeyboard.setClickCallback(this);
+        binding.functionsKeyboard.setClickCallback(this);
     }
 
     private void setUpInputMethodEnhancedBar() {
-        mSymbolBar.setCodeCompletions(Symbol.getSymbols());
-        mCodeCompletionBar.setOnHintClickListener(this);
-        mSymbolBar.setOnHintClickListener(this);
-        mAutoCompletion = new AutoCompletion(getContext(), mEditor.getCodeEditText());
-        mAutoCompletion.setAutoCompleteCallback(mCodeCompletionBar::setCodeCompletions);
+        binding.symbolBar.setCodeCompletions(Symbol.getSymbols());
+        binding.codeCompletionBar.setOnHintClickListener(this);
+        binding.symbolBar.setOnHintClickListener(this);
+        mAutoCompletion = new AutoCompletion(getContext(), binding.editor.getCodeEditText());
+        mAutoCompletion.setAutoCompleteCallback(binding.codeCompletionBar::setCodeCompletions);
     }
 
 
     private void setUpEditor() {
-        mEditor.getCodeEditText().addTextChangedListener(new SimpleTextWatcher(s -> {
-            setMenuItemStatus(R.id.save, mEditor.isTextChanged());
-            setMenuItemStatus(R.id.undo, mEditor.canUndo());
-            setMenuItemStatus(R.id.redo, mEditor.canRedo());
+        binding.editor.getCodeEditText().addTextChangedListener(new SimpleTextWatcher(s -> {
+            setMenuItemStatus(R.id.save, binding.editor.isTextChanged());
+            setMenuItemStatus(R.id.undo, binding.editor.canUndo());
+            setMenuItemStatus(R.id.redo, binding.editor.canRedo());
         }));
-        mEditor.addCursorChangeCallback(this::autoComplete);
-        mEditor.getCodeEditText().setTextSize(Pref.getEditorTextSize((int) ViewUtils.pxToSp(getContext(), mEditor.getCodeEditText().getTextSize())));
+        binding.editor.addCursorChangeCallback(this::autoComplete);
+        binding.editor.getCodeEditText().setTextSize(Pref.getEditorTextSize((int) ViewUtils.pxToSp(getContext(), binding.editor.getCodeEditText().getTextSize())));
     }
 
     private void autoComplete(String line, int cursor) {
@@ -414,26 +384,26 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public DebugBar getDebugBar() {
-        return mDebugBar;
+        return binding.debugBar;
     }
 
     public void setTheme(Theme theme) {
         mEditorTheme = theme;
-        mEditor.setTheme(theme);
-        mInputMethodEnhanceBar.setBackgroundColor(theme.getImeBarBackgroundColor());
+        binding.editor.setTheme(theme);
+        binding.inputMethodEnhanceBar.setBackgroundColor(theme.getImeBarBackgroundColor());
         int textColor = theme.getImeBarForegroundColor();
-        mCodeCompletionBar.setTextColor(textColor);
-        mSymbolBar.setTextColor(textColor);
-        mShowFunctionsButton.setColorFilter(textColor);
+        binding.codeCompletionBar.setTextColor(textColor);
+        binding.symbolBar.setTextColor(textColor);
+        binding.functions.setColorFilter(textColor);
         invalidate();
     }
 
     public boolean onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            if (mDocsWebView.getWebView().canGoBack()) {
-                mDocsWebView.getWebView().goBack();
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            if (binding.docs.getWebView().canGoBack()) {
+                binding.docs.getWebView().goBack();
             } else {
-                mDrawerLayout.closeDrawer(GravityCompat.START);
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
             }
             return true;
         }
@@ -492,11 +462,11 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
 
 
     public void undo() {
-        mEditor.undo();
+        binding.editor.undo();
     }
 
     public void redo() {
-        mEditor.redo();
+        binding.editor.redo();
     }
 
     public Observable<String> save() {
@@ -504,7 +474,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
         // 使用 FileProviderFactory 创建备份，支持 SAF 模式
         IFileProvider provider = FileProviderFactory.getProvider(path);
         provider.copy(path, path + ".bak");
-        return Observable.just(mEditor.getText())
+        return Observable.just(binding.editor.getText())
                 .observeOn(Schedulers.io())
                 .doOnNext(s -> {
                     // 对于 file:// URI，使用 FileProviderFactory 写入文件
@@ -518,7 +488,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(s -> {
-                    mEditor.markTextAsSaved();
+                    binding.editor.markTextAsSaved();
                     setMenuItemStatus(R.id.save, false);
                 });
     }
@@ -548,11 +518,11 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     void findNext() {
-        mEditor.findNext();
+        binding.editor.findNext();
     }
 
     void findPrev() {
-        mEditor.findPrev();
+        binding.editor.findPrev();
     }
 
     void cancelSearch() {
@@ -574,7 +544,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     void replace() {
-        mEditor.replaceSelection();
+        binding.editor.replaceSelection();
     }
 
     public String getName() {
@@ -582,7 +552,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public boolean isTextChanged() {
-        return mEditor.isTextChanged();
+        return binding.editor.isTextChanged();
     }
 
     public void showConsole() {
@@ -614,30 +584,30 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public void beautifyCode() {
-        mEditor.beautifyCode();
+        binding.editor.beautifyCode();
     }
 
     public void selectEditorTheme() {
-        mEditor.setProgress(true);
+        binding.editor.setProgress(true);
         Themes.getAllThemes(getContext())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(themes -> {
-                    mEditor.setProgress(false);
+                    binding.editor.setProgress(false);
                     selectEditorTheme(themes);
                 });
     }
 
     public void selectTextSize() {
         new TextSizeSettingDialogBuilder(getContext())
-                .initialValue((int) ViewUtils.pxToSp(getContext(), mEditor.getCodeEditText().getTextSize()))
+                .initialValue((int) ViewUtils.pxToSp(getContext(), binding.editor.getCodeEditText().getTextSize()))
                 .callback(this::setTextSize)
                 .show();
     }
 
     public void setTextSize(int value) {
         Pref.setEditorTextSize(value);
-        mEditor.getCodeEditText().setTextSize(value);
+        binding.editor.getCodeEditText().setTextSize(value);
     }
 
     private void selectEditorTheme(List<Theme> themes) {
@@ -657,11 +627,11 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public CodeEditor getEditor() {
-        return mEditor;
+        return binding.editor;
     }
 
     public void find(String keywords, boolean usingRegex) throws CodeEditor.CheckedPatternSyntaxException {
-        mEditor.find(keywords, usingRegex);
+        binding.editor.find(keywords, usingRegex);
         showSearchToolbar(false);
     }
 
@@ -677,23 +647,22 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public void replace(String keywords, String replacement, boolean usingRegex) throws CodeEditor.CheckedPatternSyntaxException {
-        mEditor.replace(keywords, replacement, usingRegex);
+        binding.editor.replace(keywords, replacement, usingRegex);
         showSearchToolbar(true);
     }
 
     public void replaceAll(String keywords, String replacement, boolean usingRegex) throws CodeEditor.CheckedPatternSyntaxException {
-        mEditor.replaceAll(keywords, replacement, usingRegex);
+        binding.editor.replaceAll(keywords, replacement, usingRegex);
     }
 
 
     public void debug() {
-        DebugToolbarFragment debugToolbarFragment = DebugToolbarFragment_.builder()
-                .build();
+        DebugToolbarFragment debugToolbarFragment = new DebugToolbarFragment();
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.toolbar_menu, debugToolbarFragment)
                 .commit();
-        mDebugBar.setVisibility(VISIBLE);
-        mInputMethodEnhanceBar.setVisibility(GONE);
+        binding.debugBar.setVisibility(VISIBLE);
+        binding.inputMethodEnhanceBar.setVisibility(GONE);
         mDebugging = true;
     }
 
@@ -704,9 +673,9 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
             ((DebugToolbarFragment) fragment).detachDebugger();
         }
         showNormalToolbar();
-        mEditor.setDebuggingLine(-1);
-        mDebugBar.setVisibility(GONE);
-        mInputMethodEnhanceBar.setVisibility(VISIBLE);
+        binding.editor.setDebuggingLine(-1);
+        binding.debugBar.setVisibility(GONE);
+        binding.inputMethodEnhanceBar.setVisibility(VISIBLE);
         mDebugging = false;
     }
 
@@ -719,7 +688,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     @Override
     public void onHintClick(CodeCompletions completions, int pos) {
         CodeCompletion completion = completions.get(pos);
-        mEditor.insert(completion.getInsertText());
+        binding.editor.insert(completion.getInsertText());
     }
 
     @Override
@@ -740,8 +709,8 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
                 .title(title)
                 .url(absUrl)
                 .pinToLeft(v -> {
-                    mDocsWebView.getWebView().loadUrl(absUrl);
-                    mDrawerLayout.openDrawer(GravityCompat.START);
+                    binding.docs.getWebView().loadUrl(absUrl);
+                    binding.drawerLayout.openDrawer(GravityCompat.START);
                 })
                 .show();
     }
@@ -758,12 +727,12 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
             p = p + "()";
         }
         if (property.isGlobal()) {
-            mEditor.insert(p);
+            binding.editor.insert(p);
         } else {
-            mEditor.insert(m.getName() + "." + p);
+            binding.editor.insert(m.getName() + "." + p);
         }
         if (!property.isVariable()) {
-            mEditor.moveCursor(-1);
+            binding.editor.moveCursor(-1);
         }
         mFunctionsKeyboardHelper.hideFunctionsLayout(true);
     }
@@ -806,7 +775,7 @@ public class EditorView extends FrameLayout implements CodeCompletionBar.OnHintC
     }
 
     public void destroy() {
-        mEditor.destroy();
+        binding.editor.destroy();
         mAutoCompletion.shutdown();
     }
 }
