@@ -20,10 +20,10 @@
     <color name="divider">#f2f3f5</color>
     <color name="drawer_menu_item_text_color">#484C4F</color>
     <color name="drawer_menu_group_text_color">#999999</color>
-    <color name="tab_indicator">@android:color/white</color>
-    <color name="tab_text">#a0ffffff</color>
-    <color name="toolbar">@android:color/white</color>
-    <color name="toolbar_disabled">#77e0e0e0</color>
+    <color name="tab_indicator">@color/md_theme_primary</color>
+    <color name="tab_text">#5F676A</color>
+    <color name="toolbar">#171D1E</color>
+    <color name="toolbar_disabled">#9DA0A2</color>
     <color name="console_debug">#cc000000</color>
     <color name="console_verbose">#dfc0c0c0</color>
     <color name="market_button_selected">#e14123</color>
