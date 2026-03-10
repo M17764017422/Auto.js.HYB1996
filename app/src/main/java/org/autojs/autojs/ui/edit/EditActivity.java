@@ -122,6 +122,13 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
             // Show log bottom sheet
             org.autojs.autojs.ui.log.LogBottomSheet bottomSheet = 
                 org.autojs.autojs.ui.log.LogBottomSheet.newInstance(scriptName, scriptPath);
+            
+            // Set up stack frame click listener for jumping to source lines
+            bottomSheet.setOnStackFrameClickListener((fileName, lineNumber, columnNumber) -> {
+                // Jump to the specified line in the editor
+                mEditorView.getEditor().jumpTo(lineNumber, columnNumber);
+            });
+            
             bottomSheet.show(getSupportFragmentManager(), "LogBottomSheet");
         });
     }

@@ -210,6 +210,8 @@
     <string name="text_no_error_line">没有错误行</string>
     <string name="text_error_line_info">错误 %1$d/%2$d: 行 %3$d</string>
     <string name="text_stack_frame_info">堆栈 %1$d/%2$d: %3$s() 行 %4$d</string>
+    <string name="text_stack_frame_location">%1$s:%2$d%3$s</string>
+    <string name="text_stack_frames">堆栈帧</string>
     <string name="text_exit_floating_window">退出悬浮窗</string>
     <string name="text_select_save_path">保存到</string>
     <string name="text_cancel_download">取消下载</string>

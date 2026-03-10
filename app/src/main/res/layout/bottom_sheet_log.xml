@@ -67,6 +67,38 @@
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"/>
 
+    <!-- Stack Frames List (initially hidden) -->
+    <LinearLayout
+        android:id="@+id/stack_frames_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:text="@string/text_stack_frames"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_stack_frames"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="150dp"
+            android:nestedScrollingEnabled="true"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
+
+    </LinearLayout>
+
     <!-- Console View -->
     <FrameLayout
         android:layout_width="match_parent"
