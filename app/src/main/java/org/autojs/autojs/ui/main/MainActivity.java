@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentContainerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -35,14 +36,11 @@ import com.stardust.util.BackPressedHandler;
 import com.stardust.util.DeveloperUtils;
 import com.stardust.util.DrawerAutoClose;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.BuildConfig;
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
+import org.autojs.autojs.databinding.ActivityMainBinding;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.model.explorer.Explorers;
 import org.autojs.autojs.storage.StoragePermissionHelper;
@@ -52,7 +50,6 @@ import org.autojs.autojs.ui.common.NotAskAgainDialog;
 import org.autojs.autojs.ui.doc.DocsFragment;
 import org.autojs.autojs.ui.floating.FloatyWindowManger;
 import org.autojs.autojs.ui.log.LogActivity;
-import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.main.market.MarketFragment;
 import org.autojs.autojs.ui.main.scripts.MyScriptListFragment;
@@ -66,7 +63,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Arrays;
 
-@EActivity(R.layout.activity_main)
 public class MainActivity extends BaseActivity implements OnActivityResultDelegate.DelegateHost, BackPressedHandler.HostActivity, PermissionRequestProxyActivity {
 
     public static class DrawerOpenEvent {
@@ -75,14 +71,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     private static final String LOG_TAG = "MainActivity";
 
-    @ViewById(R.id.drawer_layout)
-    DrawerLayout mDrawerLayout;
-
-    @ViewById(R.id.viewpager)
-    ViewPager mViewPager;
-
-    @ViewById(R.id.fab)
-    FloatingActionButton mFab;
+    private ActivityMainBinding binding;
 
     private FragmentPagerAdapterBuilder.StoredFragmentPagerAdapter mPagerAdapter;
     private OnActivityResultDelegate.Mediator mActivityResultMediator = new OnActivityResultDelegate.Mediator();
@@ -97,28 +86,42 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
         checkPermissions();
         showAccessibilitySettingPromptIfDisabled();
         mVersionGuard = new VersionGuard(this);
         showAnnunciationIfNeeded();
         EventBus.getDefault().register(this);
         applyDayNightMode();
+        
+        setUpViews();
     }
 
-    @AfterViews
-    void setUpViews() {
+    private void setUpViews() {
         setUpToolbar();
         setUpTabViewPager();
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         registerBackPressHandlers();
-        ThemeColorManager.addViewBackground(findViewById(R.id.app_bar));
-        mDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+        ThemeColorManager.addViewBackground(binding.appBar);
+        binding.drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerOpened(View drawerView) {
                 EventBus.getDefault().post(DrawerOpenEvent.SINGLETON);
             }
         });
+        
+        // 设置侧边栏底部按钮点击监听器（在 fragment_drawer 布局中）
+        View settingBtn = findViewById(R.id.setting);
+        View exitBtn = findViewById(R.id.exit);
+        if (settingBtn != null) {
+            settingBtn.setOnClickListener(v -> startSettingActivity());
+        }
+        if (exitBtn != null) {
+            exitBtn.setOnClickListener(v -> exitCompletely());
+        }
     }
 
     private void showAnnunciationIfNeeded() {
@@ -136,7 +139,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
 
     private void registerBackPressHandlers() {
-        mBackPressObserver.registerHandler(new DrawerAutoClose(mDrawerLayout, Gravity.START));
+        mBackPressObserver.registerHandler(new DrawerAutoClose(binding.drawerLayout, Gravity.START));
         mBackPressObserver.registerHandler(new BackPressedHandler.DoublePressExit(this, R.string.text_press_again_to_exit));
     }
 
@@ -190,17 +193,17 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     }
 
     private void setUpToolbar() {
-        Toolbar toolbar = $(R.id.toolbar);
+        Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.app_name);
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.text_drawer_open,
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, toolbar, R.string.text_drawer_open,
                 R.string.text_drawer_close);
         drawerToggle.syncState();
-        mDrawerLayout.addDrawerListener(drawerToggle);
+        binding.drawerLayout.addDrawerListener(drawerToggle);
     }
 
     private void setUpTabViewPager() {
-        TabLayout tabLayout = $(R.id.tab);
+        TabLayout tabLayout = binding.tab;
         mPagerAdapter = new FragmentPagerAdapterBuilder(this)
                 .add(new MyScriptListFragment(), R.string.text_file)
                 .add(new DocsFragment(), R.string.text_tutorial)
@@ -208,19 +211,19 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
                 .add(new MarketFragment(), R.string.text_market)
                 .add(new TaskManagerFragment(), R.string.text_manage)
                 .build();
-        mViewPager.setAdapter(mPagerAdapter);
-        tabLayout.setupWithViewPager(mViewPager);
+        binding.viewpager.setAdapter(mPagerAdapter);
+        tabLayout.setupWithViewPager(binding.viewpager);
         setUpViewPagerFragmentBehaviors();
     }
 
     private void setUpViewPagerFragmentBehaviors() {
         mPagerAdapter.setOnFragmentInstantiateListener((pos, fragment) -> {
-            ((ViewPagerFragment) fragment).setFab(mFab);
-            if (pos == mViewPager.getCurrentItem()) {
+            ((ViewPagerFragment) fragment).setFab(binding.fab);
+            if (pos == binding.viewpager.getCurrentItem()) {
                 ((ViewPagerFragment) fragment).onPageShow();
             }
         });
-        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        binding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             private ViewPagerFragment mPreviousFragment;
 
             @Override
@@ -238,12 +241,10 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
     }
 
 
-    @Click(R.id.setting)
-    void startSettingActivity() {
+    private void startSettingActivity() {
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    @Click(R.id.exit)
     public void exitCompletely() {
         finish();
         FloatyWindowManger.hideCircularMenu();
@@ -321,7 +322,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     @Override
     public void onBackPressed() {
-        Fragment fragment = mPagerAdapter.getStoredFragment(mViewPager.getCurrentItem());
+        Fragment fragment = mPagerAdapter.getStoredFragment(binding.viewpager.getCurrentItem());
         if (fragment instanceof BackPressedHandler) {
             if (((BackPressedHandler) fragment).onBackPressed(this)) {
                 return;
@@ -373,7 +374,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     @Subscribe
     public void onLoadUrl(CommunityFragment.LoadUrl loadUrl) {
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
 
@@ -381,7 +382,7 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
         mSearchViewItem = new SearchViewItem(this, searchMenuItem) {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                if (mViewPager.getCurrentItem() == 1) {
+                if (binding.viewpager.getCurrentItem() == 1) {
                     mDocsSearchItemExpanded = true;
                     mLogMenuItem.setIcon(R.drawable.ic_ali_up);
                 }

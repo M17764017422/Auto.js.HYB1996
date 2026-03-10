@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ import com.stardust.notification.NotificationListenerService;
 
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
+import org.autojs.autojs.databinding.FragmentDrawerBinding;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.network.UserService;
 import org.autojs.autojs.tool.Observers;
@@ -45,7 +48,7 @@ import org.autojs.autojs.network.entity.VersionInfo;
 import org.autojs.autojs.tool.SimpleObserver;
 import org.autojs.autojs.ui.main.MainActivity;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
-import org.autojs.autojs.ui.user.LoginActivity_;
+import org.autojs.autojs.ui.user.LoginActivity;
 import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
 import org.autojs.autojs.ui.user.WebActivity;
@@ -63,11 +66,6 @@ import org.autojs.autojs.tool.WifiTool;
 
 import com.stardust.util.IntentUtil;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
-import org.autojs.autojs.ui.widget.BackgroundTarget;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -77,6 +75,7 @@ import java.util.Arrays;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -85,24 +84,11 @@ import io.reactivex.schedulers.Schedulers;
  * Created by Stardust on 2017/1/30.
  * TODO these codes are so ugly!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-@EFragment(R.layout.fragment_drawer)
 public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     private static final String URL_DEV_PLUGIN = "https://www.autojs.org/topic/968/";
 
-    @ViewById(R.id.header)
-    View mHeaderView;
-    @ViewById(R.id.username)
-    TextView mUserName;
-    @ViewById(R.id.avatar)
-    AvatarView mAvatar;
-    @ViewById(R.id.shadow)
-    View mShadow;
-    @ViewById(R.id.default_cover)
-    View mDefaultCover;
-    @ViewById(R.id.drawer_menu)
-    RecyclerView mDrawerMenu;
-
+    private FragmentDrawerBinding binding;
 
     private DrawerMenuItem mConnectionItem = new DrawerMenuItem(R.drawable.ic_connect_to_pc, R.string.debug, 0, this::connectOrDisconnectToRemote);
     private DrawerMenuItem mAccessibilityServiceItem = new DrawerMenuItem(R.drawable.ic_service_green, R.string.text_accessibility_service, 0, this::enableOrDisableAccessibilityService);
@@ -123,14 +109,14 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     private DrawerMenuItem mCheckForUpdatesItem = new DrawerMenuItem(R.drawable.ic_check_for_updates, R.string.text_check_for_updates, this::checkForUpdates);
 
     private DrawerMenuAdapter mDrawerMenuAdapter;
-    private Disposable mConnectionStateDisposable;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private CommunityDrawerMenu mCommunityDrawerMenu = new CommunityDrawerMenu();
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mConnectionStateDisposable = DevPluginService.getInstance().connectionState()
+        Disposable connectionDisposable = DevPluginService.getInstance().connectionState()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(state -> {
                     if (mConnectionItem != null) {
@@ -141,13 +127,25 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                         showMessage(state.getException().getMessage());
                     }
                 });
+        compositeDisposable.add(connectionDisposable);
         EventBus.getDefault().register(this);
-
     }
 
-    @AfterViews
-    void setUpViews() {
-        ThemeColorManager.addViewBackground(mHeaderView);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentDrawerBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpViews();
+    }
+
+    private void setUpViews() {
+        ThemeColorManager.addViewBackground(binding.header);
         initMenuItems();
         if (Pref.isFloatingMenuShown()) {
             FloatyWindowManger.showCircularMenuIfNeeded();
@@ -158,6 +156,9 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
             ForegroundService.start(GlobalAppContext.get());
             setChecked(mForegroundServiceItem, true);
         }
+        
+        // 设置头像点击监听器
+        binding.avatar.setOnClickListener(v -> loginOrShowUserInfo());
     }
 
     private void initMenuItems() {
@@ -179,13 +180,12 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                 new DrawerMenuItem(R.drawable.ic_night_mode, R.string.text_night_mode, R.string.key_night_mode, this::toggleNightMode),
                 mCheckForUpdatesItem
         )));
-        mDrawerMenu.setAdapter(mDrawerMenuAdapter);
-        mDrawerMenu.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.drawerMenu.setAdapter(mDrawerMenuAdapter);
+        binding.drawerMenu.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
 
     @SuppressLint("CheckResult")
-    @Click(R.id.avatar)
     void loginOrShowUserInfo() {
         UserService.getInstance()
                 .me()
@@ -202,7 +202,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                         error -> {
                             if (getActivity() == null)
                                 return;
-                            LoginActivity_.intent(getActivity()).start();
+                            startActivity(new Intent(getActivity(), LoginActivity.class));
                         }
                 );
     }
@@ -380,34 +380,34 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
     private void setUpUserInfo(@Nullable User user) {
-        if (mUserName == null || mAvatar == null)
+        if (binding == null)
             return;
         if (user == null) {
-            mUserName.setText(R.string.not_login);
-            mAvatar.setIcon(R.drawable.profile_avatar_placeholder);
+            binding.username.setText(R.string.not_login);
+            binding.avatar.setIcon(R.drawable.profile_avatar_placeholder);
         } else {
-            mUserName.setText(user.getUsername());
-            mAvatar.setUser(user);
+            binding.username.setText(user.getUsername());
+            binding.avatar.setUser(user);
         }
         setCoverImage(user);
     }
 
     private void setCoverImage(User user) {
-        if (mDefaultCover == null || mShadow == null || mHeaderView == null)
+        if (binding == null)
             return;
         if (user == null || TextUtils.isEmpty(user.getCoverUrl()) || user.getCoverUrl().equals("/assets/images/cover-default.png")) {
-            mDefaultCover.setVisibility(View.VISIBLE);
-            mShadow.setVisibility(View.GONE);
-            mHeaderView.setBackgroundColor(ThemeColorManagerCompat.getColorPrimary());
+            binding.defaultCover.setVisibility(View.VISIBLE);
+            binding.shadow.setVisibility(View.GONE);
+            binding.header.setBackgroundColor(ThemeColorManagerCompat.getColorPrimary());
         } else {
-            mDefaultCover.setVisibility(View.GONE);
-            mShadow.setVisibility(View.VISIBLE);
+            binding.defaultCover.setVisibility(View.GONE);
+            binding.shadow.setVisibility(View.VISIBLE);
             Glide.with(this)
                     .load(NodeBB.BASE_URL + user.getCoverUrl())
                     .apply(new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                     )
-                    .into(new BackgroundTarget(mHeaderView));
+                    .into(new BackgroundTarget(binding.header));
         }
     }
 
@@ -431,7 +431,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     private void enableAccessibilityServiceByRoot() {
         setProgress(mAccessibilityServiceItem, true);
-        Observable.fromCallable(() -> AccessibilityServiceTool.enableAccessibilityServiceByRootAndWaitFor(4000))
+        Disposable disposable = Observable.fromCallable(() -> AccessibilityServiceTool.enableAccessibilityServiceByRootAndWaitFor(4000))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(succeed -> {
@@ -441,6 +441,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                     }
                     setProgress(mAccessibilityServiceItem, false);
                 });
+        compositeDisposable.add(disposable);
     }
 
 
@@ -456,7 +457,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         } else {
             mCommunityDrawerMenu.hideCommunityMenu(mDrawerMenuAdapter);
         }
-        mDrawerMenu.scrollToPosition(0);
+        binding.drawerMenu.scrollToPosition(0);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -485,9 +486,15 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        mConnectionStateDisposable.dispose();
+        compositeDisposable.clear();
         EventBus.getDefault().unregister(this);
     }
 

@@ -85,7 +85,7 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
     }
 
     private static Intent newIntent(Context context, boolean newTask) {
-        Intent intent = new Intent(context, EditActivity_.class);
+        Intent intent = new Intent(context, EditActivity.class);
         if (newTask || !(context instanceof Activity)) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
@@ -214,7 +214,7 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
             super.finish();
         }
         if (mNewTask) {
-            startActivity(new Intent(this, MainActivity_.class));
+            startActivity(new Intent(this, MainActivity.class));
         }
     }
 

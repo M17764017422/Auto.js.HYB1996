@@ -42,7 +42,24 @@
 
 ## 二、执行策略
 
-### 2.1 合并重构策略
+### 2.1 合并重构 + 逐步验证策略
+
+**核心理念**：合并重构提高效率，逐步验证确保安全
+
+```
+合并重构 = 减少重复工作（效率）
+逐步验证 = 每批次独立测试（安全）
+
+两者结合 = 高效 + 安全
+```
+
+**关键原则**：
+1. 每批次完成后立即验证，不等待其他批次
+2. 每批次完成后提交中间版本，方便回滚
+3. 编译验证优先，确保代码可编译再进行功能测试
+4. 合并重构保持效率，避免重复修改同一文件
+
+### 2.2 合并重构策略
 
 **EditActivity 合并处理**：同时完成 KSP 迁移和 Material3 集成
 
@@ -56,7 +73,7 @@ EditActivity 合并任务：
 └── 测试验证
 ```
 
-### 2.2 混合架构策略
+### 2.3 混合架构策略
 
 **EditorView 处理**：容器层 ViewBinding，核心组件保留
 
@@ -75,6 +92,43 @@ EditorView 混合架构：
 └── LogSheet: Material3 Compose（已完成）
     └── AndroidView 嵌入 ConsoleView
 ```
+
+### 2.4 逐步验证流程
+
+每个批次执行完成后，按以下流程验证：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 步骤 1: 编译验证                                            │
+│ └── 运行 ./gradlew compileCoolapkDebugKotlin               │
+│     └── 成功 → 继续                                         │
+│     └── 失败 → 修复后重试                                   │
+├─────────────────────────────────────────────────────────────┤
+│ 步骤 2: 功能验证                                            │
+│ └── 运行 ./gradlew assembleCoolapkDebug                    │
+│     └── 安装 APK 到测试设备                                 │
+│     └── 执行批次对应的功能测试                               │
+│     └── 成功 → 继续                                         │
+│     └── 失败 → 修复后重试                                   │
+├─────────────────────────────────────────────────────────────┤
+│ 步骤 3: 提交中间版本                                        │
+│ └── git add -A                                             │
+│ └── git commit -m "feat: 批次X完成"                         │
+│ └── git tag v0.85.XX-alpha                                 │
+│ └── git push origin temp-test-branch                       │
+│ └── git push origin v0.85.XX-alpha                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 2.5 版本号规划
+
+| 批次 | 完成后标签 | 说明 |
+|------|------------|------|
+| 批次 1 | v0.85.16-alpha | MainActivity + DrawerFragment |
+| 批次 2 | v0.85.17-alpha | TimedTaskSettingActivity |
+| 批次 3 | v0.85.18-alpha | EditActivity + EditorView 合并重构 |
+| 批次 4 | v0.85.19-alpha | Material3 主题升级 |
+| 批次 5 | v0.85.20 | 最终版本（移除 KAPT） |
 
 ---
 
@@ -200,6 +254,29 @@ public class DrawerFragment extends Fragment {
 }
 ```
 
+#### 1.3 批次1验证清单
+
+**编译验证**：
+```bash
+.\gradlew compileCoolapkDebugKotlin --parallel
+```
+
+**功能验证**：
+- [ ] MainActivity 启动正常
+- [ ] 侧边栏显示/隐藏正常
+- [ ] ViewPager 切换正常
+- [ ] 设置按钮点击正常
+- [ ] 退出按钮点击正常
+
+**提交中间版本**：
+```bash
+git add -A
+git commit -m "feat: 批次1完成 - MainActivity和DrawerFragment迁移"
+git tag v0.85.16-alpha
+git push origin temp-test-branch
+git push origin v0.85.16-alpha
+```
+
 ---
 
 ### 批次 2：TimedTaskSettingActivity 迁移（3-5小时）
@@ -234,6 +311,31 @@ private void setupCheckedListeners() {
     binding.disposableTaskRadio.setOnCheckedChangeListener(listener);
     binding.runOnBroadcast.setOnCheckedChangeListener(listener);
 }
+```
+
+#### 2.1 批次2验证清单
+
+**编译验证**：
+```bash
+.\gradlew compileCoolapkDebugKotlin --parallel
+```
+
+**功能验证**：
+- [ ] Activity 启动正常
+- [ ] 每日任务类型选择正常
+- [ ] 每周任务类型选择正常
+- [ ] 一次性任务类型选择正常
+- [ ] 广播任务类型选择正常
+- [ ] 时间选择器功能正常
+- [ ] 任务保存功能正常
+
+**提交中间版本**：
+```bash
+git add -A
+git commit -m "feat: 批次2完成 - TimedTaskSettingActivity迁移"
+git tag v0.85.17-alpha
+git push origin temp-test-branch
+git push origin v0.85.17-alpha
 ```
 
 ---
@@ -345,6 +447,34 @@ public class EditorView extends FrameLayout {
 - 语法高亮、断点调试、自动补全保持不变
 - 通过 `binding.editor` 访问所有功能
 
+#### 3.3 批次3验证清单
+
+**编译验证**：
+```bash
+.\gradlew compileCoolapkDebugKotlin --parallel
+```
+
+**功能验证**：
+- [ ] EditActivity 启动正常
+- [ ] 代码编辑功能正常（输入、删除、选择）
+- [ ] 代码保存功能正常
+- [ ] 语法高亮显示正常
+- [ ] 断点调试功能正常
+- [ ] 代码补全功能正常
+- [ ] 日志面板显示/隐藏正常
+- [ ] 日志面板运行按钮正常
+- [ ] 日志面板清空按钮正常
+- [ ] 日志面板打开完整日志正常
+
+**提交中间版本**：
+```bash
+git add -A
+git commit -m "feat: 批次3完成 - EditActivity和EditorView合并重构"
+git tag v0.85.18-alpha
+git push origin temp-test-branch
+git push origin v0.85.18-alpha
+```
+
 ---
 
 ### 批次 4：Material3 主题系统升级（4-5小时）
@@ -370,6 +500,34 @@ public class EditorView extends FrameLayout {
 <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
 ```
 
+#### 4.1 批次4验证清单
+
+**编译验证**：
+```bash
+.\gradlew compileCoolapkDebugKotlin --parallel
+```
+
+**功能验证**：
+- [ ] 应用启动主题显示正常
+- [ ] 亮色主题显示正常
+- [ ] 暗色主题显示正常
+- [ ] 主题切换功能正常
+- [ ] MainActivity 界面主题一致
+- [ ] EditActivity 界面主题一致
+- [ ] SettingsActivity 界面主题一致
+- [ ] 所有 Dialog 样式一致
+- [ ] 状态栏颜色正确
+- [ ] 导航栏颜色正确
+
+**提交中间版本**：
+```bash
+git add -A
+git commit -m "feat: 批次4完成 - Material3主题系统升级"
+git tag v0.85.19-alpha
+git push origin temp-test-branch
+git push origin v0.85.19-alpha
+```
+
 ---
 
 ### 批次 5：清理与测试（3-4小时）
@@ -384,6 +542,42 @@ public class EditorView extends FrameLayout {
 | 5.6 | **完整功能回归测试** | 1.5小时 |
 | 5.7 | APK 体积对比 | 15分钟 |
 | 5.8 | 构建速度对比 | 15分钟 |
+
+#### 5.1 批次5验证清单
+
+**编译验证**：
+```bash
+.\gradlew assembleCoolapkDebug --parallel
+```
+
+**完整功能回归测试**：
+- [ ] 应用启动正常
+- [ ] MainActivity 所有 Tab 切换正常
+- [ ] 侧边栏所有功能正常
+- [ ] 编辑器完整功能正常
+- [ ] 日志面板功能正常
+- [ ] 定时任务创建/编辑/删除正常
+- [ ] 设置页面功能正常
+- [ ] 登录/注册功能正常
+- [ ] 文件浏览功能正常
+- [ ] 脚本打包功能正常
+- [ ] 悬浮窗功能正常
+- [ ] 无障碍服务正常
+- [ ] 亮色/暗色主题切换正常
+
+**性能验证**：
+- [ ] 构建速度提升约 30%
+- [ ] APK 体积增量 < 4MB
+- [ ] 无内存泄漏
+
+**提交最终版本**：
+```bash
+git add -A
+git commit -m "feat: 迁移完成 - 移除KAPT，完成KSP和Material3集成"
+git tag v0.85.20
+git push origin temp-test-branch
+git push origin v0.85.20
+```
 
 ---
 
@@ -590,6 +784,9 @@ private void setupListeners() {
 | 2026-03-10 | 制定合并重构策略 | 完成 |
 | 2026-03-10 | 制定混合架构策略 | 完成 |
 | 2026-03-10 | 细化5个批次规划 | 完成 |
+| 2026-03-10 | 添加逐步验证策略 | 完成 |
+| 2026-03-10 | 添加各批次验证清单 | 完成 |
+| 2026-03-10 | 添加版本号规划 | 完成 |
 
 ---
 
