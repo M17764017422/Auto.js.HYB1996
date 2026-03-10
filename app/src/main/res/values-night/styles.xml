@@ -1,10 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ToolBarStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColorPrimary">@color/toolbar</item>
-        <item name="android:textColorSecondary">@color/toolbar</item>
-        <item name="actionMenuTextColor">@color/toolbar</item>
+    <!-- Material3 Dark Theme Override -->
+    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorPrimaryDark">@color/md_theme_primary</item>
+        <item name="colorAccent">@color/md_theme_primary</item>
+        <item name="android:textColorPrimary">@color/md_theme_onSurface</item>
+        <item name="android:textColorSecondary">@color/md_theme_onSurfaceVariant</item>
+        <item name="android:windowBackground">@color/md_theme_background</item>
+        <item name="android:itemBackground">@color/md_theme_surface</item>
+        <item name="itemBackgroundDark">@color/md_theme_surfaceVariant</item>
+        <item name="android:divider">@color/md_theme_outlineVariant</item>
+        <item name="drawer_item_text_color">@color/md_theme_onSurface</item>
+        <item name="drawer_group_text_color">@color/md_theme_onSurfaceVariant</item>
+        
+        <!-- Material3 specific attributes -->
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_tertiary</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_outline</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
     </style>
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+
+    <style name="ToolBarStyle" parent="ThemeOverlay.Material3.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/md_theme_onSurface</item>
+        <item name="android:textColorSecondary">@color/md_theme_onSurfaceVariant</item>
+        <item name="actionMenuTextColor">@color/md_theme_onSurface</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar">
     </style>
 </resources>
