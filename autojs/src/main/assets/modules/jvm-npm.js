@@ -168,7 +168,13 @@ module = (typeof module === 'undefined') ? {} : module;
   };
 
   function findRoot(parent) {
-    if (!parent || !parent.id) { return Require.root; }
+    if (!parent || !parent.id) {
+      // 动态获取 cwd，支持 SAF 模式下正确解析相对路径
+      // files.cwd() 在脚本运行时会返回脚本所在目录
+      var cwd = files.cwd();
+      java.lang.System.out.println('[jvm-npm] findRoot: cwd=' + cwd);
+      return cwd;
+    }
     var pathParts = parent.id.split(/[/\\,]+/g);
     pathParts.pop();
     return pathParts.join('/');
@@ -192,15 +198,29 @@ module = (typeof module === 'undefined') ? {} : module;
     var base = [root, 'node_modules'].join('/');
     return resolveAsFile(id, base) ||
       resolveAsDirectory(id, base) ||
-      (root ? resolveAsNodeModule(id, new File(root).getParent()) : false);
+      (root ? resolveAsNodeModule(id, getParentPath(root)) : false);
+  }
+  
+  // 获取父目录路径（替代 new File(path).getParent()）
+  function getParentPath(path) {
+    if (!path) return null;
+    // 移除末尾的 /
+    if (path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
+    var lastSlash = path.lastIndexOf('/');
+    if (lastSlash <= 0) return null;
+    return path.substring(0, lastSlash);
   }
 
   function resolveAsDirectory(id, root) {
-    var base = [root, id].join('/');
-    var file = new File([base, 'package.json'].join('/'));
-    if (file.exists()) {
+    var base = simplifyPath([root, id].join('/'));
+    var packagePath = [base, 'package.json'].join('/');
+    // 使用 files.exists() 支持 SAF 模式
+    if (files.exists(packagePath)) {
       try {
-        var body = readFile(file.getCanonicalPath());
+        // 使用 files.read() 支持 SAF 模式
+        var body = files.read(packagePath);
         var package_ = JSON.parse(body);
         if (package_.main) {
           return (resolveAsFile(package_.main, base) ||
@@ -216,18 +236,42 @@ module = (typeof module === 'undefined') ? {} : module;
   }
 
   function resolveAsFile(id, root, ext) {
-    var file;
+    var filePath;
     if (id.length > 0 && id[0] === '/') {
-      file = new File(normalizeName(id, ext));
-      if (!file.exists()) {
-        return resolveAsDirectory(id);
-      }
+      filePath = normalizeName(id, ext);
     } else {
-      file = new File([root, normalizeName(id, ext)].join('/'));
+      filePath = [root, normalizeName(id, ext)].join('/');
     }
-    if (file.exists()) {
-      return file.getCanonicalPath();
+    // 先规范化路径，移除 ./ 和 ../，支持 SAF 模式
+    filePath = simplifyPath(filePath);
+    
+    // 使用 files.exists() 支持 SAF 模式
+    if (files.exists(filePath)) {
+      return filePath;
     }
+    // 如果是绝对路径且不存在，尝试作为目录解析
+    if (id.length > 0 && id[0] === '/') {
+      return resolveAsDirectory(id);
+    }
+  }
+  
+  // 路径规范化函数（替代 File.getCanonicalPath）
+  function simplifyPath(path) {
+    var parts = path.split('/');
+    var result = [];
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === '' || parts[i] === '.') continue;
+      if (parts[i] === '..') {
+        if (result.length > 0) {
+          result.pop();
+        }
+      } else {
+        result.push(parts[i]);
+      }
+    }
+    var simplified = result.join('/');
+    // path 以 / 开头时，结果也要以 / 开头
+    return path.startsWith('/') ? '/' + simplified : simplified;
   }
 
   function resolveCoreModule(id, root) {
@@ -250,18 +294,18 @@ module = (typeof module === 'undefined') ? {} : module;
   }
 
   function readFile(filename, core) {
-    var input;
     try {
       if (core) {
+        // 内置模块从 classpath 读取
         var classloader = java.lang.Thread.currentThread().getContextClassLoader();
-        input = classloader.getResourceAsStream(filename);
+        var input = classloader.getResourceAsStream(filename);
+        return new Scanner(input).useDelimiter('\\A').next();
       } else {
-        input = new File(filename);
+        // 外部模块使用 files.read() 支持 SAF 模式
+        return files.read(filename);
       }
-      // TODO: I think this is not very efficient
-      return new Scanner(input).useDelimiter('\\A').next();
     } catch (e) {
-      throw new ModuleError('Cannot read file [' + input + ']: ', 'IO_ERROR', e);
+      throw new ModuleError('Cannot read file [' + filename + ']: ', 'IO_ERROR', e);
     }
   }
 

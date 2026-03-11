@@ -1,8 +1,16 @@
 # Auto.js.HYB1996 构建修复进度
 
-## 当前状态: ✅ GitHub Packages CI 构建修复
+## 当前状态: ✅ SAF 模块加载修复
 
 ### 最近完成
+- **第二十七阶段**: SAF 模块加载修复 ✅ (2026-03-11)
+  - **问题**: `require()` 在 SAF 模式下无法加载模块
+  - **原因**: Rhino 原生 `UrlModuleSourceProvider` 使用 `URL.openStream()` 读取 `file://` URI，SAF 不支持
+  - **修复**: 重写 `AssetAndUrlModuleSourceProvider.loadFromActualUri()` 方法
+  - **方案**: 对 `file://` URI 使用 `PFiles.read()` 支持 SAF，其他 URI 调用父类方法
+  - **文件**: `AssetAndUrlModuleSourceProvider.java`, `jvm-npm.js`
+  - **优势**: 原生 require 支持 SAF，循环依赖、作用域等行为与原生一致
+
 - **第二十六阶段**: GitHub Packages CI 构建修复 ✅ (2026-03-09)
   - 将本地 AAR 发布到 GitHub Packages Maven 仓库
   - 修复 AGP 8.x 本地 AAR 依赖限制
@@ -62,6 +70,7 @@
 ### 最新版本
 | 版本 | 状态 | 说明 |
 |------|------|------|
+| v0.85.x | 🔄 开发中 | SAF 模块加载修复 |
 | v0.85.2 | ✅ 已发布 | GitHub Packages CI 构建修复 |
 | v0.85.1 | ✅ 已发布 | Rhino 2.0.0 + AGP 8.2.2 升级 |
 | v0.86.0 | ✅ 已发布 | 编辑器与调试器移植升级 |
