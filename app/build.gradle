@@ -216,8 +216,6 @@ dependencies {
     implementation 'com.github.hyb1996:android-multi-level-listview:1.1'
     //Licenses Dialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.1'
-    //Expandable RecyclerView
-    implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
     //FlexibleDivider
     implementation 'com.yqritc:recyclerview-flexibledivider:1.4.0'
     //???

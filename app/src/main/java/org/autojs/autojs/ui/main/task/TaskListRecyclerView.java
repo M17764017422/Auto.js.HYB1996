@@ -14,9 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
-import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
-import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.autojs.execution.ScriptExecutionListener;
 import com.stardust.autojs.execution.SimpleScriptExecutionListener;
@@ -29,10 +26,12 @@ import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.storage.database.ModelChange;
 import org.autojs.autojs.timing.TimedTaskManager;
 import org.autojs.autojs.ui.timing.TimedTaskSettingActivity;
+import org.autojs.autojs.ui.widget.ExpandableAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ThemeColorRecyclerView;
 import org.autojs.autojs.databinding.TaskListRecyclerViewItemBinding;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -170,38 +169,36 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
         }
     }
 
-    private class Adapter extends ExpandableRecyclerAdapter<TaskGroup, Task, TaskGroupViewHolder, TaskViewHolder> {
+    private class Adapter extends ExpandableAdapter<TaskGroup, Task, TaskGroupViewHolder, TaskViewHolder> {
 
         public Adapter(@NonNull List<TaskGroup> parentList) {
             super(parentList);
         }
 
-        @NonNull
         @Override
-        public TaskGroupViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
-            return new TaskGroupViewHolder(LayoutInflater.from(parentViewGroup.getContext())
-                    .inflate(R.layout.dialog_code_generate_option_group, parentViewGroup, false));
+        protected TaskGroupViewHolder onCreateGroupViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new TaskGroupViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dialog_code_generate_option_group, parent, false));
         }
 
-        @NonNull
         @Override
-        public TaskViewHolder onCreateChildViewHolder(@NonNull ViewGroup parent, int viewType) {
+        protected TaskViewHolder onCreateChildViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new TaskViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.task_list_recycler_view_item, parent, false));
         }
 
         @Override
-        public void onBindParentViewHolder(@NonNull TaskGroupViewHolder viewHolder, int parentPosition, @NonNull TaskGroup taskGroup) {
+        protected void onBindGroupViewHolder(@NonNull TaskGroupViewHolder viewHolder, @NonNull TaskGroup taskGroup, int groupPosition) {
             viewHolder.title.setText(taskGroup.getTitle());
         }
 
         @Override
-        public void onBindChildViewHolder(@NonNull TaskViewHolder viewHolder, int parentPosition, int childPosition, @NonNull Task task) {
+        protected void onBindChildViewHolder(@NonNull TaskViewHolder viewHolder, @NonNull Task task, int groupPosition, int childPosition) {
             viewHolder.bind(task);
         }
     }
 
 
-    class TaskViewHolder extends ChildViewHolder<Task> {
+    class TaskViewHolder extends RecyclerView.ViewHolder {
 
         private TaskListRecyclerViewItemBinding binding;
         private Task mTask;
@@ -244,7 +241,7 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
         }
     }
 
-    private class TaskGroupViewHolder extends ParentViewHolder<TaskGroup, Task> {
+    private class TaskGroupViewHolder extends RecyclerView.ViewHolder {
 
         TextView title;
         ImageView icon;
@@ -254,17 +251,14 @@ public class TaskListRecyclerView extends ThemeColorRecyclerView {
             title = itemView.findViewById(R.id.title);
             icon = itemView.findViewById(R.id.icon);
             itemView.setOnClickListener(view -> {
-                if (isExpanded()) {
-                    collapseView();
-                } else {
-                    expandView();
+                int groupPosition = getAdapterPosition();
+                if (groupPosition != RecyclerView.NO_POSITION && groupPosition < mTaskGroups.size()) {
+                    TaskGroup group = mTaskGroups.get(groupPosition);
+                    mAdapter.toggleGroup(group);
+                    // 更新图标旋转
+                    icon.setRotation(mAdapter.isExpanded(group) ? 0 : -90);
                 }
             });
-        }
-
-        @Override
-        public void onExpansionToggled(boolean expanded) {
-            icon.setRotation(expanded ? -90 : 0);
         }
     }
 

@@ -12,13 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
-import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
-import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
-import com.bignerdranch.expandablerecyclerview.model.Parent;
 import com.stardust.app.DialogUtils;
 import com.stardust.autojs.codegeneration.CodeGenerator;
 import org.autojs.autojs.R;
+import org.autojs.autojs.ui.widget.ExpandableAdapter;
+import org.autojs.autojs.ui.widget.ExpandableGroup;
 import org.autojs.autojs.ui.widget.CheckBoxCompat;
 import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import com.stardust.theme.util.ListBuilder;
@@ -174,32 +172,14 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
 
     }
 
-    class OptionViewHolder extends ChildViewHolder<Option> {
-
-        private DialogCodeGenerateOptionBinding binding;
-
-        OptionViewHolder(@NonNull View itemView) {
-            super(itemView);
-            binding = DialogCodeGenerateOptionBinding.bind(itemView);
-            itemView.setOnClickListener(view -> binding.checkbox.toggle());
-            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                getChild().checked = isChecked;
-                if (isChecked && getChild().group.titleRes != R.string.text_options)
-                    uncheckOthers(getParentAdapterPosition(), getChild());
-            });
-        }
-
-    }
-
-    private static class OptionGroup implements Parent<Option> {
+    private static class OptionGroup implements ExpandableGroup<Option> {
         int titleRes;
         List<Option> options = new ArrayList<>();
-        private final boolean mInitialExpanded;
-
+        private boolean mExpanded;
 
         OptionGroup(int titleRes, boolean initialExpanded) {
             this.titleRes = titleRes;
-            mInitialExpanded = initialExpanded;
+            mExpanded = initialExpanded;
         }
 
         OptionGroup(int titleRes) {
@@ -216,13 +196,23 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
         }
 
         @Override
-        public List<Option> getChildList() {
+        public List<Option> getChildren() {
             return options;
         }
 
         @Override
+        public boolean isExpanded() {
+            return mExpanded;
+        }
+
+        @Override
+        public void setExpanded(boolean expanded) {
+            mExpanded = expanded;
+        }
+
+        @Override
         public boolean isInitiallyExpanded() {
-            return mInitialExpanded;
+            return mExpanded;
         }
 
         OptionGroup addOption(int titleRes) {
@@ -238,7 +228,7 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
     }
 
 
-    private class OptionGroupViewHolder extends ParentViewHolder<OptionGroup, Option> {
+    private class OptionGroupViewHolder extends RecyclerView.ViewHolder {
 
         TextView title;
         ImageView icon;
@@ -248,21 +238,57 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
             title = (TextView) itemView.findViewById(R.id.title);
             icon = (ImageView) itemView.findViewById(R.id.icon);
             itemView.setOnClickListener(view -> {
-                if (isExpanded()) {
-                    collapseView();
-                } else {
-                    expandView();
+                int groupPosition = getAdapterPosition();
+                if (groupPosition != RecyclerView.NO_POSITION && groupPosition < mOptionGroups.size()) {
+                    OptionGroup group = mOptionGroups.get(groupPosition);
+                    mAdapter.toggleGroup(group);
+                    icon.setRotation(mAdapter.isExpanded(group) ? 0 : -90);
+                }
+            });
+        }
+    }
+
+    class OptionViewHolder extends RecyclerView.ViewHolder {
+
+        private DialogCodeGenerateOptionBinding binding;
+
+        OptionViewHolder(@NonNull View itemView) {
+            super(itemView);
+            binding = DialogCodeGenerateOptionBinding.bind(itemView);
+            itemView.setOnClickListener(view -> binding.checkbox.toggle());
+            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                int groupPosition = -1;
+                int childPosition = getAdapterPosition();
+                // 找到对应的 group
+                for (int i = 0; i < mOptionGroups.size(); i++) {
+                    OptionGroup group = mOptionGroups.get(i);
+                    if (childPosition < group.getChildren().size()) {
+                        groupPosition = i;
+                        break;
+                    }
+                    childPosition -= group.getChildren().size();
+                }
+                Option option = getOptionAt(getAdapterPosition());
+                if (option != null) {
+                    option.checked = isChecked;
+                    if (isChecked && option.group.titleRes != R.string.text_options)
+                        uncheckOthers(groupPosition, option);
                 }
             });
         }
 
-        @Override
-        public void onExpansionToggled(boolean expanded) {
-            icon.setRotation(expanded ? -90 : 0);
+        private Option getOptionAt(int position) {
+            for (OptionGroup group : mOptionGroups) {
+                if (position < group.getChildren().size()) {
+                    return group.getChildren().get(position);
+                }
+                position -= group.getChildren().size();
+            }
+            return null;
         }
     }
 
-    private class Adapter extends ExpandableRecyclerAdapter<OptionGroup, Option, OptionGroupViewHolder, OptionViewHolder> {
+    private class Adapter extends ExpandableAdapter<OptionGroup, Option, OptionGroupViewHolder, OptionViewHolder> {
 
         public Adapter(@NonNull List<OptionGroup> parentList) {
             super(parentList);
@@ -270,26 +296,26 @@ public class CodeGenerateDialog extends ThemeColorMaterialDialogBuilder {
 
         @NonNull
         @Override
-        public OptionGroupViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
-            return new OptionGroupViewHolder(LayoutInflater.from(parentViewGroup.getContext())
-                    .inflate(R.layout.dialog_code_generate_option_group, parentViewGroup, false));
+        protected OptionGroupViewHolder onCreateGroupViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new OptionGroupViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dialog_code_generate_option_group, parent, false));
         }
 
         @NonNull
         @Override
-        public OptionViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
-            return new OptionViewHolder(LayoutInflater.from(childViewGroup.getContext())
-                    .inflate(R.layout.dialog_code_generate_option, childViewGroup, false));
+        protected OptionViewHolder onCreateChildViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new OptionViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dialog_code_generate_option, parent, false));
         }
 
         @Override
-        public void onBindParentViewHolder(@NonNull OptionGroupViewHolder viewHolder, int parentPosition, @NonNull OptionGroup optionGroup) {
+        protected void onBindGroupViewHolder(@NonNull OptionGroupViewHolder viewHolder, @NonNull OptionGroup optionGroup, int groupPosition) {
             viewHolder.title.setText(optionGroup.titleRes);
-            viewHolder.icon.setRotation(viewHolder.isExpanded() ? 0 : -90);
+            viewHolder.icon.setRotation(mAdapter.isExpanded(optionGroup) ? 0 : -90);
         }
 
         @Override
-        public void onBindChildViewHolder(@NonNull OptionViewHolder viewHolder, int parentPosition, int childPosition, @NonNull Option option) {
+        protected void onBindChildViewHolder(@NonNull OptionViewHolder viewHolder, @NonNull Option option, int groupPosition, int childPosition) {
             viewHolder.binding.title.setText(option.titleRes);
             viewHolder.binding.checkbox.setChecked(option.checked, false);
         }

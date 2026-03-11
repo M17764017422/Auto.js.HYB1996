@@ -2,38 +2,47 @@ package org.autojs.autojs.ui.main.task;
 
 import android.content.Context;
 
-import com.bignerdranch.expandablerecyclerview.model.Parent;
-import com.stardust.autojs.engine.ScriptEngine;
-import com.stardust.autojs.execution.ScriptExecution;
-
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.timing.IntentTask;
 import org.autojs.autojs.timing.TimedTask;
 import org.autojs.autojs.timing.TimedTaskManager;
+import org.autojs.autojs.ui.widget.ExpandableGroup;
+import com.stardust.autojs.execution.ScriptExecution;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Stardust on 2017/11/28.
  */
 
-public abstract class TaskGroup implements Parent<Task> {
+public abstract class TaskGroup implements ExpandableGroup<Task> {
 
     protected List<Task> mTasks = new ArrayList<>();
     private String mTitle;
+    private boolean mExpanded = true;
 
     protected TaskGroup(String title) {
         mTitle = title;
     }
 
+    // ========== ExpandableGroup 接口实现 ==========
 
     @Override
-    public List<Task> getChildList() {
+    public List<Task> getChildren() {
         return mTasks;
+    }
+
+    @Override
+    public boolean isExpanded() {
+        return mExpanded;
+    }
+
+    @Override
+    public void setExpanded(boolean expanded) {
+        mExpanded = expanded;
     }
 
     @Override
@@ -41,11 +50,23 @@ public abstract class TaskGroup implements Parent<Task> {
         return true;
     }
 
+    // ========== 公共方法 ==========
+
+    /**
+     * @deprecated 使用 {@link #getChildren()} 代替
+     */
+    @Deprecated
+    public List<Task> getChildList() {
+        return mTasks;
+    }
+
     public String getTitle() {
         return mTitle;
     }
 
     public abstract void refresh();
+
+    // ========== 子类实现 ==========
 
     public static class PendingTaskGroup extends TaskGroup {
 
@@ -93,7 +114,6 @@ public abstract class TaskGroup implements Parent<Task> {
             }
             return -1;
         }
-
 
         public int updateTask(Object task) {
             int i = indexOf(task);
