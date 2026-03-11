@@ -10,8 +10,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.stardust.autojs.workground.WrapContentLinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.autojs.autojs.R
 import org.autojs.autojs.network.TopicService
@@ -46,7 +46,7 @@ class MarketFragment : ViewPagerFragment(0) {
     }
 
     private fun refresh() {
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             swipeRefreshLayout.isRefreshing = true
             try {
                 val topics = TopicService.getScriptsTopics()
@@ -116,7 +116,7 @@ class MarketFragment : ViewPagerFragment(0) {
         }
 
         private fun fetchMainPost(topic: Topic) {
-            GlobalScope.launch(Dispatchers.Main) {
+            this@MarketFragment.lifecycleScope.launch(Dispatchers.Main) {
                 try {
                     val mainPost = TopicService.getMainPost(topic)
                     if (topic === this@TopicViewHolder.topic) {
