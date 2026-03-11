@@ -145,6 +145,7 @@ fun LogSheet(
                     ConsoleView(ctx).apply {
                         findViewById<View>(R.id.input_container).visibility = View.GONE
                         setConsole(consoleImpl)
+                        setEnableStackFrameLinks(true)
                     }
                 },
                 modifier = Modifier.fillMaxSize()
@@ -163,5 +164,19 @@ fun LogSheetWithTheme(
 ) {
     AppTheme {
         LogSheet(consoleImpl, viewModel)
+    }
+}
+
+/**
+ * Helper method for Java interoperability
+ * Sets up ComposeView content with LogSheet
+ */
+fun setupLogSheetComposeView(
+    composeView: androidx.compose.ui.platform.ComposeView,
+    consoleImpl: ConsoleImpl,
+    viewModel: EditorModel
+) {
+    composeView.setContent {
+        LogSheetWithTheme(consoleImpl, viewModel)
     }
 }

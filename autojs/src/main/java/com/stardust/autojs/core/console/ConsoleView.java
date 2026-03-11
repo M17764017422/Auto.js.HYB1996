@@ -78,6 +78,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
     private boolean mShouldStopRefresh = false;
     private ArrayList<ConsoleImpl.LogEntry> mLogEntries = new ArrayList<>();
     private OnStackFrameClickListener mStackFrameClickListener;
+    private boolean mEnableStackFrameLinks = false;
 
     /**
      * Listener for stack frame clicks
@@ -88,6 +89,14 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
 
     public void setOnStackFrameClickListener(OnStackFrameClickListener listener) {
         mStackFrameClickListener = listener;
+    }
+
+    /**
+     * Enable or disable clickable stack frame links
+     * @param enabled true to enable, false to disable
+     */
+    public void setEnableStackFrameLinks(boolean enabled) {
+        mEnableStackFrameLinks = enabled;
     }
 
     public ConsoleView(Context context) {
@@ -239,6 +248,11 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
      * Parse log content and create clickable spans for stack frames
      */
     private CharSequence createClickableContent(CharSequence content, int baseColor) {
+        // Return original content if links are disabled
+        if (!mEnableStackFrameLinks) {
+            return content;
+        }
+        
         String text = content.toString();
         SpannableString spannable = new SpannableString(text);
         

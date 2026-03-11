@@ -86,6 +86,9 @@ public class LogBottomSheet extends BottomSheetDialogFragment {
             binding.console.setConsole(autoJs.getGlobalConsole());
             binding.console.findViewById(R.id.input_container).setVisibility(View.GONE);
             
+            // Enable clickable stack frame links (only in bottom sheet, not in LogActivity)
+            binding.console.setEnableStackFrameLinks(true);
+            
             // Set up clickable stack frame listener
             binding.console.setOnStackFrameClickListener((fileName, lineNumber, columnNumber) -> {
                 if (mStackFrameClickListener != null) {
