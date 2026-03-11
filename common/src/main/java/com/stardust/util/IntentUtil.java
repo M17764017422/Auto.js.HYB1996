@@ -133,7 +133,39 @@ public class IntentUtil {
         if (fileProviderAuthority == null) {
             uri = Uri.parse("file://" + path);
         } else {
-            uri = FileProvider.getUriForFile(context, fileProviderAuthority, new File(path));
+            // 检查是否是 SAF 模式
+            com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+            if (provider != null && !(provider instanceof com.stardust.pio.TraditionalFileProvider)) {
+                // SAF 模式：复制文件到缓存目录
+                try {
+                    String fileName = new File(path).getName();
+                    java.io.File cacheFile = new java.io.File(context.getCacheDir(), fileName);
+                    
+                    // 复制文件到缓存目录
+                    java.io.InputStream is = provider.openInputStream(path);
+                    if (is != null) {
+                        java.io.FileOutputStream fos = new java.io.FileOutputStream(cacheFile);
+                        byte[] buffer = new byte[8192];
+                        int len;
+                        while ((len = is.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                        fos.close();
+                        is.close();
+                        
+                        // 使用缓存文件的 URI
+                        uri = FileProvider.getUriForFile(context, fileProviderAuthority, cacheFile);
+                        return uri;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // 复制失败，回退到 file:// URI
+                uri = Uri.parse("file://" + path);
+            } else {
+                // 传统模式：直接使用 FileProvider
+                uri = FileProvider.getUriForFile(context, fileProviderAuthority, new File(path));
+            }
         }
         return uri;
     }

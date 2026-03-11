@@ -135,8 +135,23 @@ public class Images {
         if (compressFormat == null)
             throw new IllegalArgumentException("unknown format " + format);
         Bitmap bitmap = image.getBitmap();
-        FileOutputStream outputStream = new FileOutputStream(mScriptRuntime.files.path(path));
-        return bitmap.compress(compressFormat, quality, outputStream);
+        path = mScriptRuntime.files.path(path);
+        // 使用 IFileProvider 支持 SAF 模式
+        com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+        java.io.OutputStream outputStream;
+        try {
+            outputStream = provider.openOutputStream(path);
+        } catch (Exception e) {
+            throw new IOException("Cannot open output stream for: " + path, e);
+        }
+        if (outputStream == null) {
+            throw new IOException("Cannot open output stream for: " + path);
+        }
+        try {
+            return bitmap.compress(compressFormat, quality, outputStream);
+        } finally {
+            outputStream.close();
+        }
     }
 
     public static int pixel(ImageWrapper image, int x, int y) {
@@ -189,7 +204,23 @@ public class Images {
 
     public ImageWrapper read(String path) {
         path = mScriptRuntime.files.path(path);
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        // 使用 IFileProvider 支持 SAF 模式
+        com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+        java.io.InputStream is;
+        try {
+            is = provider.openInputStream(path);
+        } catch (Exception e) {
+            return null;
+        }
+        if (is == null) {
+            return null;
+        }
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+        try {
+            is.close();
+        } catch (IOException e) {
+            // ignore
+        }
         return ImageWrapper.ofBitmap(bitmap);
     }
 
@@ -244,8 +275,20 @@ public class Images {
 
     public static void saveBitmap(Bitmap bitmap, String path) {
         try {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(path));
-        } catch (FileNotFoundException e) {
+            // 使用 IFileProvider 支持 SAF 模式
+            com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+            java.io.OutputStream outputStream;
+            try {
+                outputStream = provider.openOutputStream(path);
+            } catch (Exception e) {
+                throw new UncheckedIOException(new IOException("Cannot open output stream for: " + path, e));
+            }
+            if (outputStream == null) {
+                throw new UncheckedIOException(new IOException("Cannot open output stream for: " + path));
+            }
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            outputStream.close();
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }

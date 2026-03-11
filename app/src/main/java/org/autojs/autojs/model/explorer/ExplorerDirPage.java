@@ -45,7 +45,9 @@ public class ExplorerDirPage extends ExplorerFileItem implements ExplorerPage {
 
     @Override
     public ExplorerFileItem rename(String newName) {
-        String newPath = new File(getFile().getParent(), newName).getPath();
+        // 使用 PFiles.join 支持 SAF 路径
+        String parentPath = getFile().getParent();
+        String newPath = PFiles.join(parentPath, newName);
         if (PFiles.rename(getFile().getPath(), newName)) {
             return new ExplorerDirPage(newPath, getParent());
         }

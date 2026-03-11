@@ -73,7 +73,8 @@ public class ExplorerFileItem implements ExplorerItem {
     }
 
     public ExplorerFileItem rename(String newName) {
-        String newPath = new File(mFile.getParent(), newName).getPath();
+        // 使用 PFiles.join 支持 SAF 路径
+        String newPath = PFiles.join(mFile.getParent(), newName);
         if (PFiles.rename(mFile.getPath(), newName)) {
             return new ExplorerFileItem(newPath, getParent());
         }

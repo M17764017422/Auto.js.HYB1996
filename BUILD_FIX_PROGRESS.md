@@ -3,6 +3,21 @@
 ## 当前状态: ✅ SAF 模块加载修复
 
 ### 最近完成
+- **第二十八阶段**: 深度 SAF 兼容性修复 ✅ (2026-03-12)
+  - **问题**: 多处代码使用传统 `java.io.File` API，SAF 模式下无法正常工作
+  - **排查范围**: 全代码库扫描 `new File(`, `FileInputStream`, `FileOutputStream`, `FileReader`, `FileWriter`, `URL.openStream`, `.getPath()`, `.getAbsolutePath()`
+  - **发现问题**: 12 高风险, 8 中风险, 5 低风险
+  - **修复文件**:
+    - `Images.java` - read(), save(), saveBitmap() 使用 IFileProvider
+    - `Drawables.java` - decodeImage(), DefaultImageLoader 使用 IFileProvider
+    - `Zip.java` - unzip() 使用 IFileProvider.openOutputStream()
+    - `IntentUtil.java` - getUriOfFile() SAF 模式复制到缓存目录
+    - `ExplorerDirPage.java` - rename() 使用 PFiles.join()
+    - `ExplorerFileItem.java` - rename() 使用 PFiles.join()
+    - `ProjectLauncher.java` - 路径拼接使用 PFiles.join()
+  - **Android 8 兼容性**: minSdk=21, SAF 代码仅 API 30+ 执行, Android 8 使用 TraditionalFileProvider
+  - **编译错误修复**: IFileProvider 方法声明 `@Throws(Exception::class)`, Java 调用需捕获异常
+
 - **第二十七阶段**: SAF 模块加载修复 ✅ (2026-03-11)
   - **问题**: `require()` 在 SAF 模式下无法加载模块
   - **原因**: Rhino 原生 `UrlModuleSourceProvider` 使用 `URL.openStream()` 读取 `file://` URI，SAF 不支持

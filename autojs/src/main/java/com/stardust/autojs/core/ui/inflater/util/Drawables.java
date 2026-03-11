@@ -72,7 +72,24 @@ public class Drawables {
     }
 
     public Drawable decodeImage(String path) {
-        return new BitmapDrawable(BitmapFactory.decodeFile(path));
+        // 使用 IFileProvider 支持 SAF 模式
+        com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+        java.io.InputStream is;
+        try {
+            is = provider.openInputStream(path);
+        } catch (Exception e) {
+            return null;
+        }
+        if (is == null) {
+            return null;
+        }
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+        try {
+            is.close();
+        } catch (Exception e) {
+            // ignore
+        }
+        return new BitmapDrawable(bitmap);
     }
 
     public Drawable parse(View view, String name) {
@@ -150,6 +167,19 @@ public class Drawables {
         @Override
         public Drawable load(View view, Uri uri) {
             try {
+                // 支持 file:// URI (SAF 兼容)
+                if ("file".equals(uri.getScheme())) {
+                    String path = uri.getPath();
+                    com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+                    java.io.InputStream is = provider.openInputStream(path);
+                    if (is == null) {
+                        return null;
+                    }
+                    Bitmap bmp = BitmapFactory.decodeStream(is);
+                    is.close();
+                    return new BitmapDrawable(view.getResources(), bmp);
+                }
+                // http/https URI
                 URL url = new URL(uri.toString());
                 Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                 return new BitmapDrawable(view.getResources(), bmp);
@@ -167,9 +197,24 @@ public class Drawables {
         public void load(final View view, final Uri uri, final BitmapCallback callback) {
             new Thread(() -> {
                 try {
-                    URL url = new URL(uri.toString());
-                    final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    view.post(() -> callback.onLoaded(bmp));
+                    Bitmap bmp;
+                    // 支持 file:// URI (SAF 兼容)
+                    if ("file".equals(uri.getScheme())) {
+                        String path = uri.getPath();
+                        com.stardust.pio.IFileProvider provider = com.stardust.pio.FileProviderFactory.getProvider(path);
+                        java.io.InputStream is = provider.openInputStream(path);
+                        if (is == null) {
+                            return;
+                        }
+                        bmp = BitmapFactory.decodeStream(is);
+                        is.close();
+                    } else {
+                        // http/https URI
+                        URL url = new URL(uri.toString());
+                        bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    }
+                    final Bitmap finalBmp = bmp;
+                    view.post(() -> callback.onLoaded(finalBmp));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
