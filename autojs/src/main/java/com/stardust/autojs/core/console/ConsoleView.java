@@ -6,6 +6,11 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -25,6 +30,8 @@ import com.stardust.util.SparseArrayEntries;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Stardust on 2017/5/2.
@@ -51,6 +58,15 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
             .entry(Log.ASSERT, 0xffff534e)
             .sparseArray();
 
+    // Stack frame pattern: file:line or file:line:column
+    // Matches: script.js:15, main.js:10:5, etc.
+    private static final Pattern STACK_FRAME_PATTERN = Pattern.compile(
+            "([\\w\\-./]+\\.js):(\\d+)(?::(\\d+))?"
+    );
+    
+    // Blue color for clickable stack frames
+    private static final int LINK_COLOR = 0xFF2196F3;
+
     private static final int REFRESH_INTERVAL = 100;
     private SparseArray<Integer> mColors = COLORS.clone();
     private ConsoleImpl mConsole;
@@ -60,6 +76,18 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
     private LinearLayout mInputContainer;
     private boolean mShouldStopRefresh = false;
     private ArrayList<ConsoleImpl.LogEntry> mLogEntries = new ArrayList<>();
+    private OnStackFrameClickListener mStackFrameClickListener;
+
+    /**
+     * Listener for stack frame clicks
+     */
+    public interface OnStackFrameClickListener {
+        void onStackFrameClick(String fileName, int lineNumber, int columnNumber);
+    }
+
+    public void setOnStackFrameClickListener(OnStackFrameClickListener listener) {
+        mStackFrameClickListener = listener;
+    }
 
     public ConsoleView(Context context) {
         super(context);
@@ -206,6 +234,46 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
         });
     }
 
+    /**
+     * Parse log content and create clickable spans for stack frames
+     */
+    private CharSequence createClickableContent(CharSequence content, int baseColor) {
+        String text = content.toString();
+        SpannableString spannable = new SpannableString(text);
+        
+        Matcher matcher = STACK_FRAME_PATTERN.matcher(text);
+        boolean hasLinks = false;
+        
+        while (matcher.find()) {
+            hasLinks = true;
+            final String fileName = matcher.group(1);
+            final int lineNumber = Integer.parseInt(matcher.group(2));
+            final int columnNumber = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+            
+            final int start = matcher.start();
+            final int end = matcher.end();
+            
+            // Create clickable span
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    if (mStackFrameClickListener != null) {
+                        mStackFrameClickListener.onStackFrameClick(fileName, lineNumber - 1, columnNumber);
+                    }
+                }
+            };
+            
+            // Apply clickable span
+            spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            // Apply blue color
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(LINK_COLOR);
+            spannable.setSpan(colorSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        
+        return hasLinks ? spannable : content;
+    }
+
     private class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView textView;
@@ -213,6 +281,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
         public ViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView;
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
@@ -226,8 +295,12 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             ConsoleImpl.LogEntry logEntry = mLogEntries.get(position);
-            holder.textView.setText(logEntry.content);
-            holder.textView.setTextColor(mColors.get(logEntry.level));
+            int baseColor = mColors.get(logEntry.level);
+            
+            // Create clickable content with stack frame links
+            CharSequence content = createClickableContent(logEntry.content, baseColor);
+            holder.textView.setText(content);
+            holder.textView.setTextColor(baseColor);
         }
 
         @Override
