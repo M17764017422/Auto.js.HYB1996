@@ -12,6 +12,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [common, coolapk, github]
+        include:
+          - flavor: common
+            app_id: org.autojs.autojs
+          - flavor: coolapk
+            app_id: org.autojs.autojs.coolapk
+          - flavor: github
+            app_id: org.autojs.autojs.github
     
     steps:
       - name: Checkout repository
@@ -96,7 +107,7 @@ jobs:
 
       - name: Build Debug APK (for non-tag builds)
         if: "!startsWith(github.ref, 'refs/tags/')"
-        run: ./gradlew assembleCoolapkDebug --info
+        run: ./gradlew assemble${{ matrix.flavor }}Debug --info
 
       - name: Build Release APK (for tag builds)
         if: startsWith(github.ref, 'refs/tags/')
@@ -106,29 +117,29 @@ jobs:
           KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           if [ -f app/release-keystore.jks ]; then
-            echo "Building signed release APK..."
-            ./gradlew assembleCoolapkRelease --info
+            echo "Building signed release APK for ${{ matrix.flavor }}..."
+            ./gradlew assemble${{ matrix.flavor }}Release --info
           else
-            echo "Keystore not found, building unsigned release..."
-            ./gradlew assembleCoolapkRelease --info
+            echo "Keystore not found, building unsigned release for ${{ matrix.flavor }}..."
+            ./gradlew assemble${{ matrix.flavor }}Release --info
           fi
 
       - name: List APK files
         run: find . -name "*.apk" -type f
 
-      - name: Upload Debug APK (coolapk)
+      - name: Upload Debug APK (${{ matrix.flavor }})
         if: "!startsWith(github.ref, 'refs/tags/')"
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk-coolapk
-          path: app/build/outputs/apk/coolapk/debug/*.apk
+          name: debug-apk-${{ matrix.flavor }}
+          path: app/build/outputs/apk/${{ matrix.flavor }}/debug/*.apk
 
-      - name: Upload Release APK (coolapk)
+      - name: Upload Release APK (${{ matrix.flavor }})
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk-coolapk
-          path: app/build/outputs/apk/coolapk/release/*.apk
+          name: release-apk-${{ matrix.flavor }}
+          path: app/build/outputs/apk/${{ matrix.flavor }}/release/*.apk
 
   # Release job - only runs on tags
   release:
@@ -140,11 +151,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-apk-coolapk
           path: artifacts
+          pattern: release-apk-*
+          merge-multiple: false
 
       - name: List downloaded files
         run: find artifacts -name "*.apk" -type f
@@ -170,7 +182,7 @@ jobs:
           WEBDAV_PASSWORD: ${{ secrets.WEBDAV_PASSWORD }}
         run: |
           if [ -n "$WEBDAV_URL" ] && [ -n "$WEBDAV_USER" ] && [ -n "$WEBDAV_PASSWORD" ]; then
-            echo "Uploading APKs to WebDAV..."
+            echo "Uploading all APKs to WebDAV..."
             TAG_NAME=${GITHUB_REF#refs/tags/}
             
             # Create directories step by step
@@ -179,17 +191,19 @@ jobs:
             
             WEBDAV_PATH="${WEBDAV_URL}/Auto.js.HYB1996/${TAG_NAME}"
             
-            # Upload only armeabi-v7a APK (arm version)
-            APK_FILE=$(find artifacts -name "*armeabi-v7a*.apk" -type f | head -1)
-            if [ -n "$APK_FILE" ]; then
+            # Upload all APK files
+            UPLOADED_COUNT=0
+            for APK_FILE in $(find artifacts -name "*.apk" -type f); do
               APK_NAME=$(basename "$APK_FILE")
-              echo "Uploading $APK_NAME (arm only)..."
-              curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"
-              echo "WebDAV upload completed!"
-            else
-              echo "APK file not found"
-              find artifacts -name "*.apk" -type f
-            fi
+              echo "Uploading $APK_NAME..."
+              if curl -T "$APK_FILE" -u "$WEBDAV_USER:$WEBDAV_PASSWORD" "${WEBDAV_PATH}/${APK_NAME}"; then
+                UPLOADED_COUNT=$((UPLOADED_COUNT + 1))
+              else
+                echo "Failed to upload $APK_NAME"
+              fi
+            done
+            
+            echo "WebDAV upload completed! Uploaded ${UPLOADED_COUNT} APK files."
           else
             echo "WebDAV credentials not configured, skipping upload"
           fi
