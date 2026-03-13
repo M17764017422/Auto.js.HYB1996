@@ -59,10 +59,18 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
             .sparseArray();
 
     // Stack frame pattern: file:line or file:line:column
-    // Matches: script.js:15, main.js:10:5, /path/脚本.js:6, etc.
+    // Matches: 
+    // - file:/storage/emulated/0/脚本/error_script.js:6
+    // - /storage/emulated/0/脚本/main_test.js:8
+    // - script.js:15, main.js:10:5
     // Supports Chinese and other Unicode characters in file paths
+    // Pattern explanation:
+    // (?:file:)? - optional 'file:' prefix
+    // (/[\S]+?\.js|[\S]+?\.js) - file path starting with '/' or just filename
+    // :(\d+) - line number
+    // (?::(\d+))? - optional column number
     private static final Pattern STACK_FRAME_PATTERN = Pattern.compile(
-            "([^\\s:]+\\.js):(\\d+)(?::(\\d+))?"
+            "(?:file:)?((?:/[\\S]+?|[^\\s:]+?)\\.js):(\\d+)(?::(\\d+))?"
     );
     
     // Blue color for clickable stack frames

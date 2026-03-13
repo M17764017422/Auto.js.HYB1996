@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.stardust.app.OnActivityResultDelegate;
 import com.stardust.autojs.core.permission.OnRequestPermissionsResultCallback;
@@ -50,6 +51,10 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
 
     private OnActivityResultDelegate.Mediator mMediator = new OnActivityResultDelegate.Mediator();
     private static final String LOG_TAG = "EditActivity";
+    
+    // Extra constants for jumping to specific line
+    public static final String EXTRA_JUMP_LINE = "jump_line";
+    public static final String EXTRA_JUMP_COLUMN = "jump_column";
 
     private ActivityEditBinding binding;
     private EditorView mEditorView;
@@ -102,12 +107,36 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
 
     @SuppressLint("CheckResult")
     private void setUpViews() {
-        mEditorView.handleIntent(getIntent())
+        Intent intent = getIntent();
+        mEditorView.handleIntent(intent)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Observers.emptyConsumer(),
-                        ex -> onLoadFileError(ex.getMessage()));
+                .subscribe(
+                    v -> handleJumpToLine(intent),
+                    ex -> onLoadFileError(ex.getMessage())
+                );
         mEditorMenu = new EditorMenu(mEditorView);
         setUpToolbar();
+    }
+    
+    /**
+     * Handle jumping to specific line if specified in Intent extras
+     */
+    private void handleJumpToLine(Intent intent) {
+        if (intent == null) return;
+        
+        int jumpLine = intent.getIntExtra(EXTRA_JUMP_LINE, -1);
+        int jumpColumn = intent.getIntExtra(EXTRA_JUMP_COLUMN, 0);
+        
+        if (jumpLine >= 0) {
+            // Delay jump to ensure editor is fully loaded
+            mEditorView.postDelayed(() -> {
+                mEditorView.getEditor().jumpTo(jumpLine, jumpColumn);
+            }, 100);
+            
+            // Clear extras to prevent re-jumping on configuration change
+            intent.removeExtra(EXTRA_JUMP_LINE);
+            intent.removeExtra(EXTRA_JUMP_COLUMN);
+        }
     }
     
     /**
@@ -125,12 +154,84 @@ public class EditActivity extends BaseActivity implements OnActivityResultDelega
             
             // Set up stack frame click listener for jumping to source lines
             bottomSheet.setOnStackFrameClickListener((fileName, lineNumber, columnNumber) -> {
-                // Jump to the specified line in the editor
-                mEditorView.getEditor().jumpTo(lineNumber, columnNumber);
+                // Get current file path
+                String currentPath = mEditorView.getUri() != null ? mEditorView.getUri().getPath() : null;
+                
+                // Check if the clicked file matches the current file
+                // fileName could be a full path or just a filename
+                boolean isCurrentFile = false;
+                if (currentPath != null) {
+                    if (fileName.equals(currentPath)) {
+                        isCurrentFile = true;
+                    } else if (currentPath.endsWith(fileName) || currentPath.endsWith("/" + fileName)) {
+                        isCurrentFile = true;
+                    } else {
+                        // Try to resolve relative path
+                        File clickedFile = new File(fileName);
+                        if (!clickedFile.isAbsolute()) {
+                            // Relative path - resolve from current file's directory
+                            File currentDir = new File(currentPath).getParentFile();
+                            if (currentDir != null) {
+                                File resolvedFile = new File(currentDir, fileName);
+                                if (resolvedFile.exists()) {
+                                    fileName = resolvedFile.getAbsolutePath();
+                                    isCurrentFile = resolvedFile.getAbsolutePath().equals(currentPath);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (isCurrentFile) {
+                    // Same file - just jump to line
+                    mEditorView.getEditor().jumpTo(lineNumber, columnNumber);
+                } else {
+                    // Different file - need to open it
+                    File targetFile = new File(fileName);
+                    if (targetFile.exists()) {
+                        // Check if current file has unsaved changes
+                        if (mEditorView.isTextChanged()) {
+                            new ThemeColorMaterialDialogBuilder(this)
+                                .title(R.string.text_alert)
+                                .content(R.string.edit_exit_without_save_warn)
+                                .positiveText(R.string.text_cancel)
+                                .negativeText(R.string.text_save_and_exit)
+                                .neutralText(R.string.text_exit_directly)
+                                .onNegative((dialog, which) -> {
+                                    mEditorView.saveFile();
+                                    openFileAndJump(targetFile.getAbsolutePath(), lineNumber, columnNumber);
+                                })
+                                .onNeutral((dialog, which) -> {
+                                    openFileAndJump(targetFile.getAbsolutePath(), lineNumber, columnNumber);
+                                })
+                                .show();
+                        } else {
+                            openFileAndJump(targetFile.getAbsolutePath(), lineNumber, columnNumber);
+                        }
+                    } else {
+                        // File not found - just show toast
+                        Toast.makeText(this, "文件不存在: " + fileName, Toast.LENGTH_SHORT).show();
+                    }
+                }
             });
             
             bottomSheet.show(getSupportFragmentManager(), "LogBottomSheet");
         });
+    }
+    
+    /**
+     * Open a file and jump to specified line
+     */
+    private void openFileAndJump(String path, int lineNumber, int columnNumber) {
+        // Create new intent with the file path
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra(EXTRA_PATH, path);
+        intent.putExtra(EXTRA_JUMP_LINE, lineNumber);
+        intent.putExtra(EXTRA_JUMP_COLUMN, columnNumber);
+        
+        // Finish current activity and start new one
+        finish();
+        startActivity(intent);
     }
 
     @Nullable
