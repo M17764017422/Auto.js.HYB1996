@@ -53,7 +53,7 @@ public class ConsoleView extends FrameLayout implements ConsoleImpl.LogListener 
             .entry(Log.VERBOSE, 0xdfc0c0c0)
             .entry(Log.DEBUG, 0xdfffffff)
             .entry(Log.INFO, 0xff64dd17)
-            .entry(Log.WARN, 0xff2962ff)
+            .entry(Log.WARN, 0xffFF9800)  // 橙色 (符合业界标准)
             .entry(Log.ERROR, 0xffd50000)
             .entry(Log.ASSERT, 0xffff534e)
             .sparseArray();

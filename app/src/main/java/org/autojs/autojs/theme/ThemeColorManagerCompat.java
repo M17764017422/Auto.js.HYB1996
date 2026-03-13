@@ -39,17 +39,9 @@ public class ThemeColorManagerCompat {
     public static void setNightModeEnabled(boolean enabled) {
         if (enabled) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            ThemeColor currentTheme = ThemeColor.fromPreferences(PreferenceManager.getDefaultSharedPreferences(sContext), null);
-            if (currentTheme != null) {
-                currentTheme.saveIn(sSharedPreferences);
-            }
-            ThemeColorManager.setThemeColor(ContextCompat.getColor(sContext, R.color.theme_color_black));
+            // 保持用户选择的主题色，不再强制切换为黑色主题
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            ThemeColor previousTheme = ThemeColor.fromPreferences(sSharedPreferences, null);
-            if (previousTheme != null) {
-                ThemeColorManager.setThemeColor(previousTheme.colorPrimary);
-            }
         }
     }
 
