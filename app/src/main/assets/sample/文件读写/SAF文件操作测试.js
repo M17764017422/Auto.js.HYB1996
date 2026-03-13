@@ -32,8 +32,13 @@ var testDir = workDir + '/SAF_CROSS_TEST';
  * - 测试完成后会自动清理临时目录
  * - 部分测试需要 Android 11+ 的 SAF 权限
  * 
+ * 
+ * 【新增 API 测试】(v2.0)
+ * 14. MIME类型 - getMimeType
+ * 15. 批量操作 - copyBatch/moveBatch/deleteBatch
+ * 
  * @author Auto.js Community
- * @version 1.0
+ * @version 2.0
  */
 console.show();
 console.log('╔══════════════════════════════════════╗');
@@ -442,6 +447,125 @@ test('11.2 files.getName', files.getName(testDir + '/test.txt'), 'test.txt');
 
 // files.getExtension() 获取扩展名
 test('11.3 files.getExtension', files.getExtension(testDir + '/test.txt'), 'txt');
+
+// ========== 14. MIME类型测试 ==========
+// 测试 getMimeType() 获取文件 MIME 类型
+
+section('14. MIME类型测试');
+
+var mimeTxtFile = testDir + '/mime_test.txt';
+var mimeJsFile = testDir + '/mime_test.js';
+var mimeJsonFile = testDir + '/mime_test.json';
+var mimePngFile = testDir + '/mime_test.png';
+
+// 创建不同类型的测试文件
+files.write(mimeTxtFile, '文本文件');
+files.write(mimeJsFile, '// JavaScript文件');
+files.write(mimeJsonFile, '{"key": "value"}');
+
+// 测试常见文件类型的 MIME 类型
+testOk('14.1 TXT文件MIME类型', function() {
+    var mime = files.getMimeType(mimeTxtFile);
+    // Android 可能返回 text/plain 或其他
+    return mime != null && mime.indexOf('text') >= 0;
+});
+
+testOk('14.2 JS文件MIME类型', function() {
+    var mime = files.getMimeType(mimeJsFile);
+    // 可能是 text/javascript 或 application/javascript
+    return mime != null;
+});
+
+testOk('14.3 JSON文件MIME类型', function() {
+    var mime = files.getMimeType(mimeJsonFile);
+    // 可能是 application/json
+    return mime != null;
+});
+
+// 测试目录的 MIME 类型
+test('14.4 目录MIME类型', files.getMimeType(testDir), null);
+
+// 测试不存在文件的 MIME 类型
+test('14.5 不存在文件MIME类型', files.getMimeType(testDir + '/nonexistent.txt'), null);
+
+// ========== 15. 批量操作测试 ==========
+// 测试 copyBatch/moveBatch/deleteBatch 批量文件操作
+
+section('15. 批量操作测试');
+
+// 准备批量测试文件
+var batchDir = testDir + '/batch_src';
+var batchDirCopy = testDir + '/batch_copy';
+var batchDirMove = testDir + '/batch_move';
+
+files.mkdirs(batchDir);
+files.write(batchDir + '/file1.txt', '文件1');
+files.write(batchDir + '/file2.txt', '文件2');
+files.write(batchDir + '/file3.txt', '文件3');
+
+// 测试批量复制
+testOk('15.1 copyBatch 批量复制', function() {
+    var sources = [
+        batchDir + '/file1.txt',
+        batchDir + '/file2.txt',
+        batchDir + '/file3.txt'
+    ];
+    var results = files.copyBatch(sources, batchDirCopy);
+    return results != null && results.length === 3 && 
+           files.exists(batchDirCopy + '/file1.txt');
+});
+
+test('15.2 批量复制后文件存在', files.exists(batchDirCopy + '/file2.txt'), true);
+
+// 测试批量移动
+testOk('15.3 moveBatch 批量移动', function() {
+    // 先准备移动源
+    files.write(batchDir + '/move1.txt', '移动1');
+    files.write(batchDir + '/move2.txt', '移动2');
+    var sources = [
+        batchDir + '/move1.txt',
+        batchDir + '/move2.txt'
+    ];
+    var results = files.moveBatch(sources, batchDirMove);
+    return results != null && results.length === 2 && 
+           files.exists(batchDirMove + '/move1.txt');
+});
+
+test('15.4 移动后原文件不存在', files.exists(batchDir + '/move1.txt'), false);
+test('15.5 移动后目标文件存在', files.exists(batchDirMove + '/move2.txt'), true);
+
+// 测试批量删除
+testOk('15.6 deleteBatch 批量删除', function() {
+    // 创建待删除文件
+    files.write(batchDirCopy + '/del1.txt', '删除1');
+    files.write(batchDirCopy + '/del2.txt', '删除2');
+    var targets = [
+        batchDirCopy + '/del1.txt',
+        batchDirCopy + '/del2.txt'
+    ];
+    var results = files.deleteBatch(targets);
+    return results != null && results.length === 2 && 
+           !files.exists(batchDirCopy + '/del1.txt');
+});
+
+test('15.7 批量删除后文件不存在', files.exists(batchDirCopy + '/del2.txt'), false);
+
+// 测试空数组
+testOk('15.8 空数组批量操作', function() {
+    var results = files.copyBatch([], testDir + '/empty_batch');
+    return results != null && results.length === 0;
+});
+
+// 测试批量操作的错误处理
+testOk('15.9 批量操作包含不存在的文件', function() {
+    var sources = [
+        batchDir + '/file1.txt',  // 存在
+        batchDir + '/notexist.txt' // 不存在
+    ];
+    var results = files.copyBatch(sources, testDir + '/partial_copy');
+    // 应该部分成功
+    return results != null;
+});
 
 // ========== 12. 删除目录测试 ==========
 

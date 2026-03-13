@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 android {
     namespace 'com.stardust.auojs.inrt'
@@ -61,43 +60,59 @@ android {
     }
 }
 
-def buildApkPluginForAbi(File pluginProjectDir, String abi) {
-    copy {
-        from file('..\\app\\release\\')
-        into new File(pluginProjectDir, 'app\\src\\main\\assets')
-        def fileName = "inrt-" + abi + "-release.apk"
-        include fileName
-        rename fileName, 'template.apk'
-    }
-    exec {
-        workingDir pluginProjectDir
-        commandLine 'gradlew.bat', 'assembleRelease'
-    }
-    copy {
-        from new File(pluginProjectDir, 'app\\build\\outputs\\apk\\release')
-        into file('..\\common\\release')
-        def fileName = '打包插件-' + versions.appVersionName + '-release.apk'
-        include fileName
-        rename fileName, '打包插件-' + abi + '-' + versions.appVersionName + '-release.apk'
-    }
-}
+// Configuration Cache 兼容的任务定义
+// 使用 tasks.register() 延迟注册，将 I/O 操作移到 doLast 中
 
-task buildApkPlugin {
+tasks.register('buildApkPlugin') {
+    group = 'build'
+    description = 'Build APK plugin for all ABIs'
+    
     doLast {
         def pluginProjectDirPath = '..\\..\\AutoJsApkBuilderPlugin'
         def pluginProjectDir = file(pluginProjectDirPath)
+        
         if (!pluginProjectDir.exists() || !pluginProjectDir.isDirectory()) {
             println 'pluginProjectDir not exists'
             return
         }
-        buildApkPluginForAbi(pluginProjectDir, 'armeabi-v7a')
-        buildApkPluginForAbi(pluginProjectDir, 'x86')
+        
+        def appReleaseDir = file('..\\app\\release\\')
+        def outputDir = file('..\\common\\release')
+        def versionName = versions.appVersionName
+        
+        ['armeabi-v7a', 'x86'].each { abi ->
+            println "Building plugin for ${abi}..."
+            
+            // Copy inrt APK to plugin assets
+            copy {
+                from appReleaseDir
+                into new File(pluginProjectDir, 'app\\src\\main\\assets')
+                include "inrt-${abi}-release.apk"
+                rename "inrt-${abi}-release.apk", 'template.apk'
+            }
+            
+            // Build plugin
+            exec {
+                workingDir pluginProjectDir
+                commandLine 'gradlew.bat', 'assembleRelease'
+            }
+            
+            // Copy result
+            copy {
+                from new File(pluginProjectDir, 'app\\build\\outputs\\apk\\release')
+                into outputDir
+                include "打包插件-${versionName}-release.apk"
+                rename "打包插件-${versionName}-release.apk", 
+                       "打包插件-${abi}-${versionName}-release.apk"
+            }
+        }
     }
 }
 
-tasks.whenTaskAdded { task ->
+// 使用 configure 替代 whenTaskAdded，兼容 Configuration Cache
+tasks.configureEach { task ->
     if (task.name == 'assembleRelease') {
-        task.finalizedBy 'buildApkPlugin'
+        task.finalizedBy tasks.named('buildApkPlugin')
     }
 }
 
@@ -110,7 +125,6 @@ dependencies {
     implementation('com.github.bumptech.glide:glide:4.12.0', {
         exclude group: 'com.android.support'
     })
-    kapt 'com.github.bumptech.glide:compiler:4.15.1'
     testImplementation "junit:junit:$junit_version"
     implementation project(':automator')
     implementation project(':common')

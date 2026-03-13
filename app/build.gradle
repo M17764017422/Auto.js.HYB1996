@@ -235,9 +235,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
-    //Glide - KSP version
+    //Glide
     implementation 'com.github.bumptech.glide:glide:4.14.2'
-    ksp 'com.github.bumptech.glide:ksp:4.14.2'
     //joda time
     implementation 'joda-time:joda-time:2.12.5'
     // Tasker Plugin - use compatible version

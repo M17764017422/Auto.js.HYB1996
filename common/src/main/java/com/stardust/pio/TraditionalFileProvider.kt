@@ -123,15 +123,116 @@ class TraditionalFileProvider : IFileProvider {
         val dir = File(resolvedPath)
         val files = dir.listFiles() ?: return result
         files.forEach { file ->
+            val mimeType = guessMimeType(file)
+            val flags = computeFileFlags(file)
             result.add(IFileProvider.FileInfo(
                 file.name,
                 file.absolutePath,
                 file.isDirectory,
                 file.length(),
-                file.lastModified()
+                file.lastModified(),
+                mimeType,
+                flags
             ))
         }
         return result
+    }
+
+    override fun getMimeType(path: String): String? {
+        val resolved = resolvePath(path)
+        val file = File(resolved)
+        if (!file.exists()) return null
+        return guessMimeType(file)
+    }
+
+    /**
+     * 根据 File 属性计算 flags
+     */
+    private fun computeFileFlags(file: File): Int {
+        var flags = 0
+        if (file.canWrite()) {
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_WRITE
+        }
+        // 传统 File API 通常支持删除、重命名、复制、移动（如果有权限）
+        val parent = file.parentFile
+        if (parent != null && parent.canWrite()) {
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_DELETE
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_RENAME
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_MOVE
+        }
+        // 复制只需要读取权限
+        if (file.canRead()) {
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_COPY
+        }
+        // 传统文件系统不是虚拟文档
+        // 缩略图：图片文件支持
+        val mimeType = guessMimeType(file)
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            flags = flags or IFileProvider.FileFlags.SUPPORTS_THUMBNAIL
+        }
+        return flags
+    }
+
+    /**
+     * 猜测 MIME 类型
+     */
+    private fun guessMimeType(file: File): String? {
+        if (file.isDirectory) {
+            return "application/vnd.android.document/directory"
+        }
+        val name = file.name
+        val lastDot = name.lastIndexOf('.')
+        if (lastDot < 0 || lastDot >= name.length - 1) {
+            return "application/octet-stream"
+        }
+        val extension = name.substring(lastDot + 1).lowercase()
+        return when (extension) {
+            // 文本类型
+            "txt" -> "text/plain"
+            "html", "htm" -> "text/html"
+            "css" -> "text/css"
+            "js" -> "application/javascript"
+            "json" -> "application/json"
+            "xml" -> "application/xml"
+            "md" -> "text/markdown"
+            // 图片类型
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            "svg" -> "image/svg+xml"
+            "bmp" -> "image/bmp"
+            // 音频类型
+            "mp3" -> "audio/mpeg"
+            "wav" -> "audio/wav"
+            "ogg" -> "audio/ogg"
+            "m4a" -> "audio/mp4"
+            // 视频类型
+            "mp4" -> "video/mp4"
+            "mkv" -> "video/x-matroska"
+            "webm" -> "video/webm"
+            "avi" -> "video/x-msvideo"
+            // 压缩文件
+            "zip" -> "application/zip"
+            "gz" -> "application/gzip"
+            "rar" -> "application/vnd.rar"
+            "7z" -> "application/x-7z-compressed"
+            // 文档类型
+            "pdf" -> "application/pdf"
+            "doc" -> "application/msword"
+            "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            "xls" -> "application/vnd.ms-excel"
+            "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            "ppt" -> "application/vnd.ms-powerpoint"
+            "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            // Android 特有
+            "apk" -> "application/vnd.android.package-archive"
+            // Java
+            "java" -> "text/x-java-source"
+            "kt" -> "text/x-kotlin"
+            // 其他
+            else -> "application/octet-stream"
+        }
     }
 
     override fun read(path: String, encoding: String): String? {

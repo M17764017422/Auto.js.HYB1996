@@ -168,6 +168,135 @@ interface IFileProvider {
     fun resolvePath(path: String): String
 
     /**
+     * 获取文件 MIME 类型
+     * @param path 文件路径
+     * @return MIME 类型字符串，如 "text/plain"、"image/jpeg" 等；目录返回 "application/vnd.android.document/directory"；未知返回 null
+     */
+    fun getMimeType(path: String): String?
+
+    /**
+     * 批量复制文件
+     * @param operations 操作列表，每个元素是 Pair(fromPath, toPath)
+     * @param stopOnError 遇到错误是否停止
+     * @return 批量操作结果
+     */
+    fun copyBatch(operations: List<Pair<String, String>>, stopOnError: Boolean = false): BatchResult {
+        return performBatchOperation("copy", operations, stopOnError) { from, to -> copy(from, to) }
+    }
+
+    /**
+     * 批量移动文件
+     * @param operations 操作列表，每个元素是 Pair(fromPath, toPath)
+     * @param stopOnError 遇到错误是否停止
+     * @return 批量操作结果
+     */
+    fun moveBatch(operations: List<Pair<String, String>>, stopOnError: Boolean = false): BatchResult {
+        return performBatchOperation("move", operations, stopOnError) { from, to -> move(from, to) }
+    }
+
+    /**
+     * 批量删除文件
+     * @param paths 要删除的文件路径列表
+     * @param stopOnError 遇到错误是否停止
+     * @return 批量操作结果
+     */
+    fun deleteBatch(paths: List<String>, stopOnError: Boolean = false): BatchResult {
+        val results = mutableListOf<BatchResult.OperationResult>()
+        var successCount = 0
+        var failureCount = 0
+        
+        for (path in paths) {
+            val result = try {
+                val success = delete(path)
+                if (success) {
+                    successCount++
+                    BatchResult.OperationResult(path, true, null)
+                } else {
+                    failureCount++
+                    BatchResult.OperationResult(path, false, "Delete failed")
+                }
+            } catch (e: Exception) {
+                failureCount++
+                BatchResult.OperationResult(path, false, e.message)
+            }
+            results.add(result)
+            
+            if (!result.success && stopOnError) {
+                break
+            }
+        }
+        
+        return BatchResult(
+            operationType = "delete",
+            successCount = successCount,
+            failureCount = failureCount,
+            results = results
+        )
+    }
+
+    /**
+     * 执行批量操作的通用方法
+     */
+    private fun performBatchOperation(
+        operationType: String,
+        operations: List<Pair<String, String>>,
+        stopOnError: Boolean,
+        operation: (String, String) -> Boolean
+    ): BatchResult {
+        val results = mutableListOf<BatchResult.OperationResult>()
+        var successCount = 0
+        var failureCount = 0
+        
+        for ((from, to) in operations) {
+            val result = try {
+                val success = operation(from, to)
+                if (success) {
+                    successCount++
+                    BatchResult.OperationResult("$from -> $to", true, null)
+                } else {
+                    failureCount++
+                    BatchResult.OperationResult("$from -> $to", false, "$operationType failed")
+                }
+            } catch (e: Exception) {
+                failureCount++
+                BatchResult.OperationResult("$from -> $to", false, e.message)
+            }
+            results.add(result)
+            
+            if (!result.success && stopOnError) {
+                break
+            }
+        }
+        
+        return BatchResult(
+            operationType = operationType,
+            successCount = successCount,
+            failureCount = failureCount,
+            results = results
+        )
+    }
+
+    /**
+     * 文件标志常量
+     */
+    object FileFlags {
+        /** 支持写入 */
+        const val SUPPORTS_WRITE = 0x1
+        /** 支持删除 */
+        const val SUPPORTS_DELETE = 0x2
+        /** 支持重命名 */
+        const val SUPPORTS_RENAME = 0x4
+        /** 支持复制 */
+        const val SUPPORTS_COPY = 0x8
+        /** 支持移动 */
+        const val SUPPORTS_MOVE = 0x10
+        /** 虚拟文档（如云文件，需要先下载） */
+        const val VIRTUAL_DOCUMENT = 0x20
+        /** 支持缩略图 */
+        const val SUPPORTS_THUMBNAIL = 0x40
+    }
+
+    /**
      * 文件信息类
      */
     data class FileInfo(
@@ -175,10 +304,71 @@ interface IFileProvider {
         val path: String,
         val isDirectory: Boolean,
         val size: Long,
-        val lastModified: Long
+        val lastModified: Long,
+        val mimeType: String? = null,
+        val flags: Int = 0
     ) {
         override fun toString(): String {
-            return "FileInfo{name='$name', path='$path', isDirectory=$isDirectory, size=$size, lastModified=$lastModified}"
+            return "FileInfo{name='$name', path='$path', isDirectory=$isDirectory, size=$size, lastModified=$lastModified, mimeType=$mimeType, flags=$flags}"
+        }
+
+        /** 检查是否支持写入 */
+        fun supportsWrite(): Boolean = (flags and FileFlags.SUPPORTS_WRITE) != 0
+        /** 检查是否支持删除 */
+        fun supportsDelete(): Boolean = (flags and FileFlags.SUPPORTS_DELETE) != 0
+        /** 检查是否支持重命名 */
+        fun supportsRename(): Boolean = (flags and FileFlags.SUPPORTS_RENAME) != 0
+        /** 检查是否支持复制 */
+        fun supportsCopy(): Boolean = (flags and FileFlags.SUPPORTS_COPY) != 0
+        /** 检查是否支持移动 */
+        fun supportsMove(): Boolean = (flags and FileFlags.SUPPORTS_MOVE) != 0
+        /** 检查是否为虚拟文档 */
+        fun isVirtual(): Boolean = (flags and FileFlags.VIRTUAL_DOCUMENT) != 0
+        /** 检查是否支持缩略图 */
+        fun supportsThumbnail(): Boolean = (flags and FileFlags.SUPPORTS_THUMBNAIL) != 0
+    }
+
+    /**
+     * 批量操作结果类
+     */
+    data class BatchResult(
+        /** 操作类型: "copy", "move", "delete" */
+        val operationType: String,
+        /** 成功数量 */
+        val successCount: Int,
+        /** 失败数量 */
+        val failureCount: Int,
+        /** 详细结果列表 */
+        val results: List<OperationResult>
+    ) {
+        /** 总操作数 */
+        val totalCount: Int get() = successCount + failureCount
+        
+        /** 是否全部成功 */
+        val isAllSuccess: Boolean get() = failureCount == 0
+        
+        override fun toString(): String {
+            return "BatchResult{type='$operationType', success=$successCount, failure=$failureCount, total=$totalCount}"
+        }
+
+        /**
+         * 单个操作结果
+         */
+        data class OperationResult(
+            /** 操作目标（路径或 from->to） */
+            val target: String,
+            /** 是否成功 */
+            val success: Boolean,
+            /** 错误信息（失败时） */
+            val error: String?
+        ) {
+            override fun toString(): String {
+                return if (success) {
+                    "OperationResult{target='$target', success=true}"
+                } else {
+                    "OperationResult{target='$target', success=false, error='$error'}"
+                }
+            }
         }
     }
 }
